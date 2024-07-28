@@ -1,0 +1,183 @@
+openapi: 3.0.0
+info:
+  title: Tado
+  description: Community managed API specification for Tado
+  version: 2.0.2024.07.28.1
+servers:
+  - url: https://my.tado.com/api/v2/
+    description: TODO
+security:
+  - oauth2: [] # no scopes
+
+paths:
+  /me:
+    get:
+      summary: Returns information about the authenticated user, their home(s) and mobile devices.
+      #      description: Optional extended description in CommonMark or HTML.
+      responses:
+        '200':    # status code
+          description: A JSON array of user names
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+  /homes/{homeId}:
+    get:
+      summary: Get full details of a home by ID
+      parameters:
+        - in: path
+          name: homeId
+          schema:
+            type: integer
+          required: true
+          description: Numeric ID of a home
+      responses:
+        '200':    # status code
+          description: A JSON array of homes
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArrayOfHomes'
+
+components:
+  securitySchemes:
+    oauth2:
+      type: oauth2
+      flows:
+        password:
+          tokenUrl: https://auth.tado.com/oauth/token
+          scopes: {}
+
+  schemas:
+    User:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        username:
+          type: string
+        locale:
+          type: string
+        homes:
+          type: array
+          items:
+            $ref: '#/components/schemas/HomeBase'
+        mobileDevices:
+          type: array
+          items:
+            $ref: '#/components/schemas/MobileDevice'
+    HomeBase:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+    Home:
+      allOf:
+        - $ref: '#/components/schemas/HomeBase'
+        - type: object
+          properties:
+            dateTimeZone:
+              type: string
+              example: "Europe/London"
+            temperatureUnit:
+              type: string
+              example: "CELSIUS"
+            installationCompleted:
+              type: boolean
+              example: true
+            partner:
+              type: string
+              example: ??
+            simpleSmartScheduleEnabled:
+              type: boolean
+              example: true
+            contactDetails:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: "Stephen C Phillips"
+                email:
+                  type: string
+                  example: "john@example.com"
+                phone:
+                  type: string
+                  example: "+4412345678901"
+            address:
+              type: object
+              properties:
+                addressLine1:
+                  type: string
+                  example: "todo"
+                addressLine2:
+                  type: string
+                  example: "todo"
+                zipCode:
+                  type: string
+                  example: "todo"
+                city:
+                  type: string
+                  example: "Southampton"
+                state:
+                  type: string
+                  example: null
+                country:
+                  type: string
+                  example: "GBR"
+            geolocation:
+              type: object
+              properties:
+                latitude:
+                  type: number
+                  format: double
+                  example: 50.1234567
+                longitude:
+                  type: number
+                  format: double
+                  example: -1.1234567
+    ArrayOfHomes:
+      type: array
+      items:
+        $ref: '#/components/schemas/Home'
+    MobileDevice:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        #        settings:
+        #          type: TODO
+        location:
+          type: object
+          properties:
+            stale:
+              type: boolean
+            atHome:
+              type: boolean
+            bearingFromHome:
+              type: object
+              properties:
+                degrees:
+                  type: number
+                  format: double
+                radians:
+                  type: number
+                  format: double
+            relativeDistanceFromHomeFence:
+              type: number
+        deviceMetadata:
+          type: object
+          properties:
+            platform:
+              type: string
+            osVersion:
+              type: string
+            model:
+              type: string
+            locale:
+              type: string
