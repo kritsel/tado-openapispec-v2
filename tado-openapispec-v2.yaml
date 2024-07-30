@@ -2,7 +2,7 @@ openapi: 3.0.0
 info:
   title: Tado
   description: Community managed API specification for the tado smart thermostat
-  version: 2.2024.07.30.1
+  version: 2.2024.07.31.0
 servers:
   - url: https://my.tado.com/api/v2/
     description: TODO
@@ -41,7 +41,7 @@ paths:
                 $ref: '#/components/schemas/Home'
   /homes/{homeId}/devices:
     get:
-      summary: Get all tado devices associated with the provided homeId (the device information included in the response for /homes/{homeId}/zones and /homes/{homeId}/zones/{zoneId} are slightly more extensive)
+      summary: Get all tado devices associated with the provided homeId. The device information included in the response for /homes/{homeId}/zones and /homes/{homeId}/zones/{zoneId} includes `duties` as well, the response for this path does not. The response for this path does include a IB01 device type (Internet Bridge), while the responses for the zone related paths do not.)
       operationId: getDevices
       parameters:
         - in: path
@@ -77,7 +77,7 @@ paths:
                 $ref: '#/components/schemas/ArrayOfMobileDevices'
   /homes/{homeId}/zones:
     get:
-      summary: Get all zones associated with the provided homeId. Includes full information of the tado devices present in each zone.
+      summary: Get all zones associated with the provided homeId. Includes full information of the tado devices present in each zone. The response does not include the IB01 (Internet Bridge) device type; while the response for /homes/{homeId}/devices does.
       operationId: getZones
       parameters:
         - in: path
@@ -95,7 +95,7 @@ paths:
                 $ref: '#/components/schemas/ArrayOfZones'
   /homes/{homeId}/zones/{zoneId}:
     get:
-      summary: Get a specific zone within a specific home. Includes full information of the tado devices present in the zone.
+      summary: Get a specific zone within a specific home. Includes full information of the tado devices present in the zone. The response does not include the IB01 (Internet Bridge) device type; while the response for /homes/{homeId}/devices does.
       operationId: getZone
       parameters:
         - in: path
@@ -156,6 +156,7 @@ components:
       items:
         $ref: '#/components/schemas/Zone'
     Device:
+      description: Some of the properties are only available for certain device types. Certain values for some properties are only applicable to certain device types. Wherever device type specific information is known, it is documented. But you cannot count on this information being fully complete.
       allOf:
         - $ref: '#/components/schemas/DeviceBase'
       properties:
@@ -164,9 +165,10 @@ components:
           items:
             type: string
             example: ZONE_UI
-            description: "known values: ZONE_UI (seen for DeviceType SU02, VA02), ZONE_LEADER (seen for DeviceType SU02, VA02), ZONE_DRIVER (seen for DeviceType VA02); most probably an enum in the actual API"
+            description: "known values: ZONE_UI (seen for DeviceType SU02, VA02), ZONE_LEADER (seen for DeviceType SU02, VA02), ZONE_DRIVER (seen for DeviceType VA02)"
     DeviceBase:
       type: object
+      description: Some of the properties are only available for certain device types. Certain values for some properties are only applicable to certain device types. Wherever device type specific information is known, it is documented. But you cannot count on this information being fully complete.
       properties:
         deviceType:
           $ref: '#/components/schemas/DeviceType'
@@ -199,7 +201,7 @@ components:
               items:
                 type: string
                 example: INSIDE_TEMPERATURE_MEASUREMENT
-                description: "known values: INSIDE_TEMPERATURE_MEASUREMENT, IDENTIFY; most probably an enum in the actual API"
+                description: "known values: INSIDE_TEMPERATURE_MEASUREMENT (seen for DeviceType SU02, VA02), IDENTIFY (seen for DeviceType SU02, VA02), RADIO_ENCRYPTION_KEY_ACCESS (seen for DeviceType IB01); most probably an enum in the actual API"
         mountingState:
           type: object
           description: property known to be present for DeviceType VA02
@@ -215,11 +217,11 @@ components:
         mountingStateWithError:
           type: string
           example: CALIBRATED
-          description: "property known to be present for DeviceType VA02; known values: CALIBRATED; most probably an enum in the actual API"
+          description: "property known to be present for DeviceType VA02; known values: CALIBRATED"
         batteryState:
           type: string
-          example:
-          description: "property known to be present for DeviceType SU02, VA02"
+          example: NORMAL
+          description: "property known to be present for DeviceType SU02, VA02; known values: NORMAL"
         orientation:
           type: string
           example: HORIZONTAL
@@ -232,9 +234,13 @@ components:
           type: boolean
           example: true
           description: "property known to be present for DeviceType BR02"
+        inPairingMode:
+          type: boolean
+          example: false
+          description: "property known to be present for DeviceType IB01"
     DeviceType:
       type: string
-      description: "known values: SU02 (Wireless Smart Thermostat V3+), VA02 (Smart Radiator Thermostat V3+), BR02; most probably an enum in the actual API"
+      description: "known values: BR02 (Wireless Receiver), IB01 (Internet Bridge), SU02 (Wireless Smart Thermostat V3+), VA02 (Smart Radiator Thermostat V3+)"
     Home:
       allOf:
         - $ref: '#/components/schemas/HomeBase'
@@ -274,7 +280,7 @@ components:
         generation:
           type: string
           example: PRE_LINE_X
-          description: "most likely an enum in the API; currently known values: PRE_LINE_X"
+          description: "known values: PRE_LINE_X"
         zonesCount:
           type: integer
           example: 5
@@ -347,7 +353,7 @@ components:
           type: array
           items:
             type: string
-            description: "currently known values: AA_SETTINGS_AS_WEBVIEW, AA_UPSELLING_A, CLIMATE_REPORT_AS_WEBVIEW, EIQ_SETTINGS_AS_WEBVIEW, HIDE_BOILER_REPAIR_SERVICE, OWD_SETTINGS_AS_WEBVIEW, SMART_SCHEDULE_AS_WEBVIEW"
+            description: "known values: AA_SETTINGS_AS_WEBVIEW, AA_UPSELLING_A, CLIMATE_REPORT_AS_WEBVIEW, EIQ_SETTINGS_AS_WEBVIEW, HIDE_BOILER_REPAIR_SERVICE, OWD_SETTINGS_AS_WEBVIEW, SMART_SCHEDULE_AS_WEBVIEW"
         isAirComfortEligible:
           type: boolean
           example: true
@@ -452,7 +458,7 @@ components:
           example: my living room
         type:
           type: string
-          description: "known values: HEATING, HOT_WATER; most probably an enum in the actual API"
+          description: "known values: HEATING, HOT_WATER"
           example: HEATING
         dateCreated:
           type: string
