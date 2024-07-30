@@ -20,6 +20,9 @@ The version format is `v2.<year>.<month>.<day>.<daily releasenumber>`.
 The releasenumber is basically always `0`, unless we are in the unlikely
 scenario where there would be multiple releases on the same day.
 
+## Swagger UI
+Visit https://kritsel.github.io/tado-openapispec-v2/ to try out the
+API via Swagger UI with your own credentials.
 
 # About tado
 Tado is a german based company which offers a smart thermostat solution
