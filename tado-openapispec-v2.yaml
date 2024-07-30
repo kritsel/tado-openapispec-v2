@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: Tado
-  description: Community managed API specification for the tado smart thermostat
+  description: Community managed API specification for the tado smart thermostat solution (not officially supported or published by tado).
   version: 2.2024.07.31.0
 servers:
   - url: https://my.tado.com/api/v2/
