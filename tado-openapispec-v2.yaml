@@ -298,6 +298,7 @@ components:
 
     DeviceType:
       type: string
+      example: VA02
       description: "known values: BR02 (Wireless Receiver), IB01 (Internet Bridge), SU02 (Wireless Smart Thermostat V3+), VA02 (Smart Radiator Thermostat V3+)"
 
     Home:
