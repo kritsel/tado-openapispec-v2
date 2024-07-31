@@ -21,13 +21,11 @@ The daily releasenumber is basically always `0`, unless we are releasing
 multiple versions on the same day.
 
 ## Swagger UI
-Visit https://kritsel.github.io/tado-openapispec-v2/ to try out the
-API via Swagger UI.
+Visit https://kritsel.github.io/tado-openapispec-v2/ to see a visual representation
+of the API in a Swagger UI.
 
-If you want to make calls to the API using the Swagger UI,
-the first thing you need to do is hit the 'Authorize' button at the top. 
-Please refer to the **oauth2** section below to learn about the information
-needed to successfully authorize.
+Unfortunately you cannot execute API requests via the Swagger UI, 
+due to cross-site scripting protection.
 
 # About tado
 Tado is a german based company which offers a smart thermostat solution
