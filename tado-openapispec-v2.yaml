@@ -42,7 +42,15 @@ paths:
                 $ref: '#/components/schemas/Home'
   /homes/{homeId}/devices:
     get:
-      summary: Get all tado devices associated with the provided homeId. The device information included in the response for /homes/{homeId}/zones and /homes/{homeId}/zones/{zoneId} includes `duties` as well, the response for this path does not. The response for this path does include a IB01 device type (Internet Bridge), while the responses for the zone related paths do not.)
+      summary: Get all tado devices associated with the provided homeId.
+      # the double blank lines int the description are intentional, to force a new line in the rendered text on Swagger UI
+      description: >
+        The device information included in the response for `/homes/{homeId}/zones` and `/homes/{homeId}/zones/{zoneId}`
+        includes the `duties` property, while the response for this path does not. 
+        
+        
+        The response for this path does include devices of DeviceType `IB01` (Internet Bridge), 
+        while the responses for the zone related paths do not.
       operationId: getDevices
       parameters:
         - in: path
@@ -100,7 +108,11 @@ paths:
                 $ref: '#/components/schemas/HomeState'
   /homes/{homeId}/zones:
     get:
-      summary: Get all zones associated with the provided homeId. Includes full information of the tado devices present in each zone. The response does not include the IB01 (Internet Bridge) device type; while the response for /homes/{homeId}/devices does.
+      summary: Get all zones associated with the provided homeId.
+      description: >
+        Includes full information of the tado devices present in each zone. 
+        The response does not include any device of DeviceType `IB01` (Internet Bridge);
+        use `/homes/{homeId}/devices` instead.
       operationId: getZones
       parameters:
         - in: path
@@ -120,8 +132,11 @@ paths:
                   $ref: '#/components/schemas/Zone'
   /homes/{homeId}/zones/{zoneId}:
     get:
-      summary: Get a specific zone within a specific home. Includes full information of the tado devices present in the zone. The response does not include the IB01 (Internet Bridge) device type; while the response for /homes/{homeId}/devices does.
-      operationId: getZone
+      summary: Get a specific zone within a specific home.
+      description: >
+        Includes full information of the tado devices present in the specified zone. 
+        The response does not include any device of DeviceType `IB01` (Internet Bridge);
+        use `/homes/{homeId}/devices` instead.      operationId: getZone
       parameters:
         - in: path
           name: homeId
@@ -189,7 +204,11 @@ components:
 
   schemas:
     Device:
-      description: Some of the properties are only available for certain device types. Certain values for some properties are only applicable to certain device types. Wherever device type specific information is known, it is documented. But you cannot count on this information being fully complete.
+      description: >
+        Some of the properties are only available for certain device types. 
+        Certain values for some properties are only applicable to certain device types. 
+        Wherever device type specific information is known, it is documented. 
+        But you cannot count on this information being fully complete.
       allOf:
         - $ref: '#/components/schemas/DeviceBase'
       properties:
@@ -202,7 +221,11 @@ components:
 
     DeviceBase:
       type: object
-      description: Some of the properties are only available for certain device types. Certain values for some properties are only applicable to certain device types. Wherever device type specific information is known, it is documented. But you cannot count on this information being fully complete.
+      description: >
+        Some of the properties are only available for certain device types. 
+        Certain values for some properties are only applicable to certain device types. 
+        Wherever device type specific information is known, it is documented. 
+        But you cannot count on this information being fully complete.
       properties:
         deviceType:
           $ref: '#/components/schemas/DeviceType'
@@ -332,13 +355,15 @@ components:
         christmasModeEnabled:
           type: boolean
           example: true
-          description: no idea what this means, but would be really interested to know more...
+          description: no idea what this means, but would be really interesting to know more...
         showAutoAssistReminders:
           type: boolean
           example: true
         contactDetails:
           type: object
-          description: the primary contact for this home, also appears to be the only one to receive any email notifications (like 'low battery' or 'open window' warnings)
+          description: >
+            the primary contact for this home; 
+            also appears to be the only one to receive any email notifications (like 'low battery' or 'open window' warnings)
           properties:
             name:
               type: string
@@ -609,7 +634,7 @@ components:
               type: string
               example: MANUAL
               description: "known values: MANUAL"
-            setting":
+            setting:
               type: object
               properties:
                 type:
