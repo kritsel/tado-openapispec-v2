@@ -19,7 +19,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ArrayOfHomes'
+                type: array
+                items:
+                  $ref: '#/components/schemas/Home'
   /homes/{homeId}:
     get:
       summary: Get full details of a home by ID
@@ -55,7 +57,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ArrayOfDeviceBases'
+                type: array
+                items:
+                  $ref: '#/components/schemas/DeviceBase'
   /homes/{homeId}/mobileDevices:
     get:
       summary: Get all mobile devices associated with the provided homeId
@@ -73,7 +77,27 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ArrayOfMobileDevices'
+                type: array
+                items:
+                  $ref: '#/components/schemas/MobileDevice'
+  /homes/{homeId}/state:
+    get:
+      summary: Get the state of a home
+      operationId: getHomeState
+      parameters:
+        - in: path
+          name: homeId
+          schema:
+            type: string
+          required: true
+          description: ID of a home (unique within a home)
+      responses:
+        '200':
+          description: successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HomeState'
   /homes/{homeId}/zones:
     get:
       summary: Get all zones associated with the provided homeId. Includes full information of the tado devices present in each zone. The response does not include the IB01 (Internet Bridge) device type; while the response for /homes/{homeId}/devices does.
@@ -91,7 +115,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ArrayOfZones'
+                type: array
+                items:
+                  $ref: '#/components/schemas/Zone'
   /homes/{homeId}/zones/{zoneId}:
     get:
       summary: Get a specific zone within a specific home. Includes full information of the tado devices present in the zone. The response does not include the IB01 (Internet Bridge) device type; while the response for /homes/{homeId}/devices does.
@@ -116,6 +142,30 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Zone'
+  /homes/{homeId}/zones/{zoneId}/state:
+    get:
+      summary: Get the state of a zone. This includes current temperature, humidity and heating power information.
+      operationId: getZoneSate
+      parameters:
+        - in: path
+          name: homeId
+          schema:
+            type: string
+          required: true
+          description: unique ID of a home
+        - in: path
+          name: zoneId
+          schema:
+            type: string
+          required: true
+          description: ID of a zone (unique within a home)
+      responses:
+        '200':
+          description: successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ZoneState'
   /me:
     get:
       summary: Returns information about the authenticated user, (summary) information of their home(s) and mobile devices.
@@ -138,22 +188,6 @@ components:
           scopes: {}
 
   schemas:
-    ArrayOfDeviceBases:
-      type: array
-      items:
-        $ref: '#/components/schemas/DeviceBase'
-    ArrayOfHomes:
-      type: array
-      items:
-        $ref: '#/components/schemas/Home'
-    ArrayOfMobileDevices:
-      type: array
-      items:
-        $ref: '#/components/schemas/MobileDevice'
-    ArrayOfZones:
-      type: array
-      items:
-        $ref: '#/components/schemas/Zone'
     Device:
       description: Some of the properties are only available for certain device types. Certain values for some properties are only applicable to certain device types. Wherever device type specific information is known, it is documented. But you cannot count on this information being fully complete.
       allOf:
@@ -165,6 +199,7 @@ components:
             type: string
             example: ZONE_UI
             description: "known values: ZONE_UI (seen for DeviceType SU02, VA02), ZONE_LEADER (seen for DeviceType SU02, VA02), ZONE_DRIVER (seen for DeviceType VA02)"
+
     DeviceBase:
       type: object
       description: Some of the properties are only available for certain device types. Certain values for some properties are only applicable to certain device types. Wherever device type specific information is known, it is documented. But you cannot count on this information being fully complete.
@@ -190,7 +225,7 @@ components:
             timestamp:
               type: string
               format: date-time
-              example: 2022-11-25T09:40:14.803Z
+              example: "2022-11-25T09:40:14.803Z"
         characteristics:
           type: object
           properties:
@@ -200,7 +235,7 @@ components:
               items:
                 type: string
                 example: INSIDE_TEMPERATURE_MEASUREMENT
-                description: "known values: INSIDE_TEMPERATURE_MEASUREMENT (seen for DeviceType SU02, VA02), IDENTIFY (seen for DeviceType SU02, VA02), RADIO_ENCRYPTION_KEY_ACCESS (seen for DeviceType IB01); most probably an enum in the actual API"
+                description: "known values: INSIDE_TEMPERATURE_MEASUREMENT (seen for DeviceType SU02, VA02), IDENTIFY (seen for DeviceType SU02, VA02), RADIO_ENCRYPTION_KEY_ACCESS (seen for DeviceType IB01)"
         mountingState:
           type: object
           description: property known to be present for DeviceType VA02
@@ -212,7 +247,7 @@ components:
             timestamp:
               type: string
               format: date-time
-              example: 2022-11-25T09:40:14.803Z
+              example: "2022-11-25T09:40:14.803Z"
         mountingStateWithError:
           type: string
           example: CALIBRATED
@@ -237,9 +272,11 @@ components:
           type: boolean
           example: false
           description: "property known to be present for DeviceType IB01"
+
     DeviceType:
       type: string
       description: "known values: BR02 (Wireless Receiver), IB01 (Internet Bridge), SU02 (Wireless Smart Thermostat V3+), VA02 (Smart Radiator Thermostat V3+)"
+
     Home:
       allOf:
         - $ref: '#/components/schemas/HomeBase'
@@ -250,14 +287,14 @@ components:
         dateCreated:
           type: string
           format: date-time
-          example: 2022-11-25T09:40:14.803Z
+          example: "2022-11-25T09:40:14.803Z"
         temperatureUnit:
           type: string
           enum: [CELSIUS, FAHRENHEIT]
           example: CELSIUS
         partner:
-          type: string
-          description: meaning is unknown
+#          type: ???
+          nullable: true
         simpleSmartScheduleEnabled:
           type: boolean
           example: true
@@ -321,6 +358,7 @@ components:
               example: "Kerkstraat 1"
             addressLine2:
               type: string
+              nullable: true
             zipCode:
               type: string
               example: "1234AA"
@@ -329,6 +367,7 @@ components:
               example: "Utrecht"
             state:
               type: string
+              nullable: true
             country:
               type: string
               description: most probably an ISO 3166-1 alpha-3 country code
@@ -368,6 +407,7 @@ components:
         isBalanceHpEligible:
           type: boolean
           example: false
+
     HomeBase:
       type: object
       properties:
@@ -379,6 +419,18 @@ components:
           type: string
           description: user assigned name for this home
           example: my home
+
+    HomeState:
+      type: object
+      properties:
+        presence:
+          type: string
+          example: HOME
+          description: "known values: HOME"
+        presenceLocked:
+          type: boolean
+          example: true
+
     MobileDevice:
       type: object
       properties:
@@ -416,6 +468,7 @@ components:
             locale:
               type: string
               example: nl
+
     User:
       type: object
       properties:
@@ -443,6 +496,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/MobileDevice'
+
     Zone:
       type: object
       description: a heating (or cooling) zone in a home
@@ -462,7 +516,7 @@ components:
         dateCreated:
           type: string
           format: date-time
-          example: 2022-11-25T09:40:14.803Z
+          example: "2022-11-25T09:40:14.803Z"
         deviceTypes:
           type: array
           items:
@@ -504,3 +558,203 @@ components:
             timeoutInSeconds:
               type: integer
               example: 900
+
+    ZoneState:
+      type: object
+      properties:
+        tadoMode:
+          type: string
+          example: HOME
+          description: "known values: HOME"
+        geolocationOverride:
+          type: boolean
+          example: true
+        geolocationOverrideDisableTime:
+#          type: ???
+          nullable: true
+        preparation:
+#          type: ???
+          nullable: true
+        setting:
+          type: object
+          properties:
+            type:
+              type: string
+              example: HEATING
+              description: "known values: HEATING, HOT_WATER"
+            power:
+              type: string
+              example: ON
+              description: "known values: ON, OFF"
+            temperature:
+              type: object
+              nullable: true
+              properties:
+                celsius:
+                  type: number
+                  example: 15
+                fahrenheit:
+                  type: number
+                  example: 59
+        overlayType:
+          type: string
+          example: MANUAL
+          description: "known values: MANUAL"
+          nullable: true
+        overlay:
+          type: object
+          nullable: true
+          properties:
+            type:
+              type: string
+              example: MANUAL
+              description: "known values: MANUAL"
+            setting":
+              type: object
+              properties:
+                type:
+                  type: string
+                  example: HEATING
+                  description: "known values: HEATING, HOT_WATER"
+                power:
+                  type: string
+                  example: ON
+                  description: "known values: ON"
+                temperature:
+                  type: object
+                  nullable: true
+                  properties:
+                    celsius:
+                      type: number
+                      example: 15
+                    fahrenheit:
+                      type: number
+                      example: 59
+            termination:
+              type: object
+              properties:
+                type:
+                  type: string
+                  example: TADO_MODE
+                  description: "known values: TADO_MODE"
+                typeSkillBasedApp:
+                  type: string
+                  example: TADO_MODE
+                  description: "known values: TADO_MODE"
+                projectedExpiry:
+#                  type: ???
+                  nullable: true
+            openWindow:
+#                type: ???
+              nullable: true
+            nextScheduleChange:
+              type: object
+              nullable: true
+              properties:
+                start:
+                  type: string
+                  format: date-time
+                setting":
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      example: HEATING
+                      description: "known values: HEATING, HOT_WATER"
+                    power:
+                      type: string
+                      example: ON
+                      description: "known values: ON"
+                    temperature:
+                      type: object
+                      nullable: true
+                      properties:
+                        celsius:
+                          type: number
+                          example: 15
+                        fahrenheit:
+                          type: number
+                          example: 59
+        nextTimeBlock:
+          type: object
+          properties:
+            start:
+              type: string
+              format: date-time
+              example: "2024-07-31T20:00:00.000Z"
+        link:
+          type: object
+          properties:
+            state:
+              type: string
+              example: ONLINE
+              description: "known values: ONLINE"
+        runningOfflineSchedule:
+          type: boolean
+          example: false
+        activityDataPoints:
+          type: object
+          description: empty for a HOT_WATER zone
+          properties:
+            heatingPower:
+              type: object
+              properties:
+                type:
+                  type: string
+                  example: PERCENTAGE
+                  description: "known values: PERCENTAGE"
+                percentage:
+                  type: number
+                  example: 0
+                timestamp:
+                  type: string
+                  format: date-time
+                  example: "2024-07-30T21:53:40.294Z"
+        sensorDataPoints:
+          type: object
+          description: empty for a HOT_WATER zone
+          properties:
+            insideTemperature:
+              type: object
+              properties:
+                celsius:
+                  type: number
+                  format: float
+                  example: 27.97
+                fahrenheit:
+                  type: number
+                  format: float
+                  example: 82.35
+                timestamp:
+                  type: string
+                  format: date-time
+                  example: "2024-07-30T21:51:41.178Z"
+                type:
+                  type: string
+                  example: "TEMPERATURE"
+                  description: "known values: TEMPERATURE"
+                precision:
+                  type: object
+                  properties:
+                    celsius:
+                      type: number
+                      format: float
+                      example: 0.1
+                    fahrenheit:
+                      type: number
+                      format: float
+                      example: 0.1
+            humidity:
+              type: object
+              properties:
+                type:
+                  type: string
+                  example: PERCENTAGE
+                  description: "known values: PERCENTAGE"
+                percentage:
+                  type: number
+                  example: 51
+                timestamp:
+                  type: string
+                  format: date-time
+                  example: "2024-07-30T21:51:41.178Z"
