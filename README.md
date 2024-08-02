@@ -7,7 +7,7 @@ https://www.tado.com/
 tado&ordm; is a german based company which offers a smart thermostat solution
 to control heating and air-conditioning in your home.
 
-tado&ordm; () sells hardware and subscription based add-on services.
+tado&ordm; sells hardware and subscription based add-on services.
 These can be controlled via a mobile app or an on-line app on their website.
 
 ## tado API
