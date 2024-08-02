@@ -1,35 +1,39 @@
-# About tado, the API and this OpenAPI specification
+# About tado&ordm;, the tado API and this OpenAPI specification
 
-## Tado
-Tado is a german based company which offers a smart thermostat solution
+## tado&ordm;
+
+https://www.tado.com/
+
+tado&ordm; is a german based company which offers a smart thermostat solution
 to control heating and air-conditioning in your home.
 
-Tado (https://www.tado.com/) sells hardware and subscription based add-on services.
+tado&ordm; () sells hardware and subscription based add-on services.
 These can be controlled via a mobile app or an on-line app on their website.
 
-## Tado API
-The tado website and mobile apps use the tado API which is available at
+## tado API
+The tado&ordm; website and mobile apps use the tado API which is available at
 https://my.tado.com/api/v2.
 
-Tado allows third-party developers to use their API as well, 
+tado&ordm; allows third-party developers to use their API as well, 
 but they do not provide any kind of support or documentation. 
 
-# The tado OpenAPI specification
+## tado OpenAPI specification
 
-This repository contains a community developed OpenAPI specification for the
+This repository contains a community managed OpenAPI specification for the
 **tado API v2**.
-It is based on the experiences of software developers who are experimenting
+It is based on the experience of software developers who are experimenting
 with the API to create their own solutions. 
 
-This API specification is not maintained or officially published by the tado company.
+This API specification is not maintained or officially published by the tado&ordm; company.
 The contents of this API specification is a best-effort product.
 There are no guarantees that this API specification is a complete and 
 correct representation of the actual API as provided by tado.
 
 ## Versioning
 As this is a community managed OpenAPI specification for an API which is 
-actually controlled by another company, the specification grows gradually 
-based on the discoveries made by software developers using the API. 
+actually controlled by another company (being tado&ordm;),
+the specification grows gradually based on the discoveries made by 
+software developers using the API. 
 
 The changes and releases of this *specification* do not represent the changes 
 in the API itself. 
@@ -52,22 +56,25 @@ due to cross-site scripting protection:
 the Swagger UI is basically a javascript application hosted by github.io,
 and it is not allowed to make calls to the tado.com host.
 
-## Link to the specification yaml file
-If you need a direct link to the specification yaml file 
-e.g. as input for a client code generator you can use 
+## Link to the specification .yaml file
+If you need a direct link to the specification .yaml file 
+e.g. as input for a client code generator you can use the following URL:
+(replace `<version tag>` with the proper version)
+
 `https://raw.githubusercontent.com/kritsel/tado-openapispec-v2/<version tag>/tado-openapispec-v2.yaml`
 
 E.g. https://raw.githubusercontent.com/kritsel/tado-openapispec-v2/v2.2024.08.01.3/tado-openapispec-v2.yaml
 
 # OAuth 2.0 authentication
-The only authentication mechanism supported for the tado API is OAuth 2.0.
+The only authentication mechanism supported by the tado API is OAuth 2.0.
 
-Tado only supports OAuth 2.0 authentication via their own authentication server;
+tado&ordm; only supports OAuth 2.0 authentication via their own authentication server;
 the API does not support third party authentication methods.
 
 There are several pieces of information you need to authenticate via OAuth 2.0:
 * **client id**: `public-api-preview` (as mentioned in [1])
-* **client secret**: `4HJGRffVR8xb3XdEUQpjgZ1VplJi6Xgw` (a publicly shared 'secret' as mentioned in [1])
+* **client secret**: `4HJGRffVR8xb3XdEUQpjgZ1VplJi6Xgw` 
+(a publicly shared 'secret' as mentioned in [1])
 * **authorization grant type**: password
 * **token URI**: https://auth.tado.com/oauth/token
 * **username**: the username of your tado account
