@@ -56,15 +56,6 @@ due to cross-site scripting protection:
 the Swagger UI is basically a javascript application hosted by github.io,
 and it is not allowed to make calls to the tado.com host.
 
-## Link to the specification .yaml file
-If you need a direct link to the specification .yaml file 
-e.g. as input for a client code generator you can use the following URL:
-(replace `<version tag>` with the proper version)
-
-`https://raw.githubusercontent.com/kritsel/tado-openapispec-v2/<version tag>/tado-openapispec-v2.yaml`
-
-E.g. https://raw.githubusercontent.com/kritsel/tado-openapispec-v2/v2.2024.08.01.3/tado-openapispec-v2.yaml
-
 # OAuth 2.0 authentication
 The only authentication mechanism supported by the tado API is OAuth 2.0.
 
@@ -100,6 +91,24 @@ Article [2] mentions that you can visit https://my.tado.com/webapp/env.js to
 obtain a valid `client_id` and `client_secret`. 
 The approach described on that page will work, but it will not allow tado to 
 distinguish the traffic from their own apps from other traffic.
+
+# Using the OpenAPI specification
+
+## Link to the specification .yaml file
+If you need a direct link to the specification .yaml file
+e.g. as input for a client code generator you can use the following URL:
+(replace `<version tag>` with the proper version)
+
+`https://raw.githubusercontent.com/kritsel/tado-openapispec-v2/<version tag>/tado-openapispec-v2.yaml`
+
+E.g. https://raw.githubusercontent.com/kritsel/tado-openapispec-v2/v2.2024.08.01.3/tado-openapispec-v2.yaml
+
+## Example applications
+
+Kotlin demo application which uses a client code generator which uses this OpenAPI 
+specification as input:
+
+https://github.com/kritsel/tado-api-demo-kotlin
 
 # Gratitudes
 Without the groundwork done by Stephen C. Phillips (https://blog.scphillips.com/posts/2017/01/the-tado-api-v2/)
