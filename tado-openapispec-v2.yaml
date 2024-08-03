@@ -1,11 +1,12 @@
 openapi: 3.0.0
 info:
-  title: tado&ordm;
+  title: tado API v2
   description: |
     Community managed API specification for the tado smart thermostat solution 
     (this specification is not officially supported or published by tado).
     
-    Github repository for this specification: https://github.com/kritsel/tado-openapispec-v2
+    Github repository where this specification is maintained: 
+    [https://github.com/kritsel/tado-openapispec-v2](https://github.com/kritsel/tado-openapispec-v2)
   version: 2.2024.08.01.3
 servers:
   - url: https://my.tado.com/api/v2/
