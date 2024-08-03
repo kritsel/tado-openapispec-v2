@@ -96,16 +96,19 @@ distinguish the traffic from their own apps from other traffic.
 
 ## Link to the specification .yaml file
 If you need a direct link to the specification .yaml file
-e.g. as input for a client code generator you can use the following URL:
-(replace `<version tag>` with the proper version)
+e.g. as input for a client code generator you can use the URL below.
+Replace `<version tag>` with the proper version number or with `latest`.
+(list of all released versions: https://github.com/kritsel/tado-openapispec-v2/releases)
 
 `https://raw.githubusercontent.com/kritsel/tado-openapispec-v2/<version tag>/tado-openapispec-v2.yaml`
 
-E.g. https://raw.githubusercontent.com/kritsel/tado-openapispec-v2/v2.2024.08.01.3/tado-openapispec-v2.yaml
+Examples:
+* link to a specific version: https://raw.githubusercontent.com/kritsel/tado-openapispec-v2/v2.2024.08.01.3/tado-openapispec-v2.yaml
+* link to latest version: https://raw.githubusercontent.com/kritsel/tado-openapispec-v2/latest/tado-openapispec-v2.yaml
 
 ## Example applications
 
-Kotlin demo application which uses a client code generator which uses this OpenAPI 
+Kotlin demo application with generated API client code which uses this OpenAPI 
 specification as input:
 
 https://github.com/kritsel/tado-api-demo-kotlin
