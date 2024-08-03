@@ -1,6 +1,6 @@
 openapi: 3.0.0
 info:
-  title: Tado
+  title: tado&ordm;
   description: |
     Community managed API specification for the tado smart thermostat solution 
     (this specification is not officially supported or published by tado).
