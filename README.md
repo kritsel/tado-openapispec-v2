@@ -108,10 +108,10 @@ Examples:
 
 ## Example applications
 
-Kotlin demo application with generated API client code which uses this OpenAPI 
-specification as input:
-
-https://github.com/kritsel/tado-api-demo-kotlin
+* Kotlin demo application with generated API client code which uses this OpenAPI 
+specification as input: https://github.com/kritsel/tado-api-demo-kotlin
+* Java demo application with generated API client code which uses this OpenAPI
+specification as input: https://github.com/kritsel/tado-api-demo-java
 
 # Gratitudes
 Without the groundwork done by Stephen C. Phillips (https://blog.scphillips.com/posts/2017/01/the-tado-api-v2/)
