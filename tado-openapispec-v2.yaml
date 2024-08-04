@@ -18,6 +18,8 @@ paths:
     get:
       summary: Get full details of the homes associated with the authenticated user
       operationId: getHomes # hint for client code generators
+      tags:
+        - home
       responses:
         '200':
           description: successful response
@@ -33,6 +35,8 @@ paths:
     get:
       summary: Get full details of a single home.
       operationId: getHome # hint for client code generators
+      tags:
+        - home
       parameters:
         - in: path
           name: homeId
@@ -63,6 +67,8 @@ paths:
         The response for this path does include devices of DeviceType `IB01` (Internet Bridge), 
         while the responses for the zone related paths do not.
       operationId: getDevices # hint for client code generators
+      tags:
+        - device
       parameters:
         - in: path
           name: homeId
@@ -83,10 +89,39 @@ paths:
           $ref: '#/components/responses/Unauthorized401'
         '403':
           $ref: '#/components/responses/AccessDenied403'
+  /homes/{homeId}/installations:
+    get:
+      deprecated: true
+      summary: Seems to be no longer supported, returns an empty array
+      operationId: getInstallations # hint for client code generators
+      tags:
+        - device
+      parameters:
+        - in: path
+          name: homeId
+          schema:
+            type: string
+          required: true
+          description: ID of a home (unique within a home)
+      responses:
+        '200':
+          description: successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+        '403':
+          $ref: '#/components/responses/AccessDenied403'
   /homes/{homeId}/mobileDevices:
     get:
       summary: Get all mobile devices associated with the provided homeId
       operationId: getMobileDevices # hint for client code generators
+      tags:
+        - mobile device
       parameters:
         - in: path
           name: homeId
@@ -107,10 +142,42 @@ paths:
           $ref: '#/components/responses/Unauthorized401'
         '403':
           $ref: '#/components/responses/AccessDenied403'
+  /homes/{homeId}/mobileDevices/{mobileDeviceId}:
+    get:
+      summary: Get a specific mobile device associated with the provided homeId
+      operationId: getMobileDevice # hint for client code generators
+      tags:
+        - mobile device
+      parameters:
+        - in: path
+          name: homeId
+          schema:
+            type: string
+          required: true
+          description: ID of a home (unique within a home)
+        - in: path
+          name: mobileDeviceId
+          schema:
+            type: string
+          required: true
+          description: ID of a mobile device
+      responses:
+        '200':
+          description: successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MobileDevice'
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+        '403':
+          $ref: '#/components/responses/AccessDenied403'
   /homes/{homeId}/state:
     get:
       summary: Get the state of a home
       operationId: getHomeState # hint for client code generators
+      tags:
+        - home
       parameters:
         - in: path
           name: homeId
@@ -137,6 +204,8 @@ paths:
         The response does not include any device of DeviceType `IB01` (Internet Bridge);
         use `/homes/{homeId}/devices` instead.
       operationId: getZones # hint for client code generators
+      tags:
+        - zone
       parameters:
         - in: path
           name: homeId
@@ -157,6 +226,56 @@ paths:
           $ref: '#/components/responses/Unauthorized401'
         '403':
           $ref: '#/components/responses/AccessDenied403'
+  /homes/{homeId}/users:
+    get:
+      summary: Get all users associated with the provided homeId.
+      operationId: getUsers # hint for client code generators
+      tags:
+        - user
+      parameters:
+        - in: path
+          name: homeId
+          schema:
+            type: string
+          required: true
+          description: ID of a home (unique within a home)
+      responses:
+        '200':
+          description: successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+        '403':
+          $ref: '#/components/responses/AccessDenied403'
+  /homes/{homeId}/weather:
+    get:
+      summary: Get the current weather for the given home
+      operationId: getWeather # hint for client code generators
+      tags:
+        - report
+      parameters:
+        - in: path
+          name: homeId
+          schema:
+            type: string
+          required: true
+          description: ID of a home (unique within a home)
+      responses:
+        '200':
+          description: successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Weather'
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+        '403':
+          $ref: '#/components/responses/AccessDenied403'
   /homes/{homeId}/zones/{zoneId}:
     get:
       summary: Get the details of specific zone (a.k.a. room) within a specific home.
@@ -165,6 +284,8 @@ paths:
         The response does not include any device of DeviceType `IB01` (Internet Bridge);
         use `/homes/{homeId}/devices` instead.
       operationId: getZone # hint for client code generators
+      tags:
+        - zone
       parameters:
         - in: path
           name: homeId
@@ -191,11 +312,117 @@ paths:
           $ref: '#/components/responses/AccessDenied403'
         '404':
           $ref: '#/components/responses/NotFound404'
+  /homes/{homeId}/zones/{zoneId}/capabilities:
+    get:
+      summary: Get the temperature setting capabilities of this zone
+      description: This includes current temperature, humidity and heating power information.
+      operationId: getZoneCapabilities # hint for client code generators
+      tags:
+        - zone
+      parameters:
+        - in: path
+          name: homeId
+          schema:
+            type: string
+          required: true
+          description: unique ID of a home
+        - in: path
+          name: zoneId
+          schema:
+            type: string
+          required: true
+          description: ID of a zone (unique within a home)
+      responses:
+        '200':
+          description: successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ZoneCapabilities'
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+        '403':
+          $ref: '#/components/responses/AccessDenied403'
+        '404':
+          $ref: '#/components/responses/NotFound404'
+
+  /homes/{homeId}/zones/{zoneId}/earlyStart:
+    get:
+      summary: Control whether Tado makes sure a set temperature is reached at the start of a block
+      operationId: getZoneEarlyStart # hint for client code generators
+      tags:
+        - zone control
+      parameters:
+        - in: path
+          name: homeId
+          schema:
+            type: string
+          required: true
+          description: unique ID of a home
+        - in: path
+          name: zoneId
+          schema:
+            type: string
+          required: true
+          description: ID of a zone (unique within a home)
+      responses:
+        '200':
+          description: successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EarlyStart'
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+        '403':
+          $ref: '#/components/responses/AccessDenied403'
+        '404':
+          $ref: '#/components/responses/NotFound404'
+    put:
+      summary: Control whether Tado makes sure a set temperature is reached at the start of a block
+      operationId: putZoneEarlyStart # hint for client code generators
+      tags:
+        - zone control
+      parameters:
+        - in: path
+          name: homeId
+          schema:
+            type: string
+          required: true
+          description: unique ID of a home
+        - in: path
+          name: zoneId
+          schema:
+            type: string
+          required: true
+          description: ID of a zone (unique within a home)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EarlyStart'
+      responses:
+        '200':
+          description: successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EarlyStart'
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+        '403':
+          $ref: '#/components/responses/AccessDenied403'
+        '404':
+          $ref: '#/components/responses/NotFound404'
+
   /homes/{homeId}/zones/{zoneId}/state:
     get:
       summary: Get the current state details of a zone (a.k.a. room).
       description: This includes current temperature, humidity and heating power information.
-      operationId: getZoneSate # hint for client code generators
+      operationId: getZoneState # hint for client code generators
+      tags:
+        - zone
       parameters:
         - in: path
           name: homeId
@@ -226,6 +453,8 @@ paths:
     get:
       summary: Returns information about the authenticated user, (summary) information of their home(s) and mobile devices.
       operationId: getMe # hint for client code generators
+      tags:
+        - user
       responses:
         '200':
           description: successful response
@@ -363,6 +592,13 @@ components:
       type: string
       example: SU02
       description: "known values: BR02 (Wireless Receiver), IB01 (Internet Bridge), SU02 (Wireless Smart Thermostat V3+), VA02 (Smart Radiator Thermostat V3+)"
+
+    EarlyStart:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+          example: false
 
     Error:
       type: object
@@ -604,6 +840,65 @@ components:
           items:
             $ref: '#/components/schemas/MobileDevice'
 
+    Weather:
+      type: object
+      properties:
+        solarIntensity:
+          type: object
+          properties:
+            type:
+              type: string
+              example: PERCENTAGE
+            percentage:
+              type: number
+              example: 0
+            timestamp:
+              type: string
+              format: date-time
+              example: "2024-08-04T09:20:08.370Z"
+        outsideTemperature:
+          type: object
+          properties:
+            celsius:
+              type: number
+              format: float
+              example: 19.68
+            fahrenheit:
+              type: number
+              format: double
+              example: 67.42
+            timestamp:
+              type: string
+              format: date-time
+              example: "2024-08-04T09:20:08.370Z"
+            type:
+              type: string
+              example: TEMPERATURE
+            precision:
+              type: object
+              properties:
+                celsius:
+                  type: number
+                  format: double
+                  example: 0.01
+                fahrenheit:
+                  type: number
+                  format: double
+                  example: 0.01
+        weatherState:
+          type: object
+          properties:
+            type:
+              type: string
+              example: WEATHER_STATE
+            value:
+              type: string
+              example: CLOUDY
+            timestamp:
+              type: string
+              format: date-time
+              example: "2024-08-04T09:20:08.370Z"
+
     Zone:
       type: object
       description: a room in a home whose temperature is controlled by tado
@@ -665,6 +960,51 @@ components:
             timeoutInSeconds:
               type: integer
               example: 900
+    ZoneCapabilities:
+      type: object
+      properties:
+        type:
+          type: string
+          example: HEATING
+          description: "known values: HEATING, HOT_WATER"
+        temperatures:
+          type: object
+          description: property available for zone type HEATING
+          properties:
+            celsius:
+              type: object
+              properties:
+                min:
+                  type: number
+                  format: integer
+                  example: 5
+                max:
+                  type: number
+                  format: integer
+                  example: 25
+                step:
+                  type: number
+                  format: double
+                  example: 0.1
+            fahrenheit:
+              type: object
+              properties:
+                min:
+                  type: number
+                  format: integer
+                  example: 41
+                max:
+                  type: number
+                  format: integer
+                  example: 77
+                step:
+                  type: number
+                  format: double
+                  example: 0.1
+            canSetTemperature:
+              type: boolean
+              example: false
+              description: property available for zone type HOT_WATER
 
     ZoneState:
       type: object
@@ -865,3 +1205,12 @@ components:
                   type: string
                   format: date-time
                   example: "2024-07-30T21:51:41.178Z"
+
+tags:
+  - name: user
+  - name: mobile device
+  - name: home
+  - name: zone
+  - name: zone control
+  - name: device
+  - name: report
