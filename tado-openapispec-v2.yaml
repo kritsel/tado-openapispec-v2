@@ -7,7 +7,7 @@ info:
     
     Github repository where this specification is maintained: 
     [https://github.com/kritsel/tado-openapispec-v2](https://github.com/kritsel/tado-openapispec-v2)
-  version: 2.2024.08.04.0
+  version: 2.2024.08.05.0
 servers:
   - url: https://my.tado.com/api/v2/
 security:
@@ -172,6 +172,34 @@ paths:
           $ref: '#/components/responses/Unauthorized401'
         '403':
           $ref: '#/components/responses/AccessDenied403'
+    delete:
+      summary: Remove the relationship between a mobile device and a home
+      operationId: deleteMobileDeviceFromHome # hint for client code generators
+      tags:
+        - mobile device
+      parameters:
+        - in: path
+          name: homeId
+          schema:
+            type: string
+          required: true
+          description: ID of a home (unique within a home)
+        - in: path
+          name: mobileDeviceId
+          schema:
+            type: string
+          required: true
+          description: ID of a mobile device
+      responses:
+        '200':
+          description: successful response
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+        '403':
+          $ref: '#/components/responses/AccessDenied403'
+        '404':
+          $ref: '#/components/responses/NotFound404'
+
   /homes/{homeId}/state:
     get:
       summary: Get the state of a home
@@ -257,7 +285,7 @@ paths:
       summary: Get the current weather for the given home
       operationId: getWeather # hint for client code generators
       tags:
-        - report
+        - home
       parameters:
         - in: path
           name: homeId
@@ -1001,10 +1029,10 @@ components:
                   type: number
                   format: double
                   example: 0.1
-            canSetTemperature:
-              type: boolean
-              example: false
-              description: property available for zone type HOT_WATER
+        canSetTemperature:
+          type: boolean
+          example: false
+          description: property available for zone type HOT_WATER
 
     ZoneState:
       type: object
@@ -1213,4 +1241,4 @@ tags:
   - name: zone
   - name: zone control
   - name: device
-  - name: report
+#  - name: report
