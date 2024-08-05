@@ -89,6 +89,34 @@ paths:
           $ref: '#/components/responses/Unauthorized401'
         '403':
           $ref: '#/components/responses/AccessDenied403'
+
+  /homes/{homeId}/devices/{deviceId}/identify:
+    post:
+      summary: Instruct the device to say 'hi' on their display
+      operationId: identifyDevice # hint for client code generators
+      tags:
+        - device
+      parameters:
+        - in: path
+          name: homeId
+          schema:
+            type: string
+          required: true
+          description: ID of a home (unique within a home)
+        - in: path
+          name: deviceId
+          schema:
+            type: string
+          required: true
+          description: the `shortSerialNo` of a device
+      responses:
+        '200':
+          description: successful response
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+        '403':
+          $ref: '#/components/responses/AccessDenied403'
+
   /homes/{homeId}/installations:
     get:
       deprecated: true
@@ -178,6 +206,14 @@ paths:
       tags:
         - mobile device
       parameters:
+        - in: header
+          name: Content-Type
+          schema:
+            type: string
+            patter: "application/json"
+            example: "application/json"
+          required: true
+          description: a 'Content-Type' header with value 'application/json' is mandatory for this specific endpoint
         - in: path
           name: homeId
           schema:
@@ -190,6 +226,7 @@ paths:
             type: string
           required: true
           description: ID of a mobile device
+
       responses:
         '200':
           description: successful response
@@ -374,6 +411,47 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound404'
 
+  /homes/{homeId}/zones/{zoneId}/dayReport:
+    get:
+      summary: Get historic information for a particular day
+      operationId: getZoneDayReport # hint for client code generators
+      tags:
+        - report
+      parameters:
+        - in: path
+          name: homeId
+          schema:
+            type: string
+          required: true
+          description: unique ID of a home
+        - in: path
+          name: zoneId
+          schema:
+            type: string
+          required: true
+          description: ID of a zone (unique within a home)
+        - in: query
+          name: date
+          schema:
+            type: string
+            format: date
+          required: true
+          example: "2018-02-14"
+      responses:
+        '200':
+          description: successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DayReport'
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+        '403':
+          $ref: '#/components/responses/AccessDenied403'
+        '404':
+          $ref: '#/components/responses/NotFound404'
+
+
   /homes/{homeId}/zones/{zoneId}/earlyStart:
     get:
       summary: Control whether Tado makes sure a set temperature is reached at the start of a block
@@ -523,6 +601,341 @@ components:
             $ref: '#/components/schemas/ErrorResponse'
 
   schemas:
+    DayReport:
+      type: object
+      properties:
+        zoneType:
+          type: string
+          example: HEATING
+          description: "known values: HEATING, HOT_WATER"
+        interval:
+          type: object
+          properties:
+            interval:
+              type: object
+              properties:
+                from:
+                  type: string
+                  format: date-time
+                  example: "2024-01-10T22:45:00.000Z"
+                to:
+                  type: string
+                  format: date-time
+                  example: "2024-01-11T23:15:00.000Z"
+        hoursInDay:
+          type: integer
+          example: 24
+        measuredData:
+          properties:
+            measuringDeviceConnected:
+              type: object
+              properties:
+                timeSeriesType:
+                  type: string
+                  example: dataIntervals
+                valueType:
+                  type: string
+                  example: boolean
+                dataIntervals:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      interval:
+                        type: object
+                        properties:
+                          from:
+                            type: string
+                            format: date-time
+                            example: "2024-01-10T22:45:00.000Z"
+                          to:
+                            type: string
+                            format: date-time
+                            example: "2024-01-11T23:15:00.000Z"
+                          value:
+                            type: boolean
+                            example: true
+            insideTemperature:
+              type: object
+              properties:
+                timeSeriesType:
+                  type: string
+                  example: dataPoints
+                valueType:
+                  type: string
+                  example: temperature
+                min:
+                  type: object
+                  properties:
+                    celsius:
+                      type: number
+                      format: double
+                      example: 13.9
+                    fahrenheit:
+                      type: number
+                      format: double
+                      example: 57.02
+                max:
+                  type: object
+                  properties:
+                    celsius:
+                      type: number
+                      format: double
+                      example: 19.07
+                    fahrenheit:
+                      type: number
+                      format: double
+                      example: 66.33
+                dataPoints:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      timestamp:
+                        type: string
+                        format: date-time
+                        example: "2024-01-10T22:45:00.000Z"
+                      value:
+                        type: object
+                        properties:
+                          celsius:
+                            type: number
+                            format: double
+                            example: 17.3
+                          fahrenheit:
+                            type: number
+                            format: double
+                            example: 63.14
+            humidity:
+              type: object
+              properties:
+                timeSeriesType:
+                  type: string
+                  example: dataPoints
+                valueType:
+                  type: string
+                  example: percentage
+                percentageUnit:
+                  type: string
+                  example: UNIT_INTERVAL
+                min:
+                  type: number
+                  format: double
+                  example: 0.482
+                max:
+                  type: number
+                  format: double
+                  example: 0.613
+                dataPoints:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      timestamp:
+                        type: string
+                        format: date-time
+                        example: "2024-01-10T22:45:00.000Z"
+                      value:
+                        type: number
+                        format: double
+                        example: 0.482
+        stripes:
+          type: object
+          properties:
+            timeSeriesType:
+              type: string
+              example: dataIntervals
+            valueType:
+              type: string
+              example: stripes
+            dataIntervals:
+              type: array
+              items:
+                type: object
+                properties:
+                  from:
+                    type: string
+                    format: date-time
+                    example: "2024-01-10T22:45:00.000Z"
+                  to:
+                    type: string
+                    format: date-time
+                    example: "2024-01-11T18:09:57.008Z"
+                  value:
+                    type: object
+                    properties:
+                      stripeType:
+                        type: string
+                        example: HOME_LOCATION_BASED_CONTROL_OFF
+                      setting:
+                        type: object
+                        properties:
+                          type:
+                            type: string
+                            example: HEATING
+                          power:
+                            type: string
+                            example: ON
+                          temperature:
+                            type: object
+                            properties:
+                              celsius:
+                                type: number
+                                format: double
+                                example: 14.0
+                              fahrenheit:
+                                type: number
+                                format: double
+                                example: 57.2
+        callForHeat:
+          type: object
+          properties:
+            timeSeriesType:
+              type: string
+              example: dataIntervals
+            valueType:
+              type: string
+              example: callForHeat
+            dataIntervals:
+              type: array
+              items:
+                type: object
+                properties:
+                  from:
+                    type: string
+                    format: date-time
+                    example: "2024-01-10T22:45:00.000Z"
+                  to:
+                    type: string
+                    format: date-time
+                    example: "2024-01-11T18:09:57.008Z"
+                  value:
+                    type: string
+                    example: LOW
+                    description: "known values: NONE, LOW, MEDIUM, HIGH"
+        hotWaterProduction:
+          type: object
+          properties:
+            timeSeriesType:
+              type: string
+              example: dataIntervals
+            valueType:
+              type: string
+              example: boolean
+            dataIntervals:
+              type: array
+              items:
+                type: object
+                properties:
+                  from:
+                    type: string
+                    format: date-time
+                    example: "2024-01-10T22:45:00.000Z"
+                  to:
+                    type: string
+                    format: date-time
+                    example: "2024-01-11T18:09:57.008Z"
+                  value:
+                    type: boolean
+                    example: true
+        weather:
+          type: object
+          properties:
+            condition:
+              type: object
+              properties:
+                timeSeriesType:
+                  type: string
+                  example: dataIntervals
+                valueType:
+                  type: string
+                  example: weatherCondition
+                dataIntervals:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      from:
+                        type: string
+                        format: date-time
+                        example: "2024-01-10T22:45:00.000Z"
+                      to:
+                        type: string
+                        format: date-time
+                        example: "2024-01-11T18:09:57.008Z"
+                      value:
+                        type: object
+                        properties:
+                          state:
+                            type: string
+                            example: NIGHT_CLEAR
+                            description: "known values: SUN, CLOUDY_PARTLY, CLOUDY_MOSTLY, NIGHT_CLEAR, NIGHT_CLOUDY"
+                          temperature:
+                            type: object
+                            properties:
+                              celsius:
+                                type: number
+                                format: double
+                                example: -3.61
+                              fahrenheit:
+                                type: number
+                                format: double
+                                example: 25.5
+            sunny:
+              type: object
+              properties:
+                condition:
+                  type: object
+                  properties:
+                    timeSeriesType:
+                      type: string
+                      example: dataIntervals
+                    valueType:
+                      type: string
+                      example: weatherCondition
+                    dataIntervals:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          from:
+                            type: string
+                            format: date-time
+                            example: "2024-01-10T22:45:00.000Z"
+                          to:
+                            type: string
+                            format: date-time
+                            example: "2024-01-11T18:09:57.008Z"
+                          value:
+                            type: boolean
+                            example: true
+            slots:
+              type: object
+              properties:
+                condition:
+                  type: object
+                  properties:
+                    timeSeriesType:
+                      type: string
+                      example: slots
+                    valueType:
+                      type: string
+                      example: weatherCondition
+                    slots:
+                      type: object
+                      properties:
+                        04:00:
+                          $ref: '#/components/schemas/WeatherSlot'
+                        08:00:
+                          $ref: '#/components/schemas/WeatherSlot'
+                        12:00:
+                          $ref: '#/components/schemas/WeatherSlot'
+                        16:00:
+                          $ref: '#/components/schemas/WeatherSlot'
+                        20:00:
+                          $ref: '#/components/schemas/WeatherSlot'
+
+
     Device:
       description: >
         Some of the properties are only available for certain device types. 
@@ -598,7 +1011,7 @@ components:
         batteryState:
           type: string
           example: NORMAL
-          description: "property known to be present for DeviceType SU02, VA02; known values: NORMAL"
+          description: "property known to be present for DeviceType SU02, VA02; known values: NORMAL, LOW"
         orientation:
           type: string
           example: HORIZONTAL
@@ -889,7 +1302,7 @@ components:
           properties:
             celsius:
               type: number
-              format: float
+              format: double
               example: 19.68
             fahrenheit:
               type: number
@@ -926,7 +1339,23 @@ components:
               type: string
               format: date-time
               example: "2024-08-04T09:20:08.370Z"
-
+    WeatherSlot:
+      type: object
+      properties:
+        state:
+          type: string
+          example: NIGHT_CLEAR
+        temperature:
+          type: object
+          properties:
+            celsius:
+              type: number
+              format: double
+              example: -5.21
+            fahrenheit:
+              type: number
+              format: double
+              example: 22.78
     Zone:
       type: object
       description: a room in a home whose temperature is controlled by tado
@@ -1003,12 +1432,10 @@ components:
               type: object
               properties:
                 min:
-                  type: number
-                  format: integer
+                  type: integer
                   example: 5
                 max:
-                  type: number
-                  format: integer
+                  type: integer
                   example: 25
                 step:
                   type: number
@@ -1018,12 +1445,10 @@ components:
               type: object
               properties:
                 min:
-                  type: number
-                  format: integer
+                  type: integer
                   example: 41
                 max:
-                  type: number
-                  format: integer
+                  type: integer
                   example: 77
                 step:
                   type: number
@@ -1194,11 +1619,11 @@ components:
               properties:
                 celsius:
                   type: number
-                  format: float
+                  format: double
                   example: 27.97
                 fahrenheit:
                   type: number
-                  format: float
+                  format: double
                   example: 82.35
                 timestamp:
                   type: string
@@ -1213,11 +1638,11 @@ components:
                   properties:
                     celsius:
                       type: number
-                      format: float
+                      format: double
                       example: 0.1
                     fahrenheit:
                       type: number
-                      format: float
+                      format: double
                       example: 0.1
             humidity:
               type: object
@@ -1241,4 +1666,4 @@ tags:
   - name: zone
   - name: zone control
   - name: device
-#  - name: report
+  - name: report
