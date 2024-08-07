@@ -55,10 +55,37 @@ paths:
           $ref: '#/components/responses/Unauthorized401'
         '403':
           $ref: '#/components/responses/AccessDenied403'
+
+  /homes/{homeId}/airComfort:
+    get:
+      summary: Get humidity and temperature indicators for all zones (rooms) in this home
+      description: "'Climate comfort' element in the app"
+      operationId: getAirComfort # hint for client code generators
+      tags:
+        - home
+      parameters:
+        - in: path
+          name: homeId
+          schema:
+            type: string
+          required: true
+          description: ID of a home (unique within a home)
+      responses:
+        '200':
+          description: successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AirComfort'
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+        '403':
+          $ref: '#/components/responses/AccessDenied403'
+
   /homes/{homeId}/devices:
     get:
       summary: Get all tado devices associated with the provided homeId.
-      # the double blank lines int the description are intentional, to force a new line in the rendered text on Swagger UI
+      # the float blank lines int the description are intentional, to force a new line in the rendered text on Swagger UI
       description: >
         The device information included in the response for `/homes/{homeId}/zones` and `/homes/{homeId}/zones/{zoneId}`
         includes the `duties` property, while the response for this path does not. 
@@ -117,13 +144,12 @@ paths:
         '403':
           $ref: '#/components/responses/AccessDenied403'
 
-  /homes/{homeId}/installations:
+  /homes/{homeId}/heatingSystem:
     get:
-      deprecated: true
-      summary: Seems to be no longer supported, returns an empty array
-      operationId: getInstallations # hint for client code generators
+      summary: Get information about the various heating systems in this home
+      operationId: getHomeHeatingSystem # hint for client code generators
       tags:
-        - device
+        - home
       parameters:
         - in: path
           name: homeId
@@ -137,13 +163,13 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  type: object
+                $ref: '#/components/schemas/HomeHeatingSystem'
         '401':
           $ref: '#/components/responses/Unauthorized401'
         '403':
           $ref: '#/components/responses/AccessDenied403'
+
+
   /homes/{homeId}/mobileDevices:
     get:
       summary: Get all mobile devices associated with the provided homeId
@@ -170,6 +196,7 @@ paths:
           $ref: '#/components/responses/Unauthorized401'
         '403':
           $ref: '#/components/responses/AccessDenied403'
+
   /homes/{homeId}/mobileDevices/{mobileDeviceId}:
     get:
       summary: Get a specific mobile device associated with the provided homeId
@@ -210,7 +237,7 @@ paths:
           name: Content-Type
           schema:
             type: string
-            patter: "application/json"
+            pattern: "application/json"
             example: "application/json"
           required: true
           description: a 'Content-Type' header with value 'application/json' is mandatory for this specific endpoint
@@ -226,7 +253,6 @@ paths:
             type: string
           required: true
           description: ID of a mobile device
-
       responses:
         '200':
           description: successful response
@@ -261,6 +287,7 @@ paths:
           $ref: '#/components/responses/Unauthorized401'
         '403':
           $ref: '#/components/responses/AccessDenied403'
+
   /homes/{homeId}/zones:
     get:
       summary: Get all zones (a.k.a. rooms) associated with the provided homeId.
@@ -291,6 +318,7 @@ paths:
           $ref: '#/components/responses/Unauthorized401'
         '403':
           $ref: '#/components/responses/AccessDenied403'
+
   /homes/{homeId}/users:
     get:
       summary: Get all users associated with the provided homeId.
@@ -317,6 +345,7 @@ paths:
           $ref: '#/components/responses/Unauthorized401'
         '403':
           $ref: '#/components/responses/AccessDenied403'
+
   /homes/{homeId}/weather:
     get:
       summary: Get the current weather for the given home
@@ -341,42 +370,7 @@ paths:
           $ref: '#/components/responses/Unauthorized401'
         '403':
           $ref: '#/components/responses/AccessDenied403'
-  /homes/{homeId}/zones/{zoneId}:
-    get:
-      summary: Get the details of specific zone (a.k.a. room) within a specific home.
-      description: >
-        Includes full information of the tado devices present in the specified zone. 
-        The response does not include any device of DeviceType `IB01` (Internet Bridge);
-        use `/homes/{homeId}/devices` instead.
-      operationId: getZone # hint for client code generators
-      tags:
-        - zone
-      parameters:
-        - in: path
-          name: homeId
-          schema:
-            type: string
-          required: true
-          description: unique ID of a home
-        - in: path
-          name: zoneId
-          schema:
-            type: string
-          required: true
-          description: ID of a zone (unique within a home)
-      responses:
-        '200':
-          description: successful response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Zone'
-        '401':
-          $ref: '#/components/responses/Unauthorized401'
-        '403':
-          $ref: '#/components/responses/AccessDenied403'
-        '404':
-          $ref: '#/components/responses/NotFound404'
+
   /homes/{homeId}/zones/{zoneId}/capabilities:
     get:
       summary: Get the temperature setting capabilities of this zone
@@ -450,7 +444,6 @@ paths:
           $ref: '#/components/responses/AccessDenied403'
         '404':
           $ref: '#/components/responses/NotFound404'
-
 
   /homes/{homeId}/zones/{zoneId}/earlyStart:
     get:
@@ -555,6 +548,35 @@ paths:
           $ref: '#/components/responses/AccessDenied403'
         '404':
           $ref: '#/components/responses/NotFound404'
+
+  /homes/{homeId}/zoneStates:
+    get:
+      summary: Get zone state details of every zone (a.k.a. room) in the specified home
+      description: This includes current temperature, humidity and heating power information.
+      operationId: getZoneStates # hint for client code generators
+      tags:
+        - zone
+      parameters:
+        - in: path
+          name: homeId
+          schema:
+            type: string
+          required: true
+          description: unique ID of a home
+      responses:
+        '200':
+          description: successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ZoneStates'
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+        '403':
+          $ref: '#/components/responses/AccessDenied403'
+        '404':
+          $ref: '#/components/responses/NotFound404'
+
   /me:
     get:
       summary: Returns information about the authenticated user, (summary) information of their home(s) and mobile devices.
@@ -601,6 +623,47 @@ components:
             $ref: '#/components/schemas/ErrorResponse'
 
   schemas:
+    AirComfort:
+      type: object
+      properties:
+        freshness:
+          type: object
+          properties:
+            value:
+              type: string
+              example: FRESH
+              description: "known values: FAIR, FRESH"
+            lastOpenWindow:
+              type: string
+              format: date-time
+              example: "2024-08-07T16:40:03Z"
+        comfort:
+          type: array
+          items:
+            type: object
+            properties:
+              roomId:
+                type: integer
+                example: 1
+              temperatureLevel:
+                type: string
+                example: COMFY
+                description: "known values: COMFY, WARM"
+              humidityLevel:
+                type: string
+                example: COMFY
+                description: "known values: COMFY, HUMID"
+              coordinate:
+                type: object
+                properties:
+                  radial:
+                    type: number
+                    format: float
+                    example: 0.22
+                  angular:
+                    type: integer
+                    example: 76
+
     DayReport:
       type: object
       properties:
@@ -669,22 +732,22 @@ components:
                   properties:
                     celsius:
                       type: number
-                      format: double
+                      format: float
                       example: 13.9
                     fahrenheit:
                       type: number
-                      format: double
+                      format: float
                       example: 57.02
                 max:
                   type: object
                   properties:
                     celsius:
                       type: number
-                      format: double
+                      format: float
                       example: 19.07
                     fahrenheit:
                       type: number
-                      format: double
+                      format: float
                       example: 66.33
                 dataPoints:
                   type: array
@@ -700,11 +763,11 @@ components:
                         properties:
                           celsius:
                             type: number
-                            format: double
+                            format: float
                             example: 17.3
                           fahrenheit:
                             type: number
-                            format: double
+                            format: float
                             example: 63.14
             humidity:
               type: object
@@ -720,11 +783,11 @@ components:
                   example: UNIT_INTERVAL
                 min:
                   type: number
-                  format: double
+                  format: float
                   example: 0.482
                 max:
                   type: number
-                  format: double
+                  format: float
                   example: 0.613
                 dataPoints:
                   type: array
@@ -737,7 +800,7 @@ components:
                         example: "2024-01-10T22:45:00.000Z"
                       value:
                         type: number
-                        format: double
+                        format: float
                         example: 0.482
         stripes:
           type: object
@@ -781,11 +844,11 @@ components:
                             properties:
                               celsius:
                                 type: number
-                                format: double
+                                format: float
                                 example: 14.0
                               fahrenheit:
                                 type: number
-                                format: double
+                                format: float
                                 example: 57.2
         callForHeat:
           type: object
@@ -875,11 +938,11 @@ components:
                             properties:
                               celsius:
                                 type: number
-                                format: double
+                                format: float
                                 example: -3.61
                               fahrenheit:
                                 type: number
-                                format: double
+                                format: float
                                 example: 25.5
             sunny:
               type: object
@@ -1015,7 +1078,7 @@ components:
         orientation:
           type: string
           example: HORIZONTAL
-          description: "property known to be present for DeviceType VA02; known values: HORIZONTAL"
+          description: "property known to be present for DeviceType VA02; known values: HORIZONTAL, VERTICAL"
         childLockEnabled:
           type: boolean
           example: false
@@ -1160,11 +1223,11 @@ components:
           properties:
             latitude:
               type: number
-              format: double
+              format: float
               example: 50.1234567
             longitude:
               type: number
-              format: double
+              format: float
               example: -1.1234567
         consentGrantSkippable:
           type: boolean
@@ -1194,13 +1257,35 @@ components:
       type: object
       properties:
         id:
-          type: string
+          type: integer
           description: unique home ID
           example: 1118186
         name:
           type: string
           description: user assigned name for this home
           example: my home
+
+    HomeHeatingSystem:
+      type: object
+      properties:
+        boiler:
+          type: object
+          properties:
+            present:
+              type: boolean
+              example: true
+            id:
+              type: integer
+              example: 2699
+            found:
+              type: boolean
+              example: true
+        underfloorHeating:
+          type: object
+          properties:
+            present:
+              type: boolean
+              example: false
 
     HomeState:
       type: object
@@ -1217,7 +1302,7 @@ components:
       type: object
       properties:
         id:
-          type: string
+          type: integer
           example: 8254700
         name:
           type: string
@@ -1265,6 +1350,7 @@ components:
           example: kristel@example.org
         id:
           type: string
+          format: uuid
           description: globally unique user ID
           example: a7c7fc08-e362-4700-e9a1-45a5bded5c124
         locale:
@@ -1302,11 +1388,11 @@ components:
           properties:
             celsius:
               type: number
-              format: double
+              format: float
               example: 19.68
             fahrenheit:
               type: number
-              format: double
+              format: float
               example: 67.42
             timestamp:
               type: string
@@ -1320,11 +1406,11 @@ components:
               properties:
                 celsius:
                   type: number
-                  format: double
+                  format: float
                   example: 0.01
                 fahrenheit:
                   type: number
-                  format: double
+                  format: float
                   example: 0.01
         weatherState:
           type: object
@@ -1341,6 +1427,7 @@ components:
               example: "2024-08-04T09:20:08.370Z"
     WeatherSlot:
       type: object
+      description: a WeatherSlot is a sub-element of a DayReport
       properties:
         state:
           type: string
@@ -1350,18 +1437,18 @@ components:
           properties:
             celsius:
               type: number
-              format: double
+              format: float
               example: -5.21
             fahrenheit:
               type: number
-              format: double
+              format: float
               example: 22.78
     Zone:
       type: object
       description: a room in a home whose temperature is controlled by tado
       properties:
         id:
-          type: string
+          type: integer
           description: id of the zone (unique within the scope of the home it belongs to)
           example: 2
         name:
@@ -1439,7 +1526,7 @@ components:
                   example: 25
                 step:
                   type: number
-                  format: double
+                  format: float
                   example: 0.1
             fahrenheit:
               type: object
@@ -1452,7 +1539,7 @@ components:
                   example: 77
                 step:
                   type: number
-                  format: double
+                  format: float
                   example: 0.1
         canSetTemperature:
           type: boolean
@@ -1619,11 +1706,11 @@ components:
               properties:
                 celsius:
                   type: number
-                  format: double
+                  format: float
                   example: 27.97
                 fahrenheit:
                   type: number
-                  format: double
+                  format: float
                   example: 82.35
                 timestamp:
                   type: string
@@ -1638,11 +1725,11 @@ components:
                   properties:
                     celsius:
                       type: number
-                      format: double
+                      format: float
                       example: 0.1
                     fahrenheit:
                       type: number
-                      format: double
+                      format: float
                       example: 0.1
             humidity:
               type: object
@@ -1658,6 +1745,15 @@ components:
                   type: string
                   format: date-time
                   example: "2024-07-30T21:51:41.178Z"
+
+    ZoneStates:
+      type: object
+      properties:
+        zoneStates:
+          description: a dictionary with zone IDs (a.k.a. room IDs) as keys
+          additionalProperties:
+            $ref: '#/components/schemas/ZoneState'
+
 
 tags:
   - name: user
