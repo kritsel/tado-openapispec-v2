@@ -41,7 +41,7 @@ paths:
         - in: path
           name: homeId
           schema:
-            type: string
+            type: integer
           required: true
           description: unique ID of a home
       responses:
@@ -67,7 +67,7 @@ paths:
         - in: path
           name: homeId
           schema:
-            type: string
+            type: integer
           required: true
           description: ID of a home (unique within a home)
       responses:
@@ -100,7 +100,7 @@ paths:
         - in: path
           name: homeId
           schema:
-            type: string
+            type: integer
           required: true
           description: ID of a home (unique within a home)
       responses:
@@ -127,7 +127,7 @@ paths:
         - in: path
           name: homeId
           schema:
-            type: string
+            type: integer
           required: true
           description: ID of a home (unique within a home)
         - in: path
@@ -154,7 +154,7 @@ paths:
         - in: path
           name: homeId
           schema:
-            type: string
+            type: integer
           required: true
           description: ID of a home (unique within a home)
       responses:
@@ -180,7 +180,7 @@ paths:
         - in: path
           name: homeId
           schema:
-            type: string
+            type: integer
           required: true
           description: ID of a home (unique within a home)
       responses:
@@ -207,13 +207,13 @@ paths:
         - in: path
           name: homeId
           schema:
-            type: string
+            type: integer
           required: true
           description: ID of a home (unique within a home)
         - in: path
           name: mobileDeviceId
           schema:
-            type: string
+            type: integer
           required: true
           description: ID of a mobile device
       responses:
@@ -244,13 +244,13 @@ paths:
         - in: path
           name: homeId
           schema:
-            type: string
+            type: integer
           required: true
           description: ID of a home (unique within a home)
         - in: path
           name: mobileDeviceId
           schema:
-            type: string
+            type: integer
           required: true
           description: ID of a mobile device
       responses:
@@ -273,7 +273,7 @@ paths:
         - in: path
           name: homeId
           schema:
-            type: string
+            type: integer
           required: true
           description: ID of a home (unique within a home)
       responses:
@@ -302,7 +302,7 @@ paths:
         - in: path
           name: homeId
           schema:
-            type: string
+            type: integer
           required: true
           description: ID of a home (unique within a home)
       responses:
@@ -329,7 +329,7 @@ paths:
         - in: path
           name: homeId
           schema:
-            type: string
+            type: integer
           required: true
           description: ID of a home (unique within a home)
       responses:
@@ -356,7 +356,7 @@ paths:
         - in: path
           name: homeId
           schema:
-            type: string
+            type: integer
           required: true
           description: ID of a home (unique within a home)
       responses:
@@ -382,13 +382,13 @@ paths:
         - in: path
           name: homeId
           schema:
-            type: string
+            type: integer
           required: true
           description: unique ID of a home
         - in: path
           name: zoneId
           schema:
-            type: string
+            type: integer
           required: true
           description: ID of a zone (unique within a home)
       responses:
@@ -415,13 +415,13 @@ paths:
         - in: path
           name: homeId
           schema:
-            type: string
+            type: integer
           required: true
           description: unique ID of a home
         - in: path
           name: zoneId
           schema:
-            type: string
+            type: integer
           required: true
           description: ID of a zone (unique within a home)
         - in: query
@@ -455,13 +455,13 @@ paths:
         - in: path
           name: homeId
           schema:
-            type: string
+            type: integer
           required: true
           description: unique ID of a home
         - in: path
           name: zoneId
           schema:
-            type: string
+            type: integer
           required: true
           description: ID of a zone (unique within a home)
       responses:
@@ -486,13 +486,13 @@ paths:
         - in: path
           name: homeId
           schema:
-            type: string
+            type: integer
           required: true
           description: unique ID of a home
         - in: path
           name: zoneId
           schema:
-            type: string
+            type: integer
           required: true
           description: ID of a zone (unique within a home)
       requestBody:
@@ -526,13 +526,13 @@ paths:
         - in: path
           name: homeId
           schema:
-            type: string
+            type: integer
           required: true
           description: unique ID of a home
         - in: path
           name: zoneId
           schema:
-            type: string
+            type: integer
           required: true
           description: ID of a zone (unique within a home)
       responses:
@@ -560,7 +560,7 @@ paths:
         - in: path
           name: homeId
           schema:
-            type: string
+            type: integer
           required: true
           description: unique ID of a home
       responses:
