@@ -14,93 +14,37 @@ security:
   - oauth2: [] # no scopes
 
 paths:
-  /homes:
-    get:
-      summary: Get full details of the homes associated with the authenticated user
-      operationId: getHomes # hint for client code generators
-      tags:
-        - home
-      responses:
-        '200':
-          description: successful response
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Home'
-        '401':
-          $ref: '#/components/responses/Unauthorized401'
-  /homes/{homeId}:
-    get:
-      summary: Get full details of a single home.
-      operationId: getHome # hint for client code generators
-      tags:
-        - home
-      parameters:
-        - in: path
-          name: homeId
-          schema:
-            type: integer
-          required: true
-          description: unique ID of a home
-      responses:
-        '200':
-          description: successful response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Home'
-        '401':
-          $ref: '#/components/responses/Unauthorized401'
-        '403':
-          $ref: '#/components/responses/AccessDenied403'
+  ####################################################################################################################
+  # user paths
 
-  /homes/{homeId}/airComfort:
+  /me:
     get:
-      summary: Get humidity and temperature indicators for all zones (rooms) in this home
-      description: "'Climate comfort' element in the app"
-      operationId: getAirComfort # hint for client code generators
+      summary: Returns information about the authenticated user, (summary) information of their home(s) and mobile devices.
+      operationId: getMe # hint for client code generators
       tags:
-        - home
-      parameters:
-        - in: path
-          name: homeId
-          schema:
-            type: integer
-          required: true
-          description: ID of a home (unique within a home)
+        - user
       responses:
         '200':
           description: successful response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AirComfort'
+                $ref: '#/components/schemas/User'
         '401':
           $ref: '#/components/responses/Unauthorized401'
-        '403':
-          $ref: '#/components/responses/AccessDenied403'
 
-  /homes/{homeId}/devices:
+  /homes/{homeId}/users:
     get:
-      summary: Get all tado devices associated with the provided homeId.
-      # the float blank lines int the description are intentional, to force a new line in the rendered text on Swagger UI
-      description: >
-        The device information included in the response for `/homes/{homeId}/zones` and `/homes/{homeId}/zones/{zoneId}`
-        includes the `duties` property, while the response for this path does not. 
-        
-        
-        The response for this path does include devices of DeviceType `IB01` (Internet Bridge), 
-        while the responses for the zone related paths do not.
-      operationId: getDevices # hint for client code generators
+      summary: Get all users associated with the provided homeId.
+      operationId: getUsers # hint for client code generators
       tags:
-        - device
+        - user
       parameters:
         - in: path
           name: homeId
           schema:
             type: integer
+            format: int64
           required: true
           description: ID of a home (unique within a home)
       responses:
@@ -111,65 +55,14 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/DeviceBase'
+                  $ref: '#/components/schemas/User'
         '401':
           $ref: '#/components/responses/Unauthorized401'
         '403':
           $ref: '#/components/responses/AccessDenied403'
 
-  /homes/{homeId}/devices/{deviceId}/identify:
-    post:
-      summary: Instruct the device to say 'hi' on their display
-      operationId: identifyDevice # hint for client code generators
-      tags:
-        - device
-      parameters:
-        - in: path
-          name: homeId
-          schema:
-            type: integer
-          required: true
-          description: ID of a home (unique within a home)
-        - in: path
-          name: deviceId
-          schema:
-            type: string
-          required: true
-          description: the `shortSerialNo` of a device
-      responses:
-        '200':
-          description: successful response
-        '401':
-          $ref: '#/components/responses/Unauthorized401'
-        '403':
-          $ref: '#/components/responses/AccessDenied403'
-
-  /homes/{homeId}/heatingSystem:
-    get:
-      summary: Get information about the various heating systems in this home
-      operationId: getHomeHeatingSystem # hint for client code generators
-      tags:
-        - home
-      parameters:
-        - in: path
-          name: homeId
-          schema:
-            type: integer
-          required: true
-          description: ID of a home (unique within a home)
-      responses:
-        '200':
-          description: successful response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HomeHeatingSystem'
-        '401':
-          $ref: '#/components/responses/Unauthorized401'
-        '403':
-          $ref: '#/components/responses/AccessDenied403'
-
-
+  ####################################################################################################################
+  # mobile device paths
   /homes/{homeId}/mobileDevices:
     get:
       summary: Get all mobile devices associated with the provided homeId
@@ -181,6 +74,7 @@ paths:
           name: homeId
           schema:
             type: integer
+            format: int64
           required: true
           description: ID of a home (unique within a home)
       responses:
@@ -208,12 +102,14 @@ paths:
           name: homeId
           schema:
             type: integer
+            format: int64
           required: true
           description: ID of a home (unique within a home)
         - in: path
           name: mobileDeviceId
           schema:
             type: integer
+            format: int64
           required: true
           description: ID of a mobile device
       responses:
@@ -245,12 +141,14 @@ paths:
           name: homeId
           schema:
             type: integer
+            format: int64
           required: true
           description: ID of a home (unique within a home)
         - in: path
           name: mobileDeviceId
           schema:
             type: integer
+            format: int64
           required: true
           description: ID of a mobile device
       responses:
@@ -263,6 +161,104 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound404'
 
+  ####################################################################################################################
+  # home paths
+  /homes:
+    get:
+      summary: Get full details of the homes associated with the authenticated user
+      operationId: getHomes # hint for client code generators
+      tags:
+        - home
+      responses:
+        '200':
+          description: successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Home'
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+  /homes/{homeId}:
+    get:
+      summary: Get full details of a single home.
+      operationId: getHome # hint for client code generators
+      tags:
+        - home
+      parameters:
+        - in: path
+          name: homeId
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: unique ID of a home
+      responses:
+        '200':
+          description: successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Home'
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+        '403':
+          $ref: '#/components/responses/AccessDenied403'
+
+  /homes/{homeId}/airComfort:
+    get:
+      summary: Get humidity and temperature indicators for all zones (rooms) in this home
+      description: "'Climate comfort' element in the app"
+      operationId: getAirComfort # hint for client code generators
+      tags:
+        - home
+      parameters:
+        - in: path
+          name: homeId
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: ID of a home (unique within a home)
+      responses:
+        '200':
+          description: successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AirComfort'
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+        '403':
+          $ref: '#/components/responses/AccessDenied403'
+
+  /homes/{homeId}/heatingSystem:
+    get:
+      summary: Get information about the presence of various heating systems in this home
+      operationId: getHeatingSystem # hint for client code generators
+      tags:
+        - home
+      parameters:
+        - in: path
+          name: homeId
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: ID of a home (unique within a home)
+      responses:
+        '200':
+          description: successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HeatingSystem'
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+        '403':
+          $ref: '#/components/responses/AccessDenied403'
+
   /homes/{homeId}/state:
     get:
       summary: Get the state of a home
@@ -274,6 +270,7 @@ paths:
           name: homeId
           schema:
             type: integer
+            format: int64
           required: true
           description: ID of a home (unique within a home)
       responses:
@@ -283,64 +280,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HomeState'
-        '401':
-          $ref: '#/components/responses/Unauthorized401'
-        '403':
-          $ref: '#/components/responses/AccessDenied403'
-
-  /homes/{homeId}/zones:
-    get:
-      summary: Get all zones (a.k.a. rooms) associated with the provided homeId.
-      description: >
-        Includes full information of the tado devices present in each zone. 
-        The response does not include any device of DeviceType `IB01` (Internet Bridge);
-        use `/homes/{homeId}/devices` instead.
-      operationId: getZones # hint for client code generators
-      tags:
-        - zone
-      parameters:
-        - in: path
-          name: homeId
-          schema:
-            type: integer
-          required: true
-          description: ID of a home (unique within a home)
-      responses:
-        '200':
-          description: successful response
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Zone'
-        '401':
-          $ref: '#/components/responses/Unauthorized401'
-        '403':
-          $ref: '#/components/responses/AccessDenied403'
-
-  /homes/{homeId}/users:
-    get:
-      summary: Get all users associated with the provided homeId.
-      operationId: getUsers # hint for client code generators
-      tags:
-        - user
-      parameters:
-        - in: path
-          name: homeId
-          schema:
-            type: integer
-          required: true
-          description: ID of a home (unique within a home)
-      responses:
-        '200':
-          description: successful response
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/User'
         '401':
           $ref: '#/components/responses/Unauthorized401'
         '403':
@@ -357,6 +296,7 @@ paths:
           name: homeId
           schema:
             type: integer
+            format: int64
           required: true
           description: ID of a home (unique within a home)
       responses:
@@ -366,6 +306,134 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Weather'
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+        '403':
+          $ref: '#/components/responses/AccessDenied403'
+
+  ####################################################################################################################
+  # home control paths
+
+  /homes/{homeId}/overlay:
+    post:
+      summary: Control the overlays of multiple rooms (a.k.a. zones) with a single API method
+      operationId: postZoneOverlays # hint for client code generators
+      tags:
+        - home control
+      parameters:
+        - in: path
+          name: homeId
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: unique ID of a home
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/ZoneOverlay'
+      responses:
+        '204':
+          description: successful empty response
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+        '403':
+          $ref: '#/components/responses/AccessDenied403'
+        '422':
+          $ref: '#/components/responses/InputError422'
+    delete:
+      summary: Remove the overlays of multiple rooms (a.k.a. zones) with a single API method
+      operationId: deleteZoneOverlays # hint for client code generators
+      tags:
+        - home control
+      parameters:
+        - in: path
+          name: homeId
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: unique ID of a home
+        - in: query
+          name: rooms
+          schema:
+            type: array
+            items:
+              type: integer
+          required: true
+          description: list of zone IDs whose overlay should be removed (do not include a HOT_WATER zone ID)
+      responses:
+        '204':
+          description: successful empty response
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+        '403':
+          $ref: '#/components/responses/AccessDenied403'
+
+  /homes/{homeId}/presenceLock:
+    put:
+      summary: Specify whether someone at home or not
+      operationId: putHomePresenceLock # hint for client code generators
+      tags:
+        - home control
+      parameters:
+        - in: path
+          name: homeId
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: unique ID of a home
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PresenceLock'
+      responses:
+        '204':
+          description: successful empty response
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+        '403':
+          $ref: '#/components/responses/AccessDenied403'
+        '422': # verify
+          $ref: '#/components/responses/InputError422'
+
+
+  ####################################################################################################################
+  # zone  paths
+  /homes/{homeId}/zones:
+    get:
+      summary: Get all zones (a.k.a. rooms) associated with the provided homeId.
+      description: >
+        Includes full information of the tado devices present in each zone. 
+        The response does not include any device of DeviceType `IB01` (Internet Bridge);
+        use `/homes/{homeId}/devices` instead.
+      operationId: getZones # hint for client code generators
+      tags:
+        - zone
+      parameters:
+        - in: path
+          name: homeId
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: ID of a home (unique within a home)
+      responses:
+        '200':
+          description: successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Zone'
         '401':
           $ref: '#/components/responses/Unauthorized401'
         '403':
@@ -383,12 +451,14 @@ paths:
           name: homeId
           schema:
             type: integer
+            format: int64
           required: true
           description: unique ID of a home
         - in: path
           name: zoneId
           schema:
             type: integer
+            format: int64
           required: true
           description: ID of a zone (unique within a home)
       responses:
@@ -398,116 +468,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ZoneCapabilities'
-        '401':
-          $ref: '#/components/responses/Unauthorized401'
-        '403':
-          $ref: '#/components/responses/AccessDenied403'
-        '404':
-          $ref: '#/components/responses/NotFound404'
-
-  /homes/{homeId}/zones/{zoneId}/dayReport:
-    get:
-      summary: Get historic information for a particular day
-      operationId: getZoneDayReport # hint for client code generators
-      tags:
-        - report
-      parameters:
-        - in: path
-          name: homeId
-          schema:
-            type: integer
-          required: true
-          description: unique ID of a home
-        - in: path
-          name: zoneId
-          schema:
-            type: integer
-          required: true
-          description: ID of a zone (unique within a home)
-        - in: query
-          name: date
-          schema:
-            type: string
-            format: date
-          required: true
-          example: "2018-02-14"
-      responses:
-        '200':
-          description: successful response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/DayReport'
-        '401':
-          $ref: '#/components/responses/Unauthorized401'
-        '403':
-          $ref: '#/components/responses/AccessDenied403'
-        '404':
-          $ref: '#/components/responses/NotFound404'
-
-  /homes/{homeId}/zones/{zoneId}/earlyStart:
-    get:
-      summary: Control whether Tado makes sure a set temperature is reached at the start of a block
-      operationId: getZoneEarlyStart # hint for client code generators
-      tags:
-        - zone control
-      parameters:
-        - in: path
-          name: homeId
-          schema:
-            type: integer
-          required: true
-          description: unique ID of a home
-        - in: path
-          name: zoneId
-          schema:
-            type: integer
-          required: true
-          description: ID of a zone (unique within a home)
-      responses:
-        '200':
-          description: successful response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/EarlyStart'
-        '401':
-          $ref: '#/components/responses/Unauthorized401'
-        '403':
-          $ref: '#/components/responses/AccessDenied403'
-        '404':
-          $ref: '#/components/responses/NotFound404'
-    put:
-      summary: Control whether Tado makes sure a set temperature is reached at the start of a block
-      operationId: putZoneEarlyStart # hint for client code generators
-      tags:
-        - zone control
-      parameters:
-        - in: path
-          name: homeId
-          schema:
-            type: integer
-          required: true
-          description: unique ID of a home
-        - in: path
-          name: zoneId
-          schema:
-            type: integer
-          required: true
-          description: ID of a zone (unique within a home)
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/EarlyStart'
-      responses:
-        '200':
-          description: successful response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/EarlyStart'
         '401':
           $ref: '#/components/responses/Unauthorized401'
         '403':
@@ -527,12 +487,14 @@ paths:
           name: homeId
           schema:
             type: integer
+            format: int64
           required: true
           description: unique ID of a home
         - in: path
           name: zoneId
           schema:
             type: integer
+            format: int64
           required: true
           description: ID of a zone (unique within a home)
       responses:
@@ -561,6 +523,7 @@ paths:
           name: homeId
           schema:
             type: integer
+            format: int64
           required: true
           description: unique ID of a home
       responses:
@@ -577,21 +540,325 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound404'
 
-  /me:
+  ####################################################################################################################
+  # zone control paths
+
+  /homes/{homeId}/zones/{zoneId}/earlyStart:
     get:
-      summary: Returns information about the authenticated user, (summary) information of their home(s) and mobile devices.
-      operationId: getMe # hint for client code generators
+      summary: Control whether Tado makes sure a set temperature is reached at the start of a block
+      operationId: getZoneEarlyStart # hint for client code generators
       tags:
-        - user
+        - zone control
+      parameters:
+        - in: path
+          name: homeId
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: unique ID of a home
+        - in: path
+          name: zoneId
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: ID of a zone (unique within a home)
       responses:
         '200':
           description: successful response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: '#/components/schemas/EarlyStart'
         '401':
           $ref: '#/components/responses/Unauthorized401'
+        '403':
+          $ref: '#/components/responses/AccessDenied403'
+        '404':
+          $ref: '#/components/responses/NotFound404'
+        '422':
+          $ref: '#/components/responses/UnsupportedForZoneType422'
+    put:
+      summary: Control whether Tado makes sure a set temperature is reached at the start of a block
+      operationId: putZoneEarlyStart # hint for client code generators
+      tags:
+        - zone control
+      parameters:
+        - in: path
+          name: homeId
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: unique ID of a home
+        - in: path
+          name: zoneId
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: ID of a zone (unique within a home)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EarlyStart'
+      responses:
+        '200':
+          description: successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EarlyStart'
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+        '403':
+          $ref: '#/components/responses/AccessDenied403'
+        '404':
+          $ref: '#/components/responses/NotFound404'
+        '422':
+          $ref: '#/components/responses/UnsupportedForZoneType422'
+
+  /homes/{homeId}/zones/{zoneId}/overlay:
+    get:
+      summary: Get the overlay of the given zone (a.k.a. room)
+      operationId: getZoneOverlay # hint for client code generators
+      tags:
+        - zone control
+      parameters:
+        - in: path
+          name: homeId
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: unique ID of a home
+        - in: path
+          name: zoneId
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: ID of a zone (unique within a home)
+      responses:
+        '200':
+          description: successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ZoneOverlay'
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+        '403':
+          $ref: '#/components/responses/AccessDenied403'
+        '404':
+          $ref: '#/components/responses/NotFound404' # when the zone does not exist of there is no overlay for this zone
+    post:
+      summary: Set the overlay of the given zone (a.k.a. room)
+      operationId: postZoneOverlay # hint for client code generators
+      tags:
+        - zone control
+      parameters:
+        - in: path
+          name: homeId
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: unique ID of a home
+        - in: path
+          name: zoneId
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: ID of a zone (unique within a home)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ZoneOverlay'
+      responses:
+        '204':
+          description: successful empty response
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+        '403':
+          $ref: '#/components/responses/AccessDenied403'
+        '422':
+          $ref: '#/components/responses/InputError422'
+    delete:
+      summary: Remove the overlay of the given zone (a.k.a. room)
+      operationId: deleteZoneOverlay # hint for client code generators
+      tags:
+        - zone control
+      parameters:
+        - in: path
+          name: homeId
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: unique ID of a home
+        - in: path
+          name: zoneId
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: ID of a zone (unique within a home)
+      responses:
+        '204':
+          description: successful empty response
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+        '403':
+          $ref: '#/components/responses/AccessDenied403'
+
+  ####################################################################################################################
+  # device paths
+  /homes/{homeId}/devices:
+    get:
+      summary: Get all tado devices associated with the provided homeId.
+      # the float blank lines int the description are intentional, to force a new line in the rendered text on Swagger UI
+      description: >
+        The device information included in the response for `/homes/{homeId}/zones` and `/homes/{homeId}/zones/{zoneId}`
+        includes the `duties` property, while the response for this path does not. 
+        
+        
+        The response for this path does include devices of DeviceType `IB01` (Internet Bridge), 
+        while the responses for the zone related paths do not.
+      operationId: getDevices # hint for client code generators
+      tags:
+        - device
+      parameters:
+        - in: path
+          name: homeId
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: ID of a home (unique within a home)
+      responses:
+        '200':
+          description: successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DeviceBase'
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+        '403':
+          $ref: '#/components/responses/AccessDenied403'
+
+  /homes/{homeId}/devices/{deviceId}/identify:
+    post:
+      summary: Instruct the device to say 'hi' on their display
+      operationId: identifyDevice # hint for client code generators
+      tags:
+        - device
+      parameters:
+        - in: path
+          name: homeId
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: ID of a home (unique within a home)
+        - in: path
+          name: deviceId
+          schema:
+            type: string
+          required: true
+          description: the `shortSerialNo` of a device
+      responses:
+        '200':
+          description: successful response; response body is empty, but response statuscode is 200 and not 204
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+        '403':
+          $ref: '#/components/responses/AccessDenied403'
+
+  /homes/{homeId}/deviceList:
+    get:
+      summary: Get all tado devices associated with the provided homeId, together with the zone (a.k.a. room) they are in
+      operationId: getDeviceList # hint for client code generators
+      tags:
+        - device
+      parameters:
+        - in: path
+          name: homeId
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: ID of a home (unique within a home)
+      responses:
+        '200':
+          description: successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DeviceList'
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+        '403':
+          $ref: '#/components/responses/AccessDenied403'
+
+  ####################################################################################################################
+  # report paths
+
+  /homes/{homeId}/zones/{zoneId}/dayReport:
+    get:
+      summary: Get historic information for a particular day
+      operationId: getZoneDayReport # hint for client code generators
+      tags:
+        - report
+      parameters:
+        - in: path
+          name: homeId
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: unique ID of a home
+        - in: path
+          name: zoneId
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: ID of a zone (unique within a home)
+        - in: query
+          name: date
+          schema:
+            type: string
+            format: date
+          required: true
+          example: "2018-02-14"
+      responses:
+        '200':
+          description: successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DayReport'
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+        '403':
+          $ref: '#/components/responses/AccessDenied403'
+        '404':
+          $ref: '#/components/responses/NotFound404'
+
 
 components:
   securitySchemes:
@@ -617,6 +884,18 @@ components:
             $ref: '#/components/schemas/ErrorResponse'
     NotFound404:
       description: not found, the specified resource does not exist
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    InputError422:
+      description: the request body contains errors (e.g. a required property is missing)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    UnsupportedForZoneType422:
+      description: the requested operation is not supported for the zone type of the specified zone
       content:
         application/json:
           schema:
@@ -1092,6 +1371,35 @@ components:
           example: false
           description: "property known to be present for DeviceType IB01"
 
+    DeviceList:
+      type: object
+      properties:
+        entries:
+          type: array
+          items:
+            $ref: '#/components/schemas/DeviceListItem'
+
+    DeviceListItem:
+      type: object
+      properties:
+        type:
+          $ref: '#/components/schemas/DeviceType'
+        device:
+          $ref: '#/components/schemas/DeviceBase'
+        zone:
+          type: object
+          properties:
+            discriminator:
+              type: integer
+              example: 4
+              description: a zone ID (a.k.a. room ID)
+            duties:
+              type: array
+              items:
+                type: string
+                example: UI
+                description: "known values: UI (seen for DeviceType SU02)"
+
     DeviceType:
       type: string
       example: SU02
@@ -1119,6 +1427,44 @@ components:
       description: error object returned for non-200 responses
       items:
         $ref: '#/components/schemas/Error'
+
+    ErrorResponseZoneType:
+      type: array
+      description: error object returned for non-200 responses
+      items:
+        $ref: '#/components/schemas/ErrorZoneType'
+
+    ErrorZoneType:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/Error'
+      properties:
+        zoneType:
+          type: string
+          example: HOT_WATER
+          description: "the problematic zone type, known values: HOT_WATER"
+
+    HeatingSystem:
+      type: object
+      properties:
+        boiler:
+          type: object
+          properties:
+            present:
+              type: boolean
+              example: true
+            id:
+              type: integer
+              example: 2699
+            found:
+              type: boolean
+              example: true
+        underfloorHeating:
+          type: object
+          properties:
+            present:
+              type: boolean
+              example: false
 
     Home:
       allOf:
@@ -1258,34 +1604,13 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           description: unique home ID
           example: 1118186
         name:
           type: string
           description: user assigned name for this home
           example: my home
-
-    HomeHeatingSystem:
-      type: object
-      properties:
-        boiler:
-          type: object
-          properties:
-            present:
-              type: boolean
-              example: true
-            id:
-              type: integer
-              example: 2699
-            found:
-              type: boolean
-              example: true
-        underfloorHeating:
-          type: object
-          properties:
-            present:
-              type: boolean
-              example: false
 
     HomeState:
       type: object
@@ -1303,6 +1628,7 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           example: 8254700
         name:
           type: string
@@ -1335,6 +1661,14 @@ components:
             locale:
               type: string
               example: nl
+
+    PresenceLock:
+      type: object
+      properties:
+        homePresence:
+          type: string
+          example: AWAY
+          description: "known values: HOME, AWAY"
 
     User:
       type: object
@@ -1449,6 +1783,7 @@ components:
       properties:
         id:
           type: integer
+          format: int64
           description: id of the zone (unique within the scope of the home it belongs to)
           example: 2
         name:
@@ -1545,6 +1880,67 @@ components:
           type: boolean
           example: false
           description: property available for zone type HOT_WATER
+
+
+# post home overlays
+    #"overlay": {
+    #  "setting": {
+    #    "power": "OFF",
+    #    "type": "HEATING"
+    #  },
+    #  "termination": {
+    #    "typeSkillBasedApp": "MANUAL"
+    #  }
+
+# GET zone overlay
+#    {"type":"MANUAL","setting":{"type":"HEATING","power":"OFF","temperature":null},"termination":{"type":"MANUAL","typeSkillBasedApp":"MANUAL","projectedExpiry":null}}
+
+# PUT zone overlay
+# {"type":"MANUAL","setting":{"type":"HEATING","power":"ON","temperature":{"celsius":15.00,"fahrenheit":59.00}},"termination":{"type":"TADO_MODE","typeSkillBasedApp":"TADO_MODE","projectedExpiry":null}}
+
+    ZoneOverlay:
+      type: object
+      properties:
+        # mandatory for put zone overlay? (not included in post home overlay)
+        type:
+          type: string
+          example: MANUAL
+          description: "known values: MANUAL"
+        setting:
+          type: object
+          properties:
+            power:
+              type: string
+              example: OFF
+              description: "known values: ON, OFF"
+            type:
+              type: string
+              example: HEATING
+              description: "known values: HEATING"
+            temperature:
+              type: object
+              nullable: true
+              properties:
+                celsius:
+                  type: number
+                  example: 15
+                fahrenheit:
+                  type: number
+                  example: 59
+        termination:
+          type: object
+          properties:
+            type:
+              type: string
+              example: MANUAL
+              description: "known values: MANUAL, TADO_MODE"
+            typeSkillBasedApp:
+              type: string
+              example: MANUAL
+              description: "known values: MANUAL"
+            # TODO
+            projectedExpiry:
+              nullable: true
 
     ZoneState:
       type: object
@@ -1759,6 +2155,7 @@ tags:
   - name: user
   - name: mobile device
   - name: home
+  - name: home control
   - name: zone
   - name: zone control
   - name: device
