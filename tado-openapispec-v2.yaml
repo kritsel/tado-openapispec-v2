@@ -7,7 +7,7 @@ info:
     
     Github repository where this specification is maintained: 
     [https://github.com/kritsel/tado-openapispec-v2](https://github.com/kritsel/tado-openapispec-v2)
-  version: 2.2024.08.11.0
+  version: 2.2024.08.11.1
 servers:
   - url: https://my.tado.com/api/v2/
 security:
@@ -1966,10 +1966,12 @@ components:
           $ref: ''#/components/schemas/DayType'
         start:
           type: string
+          format: time
           example: "21:00"
           description: start time of this block in 24 hour clock notation
         end:
           type: string
+          format: time
           example: "22:00"
           description : end time of this block in 24 hour clock notation
         geolocationOverride:
