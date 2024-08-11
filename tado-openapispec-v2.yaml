@@ -7,7 +7,7 @@ info:
     
     Github repository where this specification is maintained: 
     [https://github.com/kritsel/tado-openapispec-v2](https://github.com/kritsel/tado-openapispec-v2)
-  version: 2.2024.08.05.1
+  version: 2.2024.08.11.0
 servers:
   - url: https://my.tado.com/api/v2/
 security:
@@ -316,7 +316,7 @@ paths:
 
   /homes/{homeId}/overlay:
     post:
-      summary: Control the overlays of multiple rooms (a.k.a. zones) with a single API method
+      summary: Control the overlays (manual override of the configured temperature schedule) of multiple rooms (a.k.a. zones) with a single API method
       operationId: postZoneOverlays # hint for client code generators
       tags:
         - home control
@@ -346,7 +346,7 @@ paths:
         '422':
           $ref: '#/components/responses/InputError422'
     delete:
-      summary: Remove the overlays of multiple rooms (a.k.a. zones) with a single API method
+      summary: Remove the overlays (manual override of the configured temperature schedule) of multiple rooms (a.k.a. zones) with a single API method
       operationId: deleteZoneOverlays # hint for client code generators
       tags:
         - home control
@@ -623,7 +623,7 @@ paths:
 
   /homes/{homeId}/zones/{zoneId}/overlay:
     get:
-      summary: Get the overlay of the given zone (a.k.a. room)
+      summary: Get the overlay (manual override of the configured temperature schedule) of the given zone (a.k.a. room)
       operationId: getZoneOverlay # hint for client code generators
       tags:
         - zone control
@@ -658,7 +658,7 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound404' # when the zone does not exist of there is no overlay for this zone
     post:
-      summary: Set the overlay of the given zone (a.k.a. room)
+      summary: Set the overlay (manual override of the configured temperature schedule) for the given zone (a.k.a. room)
       operationId: postZoneOverlay # hint for client code generators
       tags:
         - zone control
@@ -693,7 +693,7 @@ paths:
         '422':
           $ref: '#/components/responses/InputError422'
     delete:
-      summary: Remove the overlay of the given zone (a.k.a. room)
+      summary: Remove the overlay (manual override of the configured temperature schedule) for the given zone (a.k.a. room)
       operationId: deleteZoneOverlay # hint for client code generators
       tags:
         - zone control
@@ -719,6 +719,279 @@ paths:
           $ref: '#/components/responses/Unauthorized401'
         '403':
           $ref: '#/components/responses/AccessDenied403'
+
+  /homes/{homeId}/zones/{zoneId}/schedule/awayConfiguration:
+    get:
+      summary: Get the settings to use for the given zone (a.k.a. room) when everyone is out of the house
+      operationId: getZoneAwayConfiguration # hint for client code generators
+      tags:
+        - zone control
+      parameters:
+        - in: path
+          name: homeId
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: unique ID of a home
+        - in: path
+          name: zoneId
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: ID of a zone (unique within a home)
+      responses:
+        '200':
+          description: successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ZoneAwayConfiguration'
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+        '403':
+          $ref: '#/components/responses/AccessDenied403'
+
+  /homes/{homeId}/zones/{zoneId}/schedule/activeTimetable:
+    get:
+      summary: Get the active timetable type for the given zone (a.k.a. room)
+      operationId: getZoneActiveTimetable # hint for client code generators
+      tags:
+        - zone control
+      parameters:
+        - in: path
+          name: homeId
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: unique ID of a home
+        - in: path
+          name: zoneId
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: ID of a zone (unique within a home)
+      responses:
+        '200':
+          description: successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TimetableType'
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+        '403':
+          $ref: '#/components/responses/AccessDenied403'
+
+  /homes/{homeId}/zones/{zoneId}/schedule/timetables:
+    get:
+      summary: Get the available timetable types
+      operationId: getZoneTimetables # hint for client code generators
+      tags:
+        - zone control
+      parameters:
+        - in: path
+          name: homeId
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: unique ID of a home
+        - in: path
+          name: zoneId
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: ID of a zone (unique within a home)
+      responses:
+        '200':
+          description: successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                description: all available timetable types
+                items:
+                  $ref: '#/components/schemas/TimetableType'
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+        '403':
+          $ref: '#/components/responses/AccessDenied403'
+
+  /homes/{homeId}/zones/{zoneId}/schedule/timetables/{timetableTypeId}:
+    get:
+      summary: Get the timetable type for the given timetable type ID
+      operationId: getZoneTimetable # hint for client code generators
+      tags:
+        - zone control
+      parameters:
+        - in: path
+          name: homeId
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: unique ID of a home
+        - in: path
+          name: zoneId
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: ID of a zone (unique within a home)
+        - in: path
+          name: timetableTypeId
+          schema:
+            type: integer
+          required: true
+          example: 1
+          description: ID of a timetable type
+      responses:
+        '200':
+          description: successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TimetableType'
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+        '403':
+          $ref: '#/components/responses/AccessDenied403'
+        '404':
+          $ref: '#/components/responses/NotFound404'
+
+  /homes/{homeId}/zones/{zoneId}/schedule/timetables/{timetableTypeId}/blocks:
+    get:
+      summary: Get the user defined timetable blocks for the given zoneId and given timetableId.
+      # the double empty lines below are intentional, they control the layout in Swagger UI.
+      description: >
+        For each zone you can define three different schedules, where each schedule is identified by a timetable type: 
+        ONE_DAY (the same schedule for every day of the week),
+        THREE_DAY (the same schedule for weekdays, and a separate schedule for saturday and sunday) and
+        SEVEN_DAY (a different schedule for each day of the week).
+        
+        
+        Only one of these schedules can be active at any one time 
+        (see `/homes/{homeId}/zones/{zoneId}/schedule/activeTimetable`).
+        
+        
+        Each schedule for a timetable type consists of an array of blocks.
+        Each block consists of a day type (e.g. MONDAY_TO_FRIDAY for the THREE_DAY timetable type), a start time and end time 
+        and the temperature setting for that time period.
+      operationId: getZoneTimetableBlocks # hint for client code generators
+      tags:
+        - zone control
+      parameters:
+        - in: path
+          name: homeId
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: unique ID of a home
+        - in: path
+          name: zoneId
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: ID of a zone (unique within a home)
+        - in: path
+          name: timetableTypeId
+          schema:
+            type: integer
+          required: true
+          example: 1
+          description: ID of a timetable type
+      responses:
+        '200':
+          description: successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TimetableBlock'
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+        '403':
+          $ref: '#/components/responses/AccessDenied403'
+        '404':
+          $ref: '#/components/responses/NotFound404'
+
+  /homes/{homeId}/zones/{zoneId}/schedule/timetables/{timetableTypeId}/blocks/{dayType}:
+    get:
+      summary: Get the user defined timetable blocks for the given zoneId, timetableId and dayType
+      # the double empty lines below are intentional, they control the layout in Swagger UI.
+      description: >
+        For each zone you can define three different schedules, where each schedule is identified by a timetable type: 
+        ONE_DAY (the same schedule for every day of the week),
+        THREE_DAY (the same schedule for weekdays, and a separate schedule for saturday and sunday) and
+        SEVEN_DAY (a different schedule for each day of the week).
+        
+        
+        Only one of these schedules can be active at any one time 
+        (see `/homes/{homeId}/zones/{zoneId}/schedule/activeTimetable`).
+        
+        
+        Each schedule for a timetable type consists of an array of blocks.
+        Each block consists of a day type (e.g. MONDAY_TO_FRIDAY for the THREE_DAY timetable type), a start time and end time 
+        and the temperature setting for that time period.
+      operationId: getZoneTimetableBlocksByDayType # hint for client code generators
+      tags:
+        - zone control
+      parameters:
+        - in: path
+          name: homeId
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: unique ID of a home
+        - in: path
+          name: zoneId
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: ID of a zone (unique within a home)
+        - in: path
+          name: timetableTypeId
+          schema:
+            type: integer
+          required: true
+          example: 1
+          description: ID of a timetable type
+        - in: path
+          name: dayType
+          schema:
+            $ref: ''#/components/schemas/DayType'
+          required: true
+          example: MONDAY_TO_FRIDAY
+          description: name of a day type
+      responses:
+        '200':
+          description: successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TimetableBlock'
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+        '403':
+          $ref: '#/components/responses/AccessDenied403'
+        '404':
+          $ref: '#/components/responses/NotFound404'
 
   ####################################################################################################################
   # device paths
@@ -947,9 +1220,7 @@ components:
       type: object
       properties:
         zoneType:
-          type: string
-          example: HEATING
-          description: "known values: HEATING, HOT_WATER"
+          $ref: '#/components/schemas/ZoneType'
         interval:
           type: object
           properties:
@@ -1110,25 +1381,8 @@ components:
                         type: string
                         example: HOME_LOCATION_BASED_CONTROL_OFF
                       setting:
-                        type: object
-                        properties:
-                          type:
-                            type: string
-                            example: HEATING
-                          power:
-                            type: string
-                            example: ON
-                          temperature:
-                            type: object
-                            properties:
-                              celsius:
-                                type: number
-                                format: float
-                                example: 14.0
-                              fahrenheit:
-                                type: number
-                                format: float
-                                example: 57.2
+                        $ref: '#/components/schemas/TemperatureSetting'
+
         callForHeat:
           type: object
           properties:
@@ -1277,6 +1531,18 @@ components:
                         20:00:
                           $ref: '#/components/schemas/WeatherSlot'
 
+    DayType:
+      type: string
+      example: MONDAY_TO_FRIDAY
+      # the double empty lines below are intentional, the control the presentation in Swagger UI
+      description: >
+        known values for timetableType 0 (ONE_DAY) : MONDAY_TO_SUNDAY;
+
+
+        for timetableType 1 (THREE_DAY): MONDAY_TO_FRIDAY, SATURDAY, SUNDAY; 
+
+
+        for timetable 2 (SEVEN_DAY): MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY
 
     Device:
       description: >
@@ -1670,6 +1936,59 @@ components:
           example: AWAY
           description: "known values: HOME, AWAY"
 
+    TemperatureSetting:
+      type: object
+      properties:
+        power:
+          type: string
+          example: OFF
+          description: "known values: ON, OFF"
+        type:
+          $ref: '#/components/schemas/ZoneType'
+        temperature:
+          type: object
+          nullable: true
+          description: null for a HOT_WATER zone
+          properties:
+            celsius:
+              type: number
+              format: float
+              example: 14.0
+            fahrenheit:
+              type: number
+              format: float
+              example: 57.2
+
+    TimetableBlock:
+      type: object
+      properties:
+        dayType:
+          $ref: ''#/components/schemas/DayType'
+        start:
+          type: string
+          example: "21:00"
+          description: start time of this block in 24 hour clock notation
+        end:
+          type: string
+          example: "22:00"
+          description : end time of this block in 24 hour clock notation
+        geolocationOverride:
+          type: boolean
+        setting:
+          $ref: '#/components/schemas/TemperatureSetting'
+
+    TimetableType:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 0
+          description: "known values: 0 (ONE_DAY), 1 (THREE_DAY), 2 (SEVEN_DAY)"
+        type:
+          type: string
+          example: ONE_DAY
+          description: "known values: ONE_DAY (0), THREE_DAY (1), SEVEN_DAY (2)"
+
     User:
       type: object
       properties:
@@ -1777,6 +2096,7 @@ components:
               type: number
               format: float
               example: 22.78
+
     Zone:
       type: object
       description: a room in a home whose temperature is controlled by tado
@@ -1791,9 +2111,7 @@ components:
           description: user assigned name
           example: my living room
         type:
-          type: string
-          description: "known values: HEATING, HOT_WATER"
-          example: HEATING
+          $ref: '#/components/schemas/ZoneType'
         dateCreated:
           type: string
           format: date-time
@@ -1839,13 +2157,28 @@ components:
             timeoutInSeconds:
               type: integer
               example: 900
+
+    ZoneAwayConfiguration:
+      type: object
+      properties:
+        type:
+          $ref: '#/components/schemas/ZoneType'
+        autoAdjust:
+          type: boolean
+          example: false
+          description: property present for zone type HEATING
+        comfortLevel:
+          type: string
+          nullable: true
+          description: property present for zone type HEATING
+        setting:
+          $ref: '#/components/schemas/TemperatureSetting'
+
     ZoneCapabilities:
       type: object
       properties:
         type:
-          type: string
-          example: HEATING
-          description: "known values: HEATING, HOT_WATER"
+          $ref: '#/components/schemas/ZoneType'
         temperatures:
           type: object
           description: property available for zone type HEATING
@@ -1881,23 +2214,6 @@ components:
           example: false
           description: property available for zone type HOT_WATER
 
-
-# post home overlays
-    #"overlay": {
-    #  "setting": {
-    #    "power": "OFF",
-    #    "type": "HEATING"
-    #  },
-    #  "termination": {
-    #    "typeSkillBasedApp": "MANUAL"
-    #  }
-
-# GET zone overlay
-#    {"type":"MANUAL","setting":{"type":"HEATING","power":"OFF","temperature":null},"termination":{"type":"MANUAL","typeSkillBasedApp":"MANUAL","projectedExpiry":null}}
-
-# PUT zone overlay
-# {"type":"MANUAL","setting":{"type":"HEATING","power":"ON","temperature":{"celsius":15.00,"fahrenheit":59.00}},"termination":{"type":"TADO_MODE","typeSkillBasedApp":"TADO_MODE","projectedExpiry":null}}
-
     ZoneOverlay:
       type: object
       properties:
@@ -1907,26 +2223,7 @@ components:
           example: MANUAL
           description: "known values: MANUAL"
         setting:
-          type: object
-          properties:
-            power:
-              type: string
-              example: OFF
-              description: "known values: ON, OFF"
-            type:
-              type: string
-              example: HEATING
-              description: "known values: HEATING"
-            temperature:
-              type: object
-              nullable: true
-              properties:
-                celsius:
-                  type: number
-                  example: 15
-                fahrenheit:
-                  type: number
-                  example: 59
+          $ref: '#/components/schemas/TemperatureSetting'
         termination:
           type: object
           properties:
@@ -1959,26 +2256,7 @@ components:
           #          type: ???
           nullable: true
         setting:
-          type: object
-          properties:
-            type:
-              type: string
-              example: HEATING
-              description: "known values: HEATING, HOT_WATER"
-            power:
-              type: string
-              example: ON
-              description: "known values: ON, OFF"
-            temperature:
-              type: object
-              nullable: true
-              properties:
-                celsius:
-                  type: number
-                  example: 15
-                fahrenheit:
-                  type: number
-                  example: 59
+          $ref: '#/components/schemas/TemperatureSetting'
         overlayType:
           type: string
           example: MANUAL
@@ -1993,26 +2271,7 @@ components:
               example: MANUAL
               description: "known values: MANUAL"
             setting:
-              type: object
-              properties:
-                type:
-                  type: string
-                  example: HEATING
-                  description: "known values: HEATING, HOT_WATER"
-                power:
-                  type: string
-                  example: ON
-                  description: "known values: ON"
-                temperature:
-                  type: object
-                  nullable: true
-                  properties:
-                    celsius:
-                      type: number
-                      example: 15
-                    fahrenheit:
-                      type: number
-                      example: 59
+              $ref: '#/components/schemas/TemperatureSetting'
             termination:
               type: object
               properties:
@@ -2038,26 +2297,7 @@ components:
                   type: string
                   format: date-time
                 setting:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      example: HEATING
-                      description: "known values: HEATING, HOT_WATER"
-                    power:
-                      type: string
-                      example: ON
-                      description: "known values: ON"
-                    temperature:
-                      type: object
-                      nullable: true
-                      properties:
-                        celsius:
-                          type: number
-                          example: 15
-                        fahrenheit:
-                          type: number
-                          example: 59
+                  $ref: '#/components/schemas/TemperatureSetting'
         nextTimeBlock:
           type: object
           properties:
@@ -2150,6 +2390,10 @@ components:
           additionalProperties:
             $ref: '#/components/schemas/ZoneState'
 
+    ZoneType:
+      type: string
+      example: HEATING
+      description: "known values: HEATING, HOT_WATER"
 
 tags:
   - name: user
