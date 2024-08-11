@@ -7,7 +7,7 @@ info:
     
     Github repository where this specification is maintained: 
     [https://github.com/kritsel/tado-openapispec-v2](https://github.com/kritsel/tado-openapispec-v2)
-  version: 2.2024.08.11.1
+  version: 2.2024.08.11.2
 servers:
   - url: https://my.tado.com/api/v2/
 security:
@@ -973,7 +973,7 @@ paths:
         - in: path
           name: dayType
           schema:
-            $ref: ''#/components/schemas/DayType'
+            $ref: '#/components/schemas/DayType'
           required: true
           example: MONDAY_TO_FRIDAY
           description: name of a day type
