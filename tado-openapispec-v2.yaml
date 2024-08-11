@@ -1224,17 +1224,14 @@ components:
         interval:
           type: object
           properties:
-            interval:
-              type: object
-              properties:
-                from:
-                  type: string
-                  format: date-time
-                  example: "2024-01-10T22:45:00.000Z"
-                to:
-                  type: string
-                  format: date-time
-                  example: "2024-01-11T23:15:00.000Z"
+            from:
+              type: string
+              format: date-time
+              example: "2024-01-10T22:45:00.000Z"
+            to:
+              type: string
+              format: date-time
+              example: "2024-01-11T23:15:00.000Z"
         hoursInDay:
           type: integer
           example: 24
