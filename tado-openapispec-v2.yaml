@@ -7,7 +7,7 @@ info:
     
     Github repository where this specification is maintained: 
     [https://github.com/kritsel/tado-openapispec-v2](https://github.com/kritsel/tado-openapispec-v2)
-  version: 2.2024.08.12.1
+  version: 2.2024.08.12.2
 servers:
   - url: https://my.tado.com/api/v2/
 security:
@@ -1492,15 +1492,15 @@ components:
                 slots:
                   type: object
                   properties:
-                    04:00:
+                    '04:00':
                       $ref: '#/components/schemas/WeatherSlot'
-                    08:00:
+                    '08:00':
                       $ref: '#/components/schemas/WeatherSlot'
-                    12:00:
+                    '12:00':
                       $ref: '#/components/schemas/WeatherSlot'
-                    16:00:
+                    '16:00':
                       $ref: '#/components/schemas/WeatherSlot'
-                    20:00:
+                    '20:00':
                       $ref: '#/components/schemas/WeatherSlot'
 
     DayType:
