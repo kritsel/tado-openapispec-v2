@@ -163,26 +163,10 @@ paths:
 
   ####################################################################################################################
   # home paths
-  /homes:
-    get:
-      summary: Get full details of the homes associated with the authenticated user
-      operationId: getHomes # hint for client code generators
-      tags:
-        - home
-      responses:
-        '200':
-          description: successful response
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Home'
-        '401':
-          $ref: '#/components/responses/Unauthorized401'
   /homes/{homeId}:
     get:
       summary: Get full details of a single home.
+      description: Use `GET /me` to determine the `homeId` of your home
       operationId: getHome # hint for client code generators
       tags:
         - home
@@ -254,32 +238,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HeatingSystem'
-        '401':
-          $ref: '#/components/responses/Unauthorized401'
-        '403':
-          $ref: '#/components/responses/AccessDenied403'
-
-  /homes/{homeId}/state:
-    get:
-      summary: Get the state of a home
-      operationId: getHomeState # hint for client code generators
-      tags:
-        - home
-      parameters:
-        - in: path
-          name: homeId
-          schema:
-            type: integer
-            format: int64
-          required: true
-          description: ID of a home (unique within a home)
-      responses:
-        '200':
-          description: successful response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HomeState'
         '401':
           $ref: '#/components/responses/Unauthorized401'
         '403':
@@ -404,6 +362,31 @@ paths:
         '422': # verify
           $ref: '#/components/responses/InputError422'
 
+  /homes/{homeId}/state:
+    get:
+      summary: Get information about the presence state of the home
+      operationId: getHomeState # hint for client code generators
+      tags:
+        - home control
+      parameters:
+        - in: path
+          name: homeId
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: ID of a home (unique within a home)
+      responses:
+        '200':
+          description: successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HomeState'
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+        '403':
+          $ref: '#/components/responses/AccessDenied403'
 
   ####################################################################################################################
   # zone  paths
@@ -1849,7 +1832,7 @@ components:
         isAirComfortEligible:
           type: boolean
           example: true
-        isBalanceAcEligible":
+        isBalanceAcEligible:
           type: boolean
           example: false
         isEnergyIqEligible:
