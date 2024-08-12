@@ -7,7 +7,7 @@ info:
     
     Github repository where this specification is maintained: 
     [https://github.com/kritsel/tado-openapispec-v2](https://github.com/kritsel/tado-openapispec-v2)
-  version: 2.2024.08.12.3
+  version: 2.2024.08.12.4
 servers:
   - url: https://my.tado.com/api/v2/
 security:
@@ -728,9 +728,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ZoneAwayConfiguration'
+                $ref: '#/components/schemas/ZoneAwayConfiguration'
         '401':
           $ref: '#/components/responses/Unauthorized401'
         '403':
@@ -763,9 +761,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/TimetableType'
+                $ref: '#/components/schemas/TimetableType'
         '401':
           $ref: '#/components/responses/Unauthorized401'
         '403':
