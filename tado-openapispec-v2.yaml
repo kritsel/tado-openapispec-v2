@@ -7,7 +7,7 @@ info:
     
     Github repository where this specification is maintained: 
     [https://github.com/kritsel/tado-openapispec-v2](https://github.com/kritsel/tado-openapispec-v2)
-  version: 2.2024.08.12.0
+  version: 2.2024.08.12.1
 servers:
   - url: https://my.tado.com/api/v2/
 security:
@@ -1179,6 +1179,7 @@ components:
             properties:
               roomId:
                 type: integer
+                format: int64
                 example: 1
               temperatureLevel:
                 type: string
@@ -1234,20 +1235,17 @@ components:
                   items:
                     type: object
                     properties:
-                      interval:
-                        type: object
-                        properties:
-                          from:
-                            type: string
-                            format: date-time
-                            example: "2024-01-10T22:45:00.000Z"
-                          to:
-                            type: string
-                            format: date-time
-                            example: "2024-01-11T23:15:00.000Z"
-                          value:
-                            type: boolean
-                            example: true
+                      from:
+                        type: string
+                        format: date-time
+                        example: "2024-01-10T22:45:00.000Z"
+                      to:
+                        type: string
+                        format: date-time
+                        example: "2024-01-11T23:15:00.000Z"
+                      value:
+                        type: boolean
+                        example: true
             insideTemperature:
               type: object
               properties:
@@ -1460,56 +1458,50 @@ components:
             sunny:
               type: object
               properties:
-                condition:
-                  type: object
-                  properties:
-                    timeSeriesType:
-                      type: string
-                      example: dataIntervals
-                    valueType:
-                      type: string
-                      example: weatherCondition
-                    dataIntervals:
-                      type: array
-                      items:
-                        type: object
-                        properties:
-                          from:
-                            type: string
-                            format: date-time
-                            example: "2024-01-10T22:45:00.000Z"
-                          to:
-                            type: string
-                            format: date-time
-                            example: "2024-01-11T18:09:57.008Z"
-                          value:
-                            type: boolean
-                            example: true
+                timeSeriesType:
+                  type: string
+                  example: dataIntervals
+                valueType:
+                  type: string
+                  example: weatherCondition
+                dataIntervals:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      from:
+                        type: string
+                        format: date-time
+                        example: "2024-01-10T22:45:00.000Z"
+                      to:
+                        type: string
+                        format: date-time
+                        example: "2024-01-11T18:09:57.008Z"
+                      value:
+                        type: boolean
+                        example: true
             slots:
               type: object
               properties:
-                condition:
+                timeSeriesType:
+                  type: string
+                  example: slots
+                valueType:
+                  type: string
+                  example: weatherCondition
+                slots:
                   type: object
                   properties:
-                    timeSeriesType:
-                      type: string
-                      example: slots
-                    valueType:
-                      type: string
-                      example: weatherCondition
-                    slots:
-                      type: object
-                      properties:
-                        04:00:
-                          $ref: '#/components/schemas/WeatherSlot'
-                        08:00:
-                          $ref: '#/components/schemas/WeatherSlot'
-                        12:00:
-                          $ref: '#/components/schemas/WeatherSlot'
-                        16:00:
-                          $ref: '#/components/schemas/WeatherSlot'
-                        20:00:
-                          $ref: '#/components/schemas/WeatherSlot'
+                    04:00:
+                      $ref: '#/components/schemas/WeatherSlot'
+                    08:00:
+                      $ref: '#/components/schemas/WeatherSlot'
+                    12:00:
+                      $ref: '#/components/schemas/WeatherSlot'
+                    16:00:
+                      $ref: '#/components/schemas/WeatherSlot'
+                    20:00:
+                      $ref: '#/components/schemas/WeatherSlot'
 
     DayType:
       type: string
