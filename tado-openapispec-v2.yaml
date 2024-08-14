@@ -7,7 +7,7 @@ info:
     
     Github repository where this specification is maintained: 
     [https://github.com/kritsel/tado-openapispec-v2](https://github.com/kritsel/tado-openapispec-v2)
-  version: 2.2024.08.14.3
+  version: 2.2024.08.14.4
 servers:
   - url: https://my.tado.com/api/v2/
 security:
@@ -2209,14 +2209,31 @@ components:
             type:
               type: string
               example: MANUAL
-              description: "known values: MANUAL, TADO_MODE"
+              description: "known values: MANUAL, TADO_MODE, TIMER"
+            durationInSeconds:
+              type: integer
+              example: 1400
+              description: "applicable when termination.type = TIMER"
+            remainingTimeInSeconds:
+              type: integer
+              example: 1400
+              description: "applicable when termination.type = TIMER"
             typeSkillBasedApp:
               type: string
               example: MANUAL
               description: "known values: MANUAL"
-            # TODO
-            projectedExpiry:
+            expiry:
+              type: string
+              format: date-time
+              example: "2024-08-14T23:07:13Z"
               nullable: true
+              description: "applicable when termination.type = TIMER"
+            projectedExpiry:
+              type: string
+              format: date-time
+              example: "2024-08-14T23:07:13Z"
+              nullable: true
+              description: "applicable when termination.type = TIMER"
 
     ZoneSetting:
       type: object
