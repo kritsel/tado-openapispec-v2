@@ -7,7 +7,7 @@ info:
     
     Github repository where this specification is maintained: 
     [https://github.com/kritsel/tado-openapispec-v2](https://github.com/kritsel/tado-openapispec-v2)
-  version: 2.2024.08.14.4
+  version: 2.2024.08.14.5
 servers:
   - url: https://my.tado.com/api/v2/
 security:
@@ -43,10 +43,9 @@ paths:
         - in: path
           name: homeId
           schema:
-            type: integer
-            format: int64
+            $ref: '#/components/schemas/HomeId'
           required: true
-          description: ID of a home (unique within a home)
+          description: unique ID of a home
       responses:
         '200':
           description: successful response
@@ -73,10 +72,9 @@ paths:
         - in: path
           name: homeId
           schema:
-            type: integer
-            format: int64
+            $ref: '#/components/schemas/HomeId'
           required: true
-          description: ID of a home (unique within a home)
+          description: unique ID of a home
       responses:
         '200':
           description: successful response
@@ -101,10 +99,9 @@ paths:
         - in: path
           name: homeId
           schema:
-            type: integer
-            format: int64
+            $ref: '#/components/schemas/HomeId'
           required: true
-          description: ID of a home (unique within a home)
+          description: unique ID of a home
         - in: path
           name: mobileDeviceId
           schema:
@@ -140,10 +137,9 @@ paths:
         - in: path
           name: homeId
           schema:
-            type: integer
-            format: int64
+            $ref: '#/components/schemas/HomeId'
           required: true
-          description: ID of a home (unique within a home)
+          description: unique ID of a home
         - in: path
           name: mobileDeviceId
           schema:
@@ -174,8 +170,7 @@ paths:
         - in: path
           name: homeId
           schema:
-            type: integer
-            format: int64
+            $ref: '#/components/schemas/HomeId'
           required: true
           description: unique ID of a home
       responses:
@@ -201,10 +196,9 @@ paths:
         - in: path
           name: homeId
           schema:
-            type: integer
-            format: int64
+            $ref: '#/components/schemas/HomeId'
           required: true
-          description: ID of a home (unique within a home)
+          description: unique ID of a home
       responses:
         '200':
           description: successful response
@@ -227,10 +221,9 @@ paths:
         - in: path
           name: homeId
           schema:
-            type: integer
-            format: int64
+            $ref: '#/components/schemas/HomeId'
           required: true
-          description: ID of a home (unique within a home)
+          description: unique ID of a home
       responses:
         '200':
           description: successful response
@@ -253,10 +246,9 @@ paths:
         - in: path
           name: homeId
           schema:
-            type: integer
-            format: int64
+            $ref: '#/components/schemas/HomeId'
           required: true
-          description: ID of a home (unique within a home)
+          description: unique ID of a home
       responses:
         '200':
           description: successful response
@@ -282,8 +274,7 @@ paths:
         - in: path
           name: homeId
           schema:
-            type: integer
-            format: int64
+            $ref: '#/components/schemas/HomeId'
           required: true
           description: unique ID of a home
       requestBody:
@@ -293,7 +284,7 @@ paths:
             schema:
               type: array
               items:
-                $ref: '#/components/schemas/ZoneOverlay'
+                $ref: '#/components/schemas/Overlay'
       responses:
         '204':
           description: successful empty response
@@ -312,8 +303,7 @@ paths:
         - in: path
           name: homeId
           schema:
-            type: integer
-            format: int64
+            $ref: '#/components/schemas/HomeId'
           required: true
           description: unique ID of a home
         - in: query
@@ -321,7 +311,7 @@ paths:
           schema:
             type: array
             items:
-              type: integer
+              $ref: '#/components/schemas/ZoneId'
           required: true
           description: list of zone IDs whose overlay should be removed (do not include a HOT_WATER zone ID)
       responses:
@@ -342,8 +332,7 @@ paths:
         - in: path
           name: homeId
           schema:
-            type: integer
-            format: int64
+            $ref: '#/components/schemas/HomeId'
           required: true
           description: unique ID of a home
       requestBody:
@@ -372,10 +361,9 @@ paths:
         - in: path
           name: homeId
           schema:
-            type: integer
-            format: int64
+            $ref: '#/components/schemas/HomeId'
           required: true
-          description: ID of a home (unique within a home)
+          description: unique ID of a home
       responses:
         '200':
           description: successful response
@@ -404,10 +392,9 @@ paths:
         - in: path
           name: homeId
           schema:
-            type: integer
-            format: int64
+            $ref: '#/components/schemas/HomeId'
           required: true
-          description: ID of a home (unique within a home)
+          description: unique ID of a home
       responses:
         '200':
           description: successful response
@@ -433,15 +420,13 @@ paths:
         - in: path
           name: homeId
           schema:
-            type: integer
-            format: int64
+            $ref: '#/components/schemas/HomeId'
           required: true
           description: unique ID of a home
         - in: path
           name: zoneId
           schema:
-            type: integer
-            format: int64
+            $ref: '#/components/schemas/ZoneId'
           required: true
           description: ID of a zone (unique within a home)
       responses:
@@ -469,15 +454,13 @@ paths:
         - in: path
           name: homeId
           schema:
-            type: integer
-            format: int64
+            $ref: '#/components/schemas/HomeId'
           required: true
           description: unique ID of a home
         - in: path
           name: zoneId
           schema:
-            type: integer
-            format: int64
+            $ref: '#/components/schemas/ZoneId'
           required: true
           description: ID of a zone (unique within a home)
       responses:
@@ -505,8 +488,7 @@ paths:
         - in: path
           name: homeId
           schema:
-            type: integer
-            format: int64
+            $ref: '#/components/schemas/HomeId'
           required: true
           description: unique ID of a home
       responses:
@@ -536,15 +518,13 @@ paths:
         - in: path
           name: homeId
           schema:
-            type: integer
-            format: int64
+            $ref: '#/components/schemas/HomeId'
           required: true
           description: unique ID of a home
         - in: path
           name: zoneId
           schema:
-            type: integer
-            format: int64
+            $ref: '#/components/schemas/ZoneId'
           required: true
           description: ID of a zone (unique within a home)
       responses:
@@ -571,15 +551,13 @@ paths:
         - in: path
           name: homeId
           schema:
-            type: integer
-            format: int64
+            $ref: '#/components/schemas/HomeId'
           required: true
           description: unique ID of a home
         - in: path
           name: zoneId
           schema:
-            type: integer
-            format: int64
+            $ref: '#/components/schemas/ZoneId'
           required: true
           description: ID of a zone (unique within a home)
       requestBody:
@@ -614,15 +592,13 @@ paths:
         - in: path
           name: homeId
           schema:
-            type: integer
-            format: int64
+            $ref: '#/components/schemas/HomeId'
           required: true
           description: unique ID of a home
         - in: path
           name: zoneId
           schema:
-            type: integer
-            format: int64
+            $ref: '#/components/schemas/ZoneId'
           required: true
           description: ID of a zone (unique within a home)
       responses:
@@ -631,7 +607,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ZoneOverlay'
+                $ref: '#/components/schemas/Overlay'
         '401':
           $ref: '#/components/responses/Unauthorized401'
         '403':
@@ -647,15 +623,13 @@ paths:
         - in: path
           name: homeId
           schema:
-            type: integer
-            format: int64
+            $ref: '#/components/schemas/HomeId'
           required: true
           description: unique ID of a home
         - in: path
           name: zoneId
           schema:
-            type: integer
-            format: int64
+            $ref: '#/components/schemas/ZoneId'
           required: true
           description: ID of a zone (unique within a home)
       requestBody:
@@ -663,14 +637,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ZoneOverlay'
+              $ref: '#/components/schemas/Overlay'
       responses:
         '200':
           description: successful response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ZoneOverlay'
+                $ref: '#/components/schemas/Overlay'
         '401':
           $ref: '#/components/responses/Unauthorized401'
         '403':
@@ -686,15 +660,13 @@ paths:
         - in: path
           name: homeId
           schema:
-            type: integer
-            format: int64
+            $ref: '#/components/schemas/HomeId'
           required: true
           description: unique ID of a home
         - in: path
           name: zoneId
           schema:
-            type: integer
-            format: int64
+            $ref: '#/components/schemas/ZoneId'
           required: true
           description: ID of a zone (unique within a home)
       responses:
@@ -715,15 +687,13 @@ paths:
         - in: path
           name: homeId
           schema:
-            type: integer
-            format: int64
+            $ref: '#/components/schemas/HomeId'
           required: true
           description: unique ID of a home
         - in: path
           name: zoneId
           schema:
-            type: integer
-            format: int64
+            $ref: '#/components/schemas/ZoneId'
           required: true
           description: ID of a zone (unique within a home)
       responses:
@@ -748,15 +718,13 @@ paths:
         - in: path
           name: homeId
           schema:
-            type: integer
-            format: int64
+            $ref: '#/components/schemas/HomeId'
           required: true
           description: unique ID of a home
         - in: path
           name: zoneId
           schema:
-            type: integer
-            format: int64
+            $ref: '#/components/schemas/ZoneId'
           required: true
           description: ID of a zone (unique within a home)
       responses:
@@ -781,15 +749,13 @@ paths:
         - in: path
           name: homeId
           schema:
-            type: integer
-            format: int64
+            $ref: '#/components/schemas/HomeId'
           required: true
           description: unique ID of a home
         - in: path
           name: zoneId
           schema:
-            type: integer
-            format: int64
+            $ref: '#/components/schemas/ZoneId'
           required: true
           description: ID of a zone (unique within a home)
       responses:
@@ -817,15 +783,13 @@ paths:
         - in: path
           name: homeId
           schema:
-            type: integer
-            format: int64
+            $ref: '#/components/schemas/HomeId'
           required: true
           description: unique ID of a home
         - in: path
           name: zoneId
           schema:
-            type: integer
-            format: int64
+            $ref: '#/components/schemas/ZoneId'
           required: true
           description: ID of a zone (unique within a home)
         - in: path
@@ -874,15 +838,13 @@ paths:
         - in: path
           name: homeId
           schema:
-            type: integer
-            format: int64
+            $ref: '#/components/schemas/HomeId'
           required: true
           description: unique ID of a home
         - in: path
           name: zoneId
           schema:
-            type: integer
-            format: int64
+            $ref: '#/components/schemas/ZoneId'
           required: true
           description: ID of a zone (unique within a home)
         - in: path
@@ -933,15 +895,13 @@ paths:
         - in: path
           name: homeId
           schema:
-            type: integer
-            format: int64
+            $ref: '#/components/schemas/HomeId'
           required: true
           description: unique ID of a home
         - in: path
           name: zoneId
           schema:
-            type: integer
-            format: int64
+            $ref: '#/components/schemas/ZoneId'
           required: true
           description: ID of a zone (unique within a home)
         - in: path
@@ -994,10 +954,9 @@ paths:
         - in: path
           name: homeId
           schema:
-            type: integer
-            format: int64
+            $ref: '#/components/schemas/HomeId'
           required: true
-          description: ID of a home (unique within a home)
+          description: unique ID of a home
       responses:
         '200':
           description: successful response
@@ -1022,10 +981,9 @@ paths:
         - in: path
           name: homeId
           schema:
-            type: integer
-            format: int64
+            $ref: '#/components/schemas/HomeId'
           required: true
-          description: ID of a home (unique within a home)
+          description: unique ID of a home
         - in: path
           name: deviceId
           schema:
@@ -1050,10 +1008,9 @@ paths:
         - in: path
           name: homeId
           schema:
-            type: integer
-            format: int64
+            $ref: '#/components/schemas/HomeId'
           required: true
-          description: ID of a home (unique within a home)
+          description: unique ID of a home
       responses:
         '200':
           description: successful response
@@ -1081,15 +1038,13 @@ paths:
         - in: path
           name: homeId
           schema:
-            type: integer
-            format: int64
+            $ref: '#/components/schemas/HomeId'
           required: true
           description: unique ID of a home
         - in: path
           name: zoneId
           schema:
-            type: integer
-            format: int64
+            $ref: '#/components/schemas/ZoneId'
           required: true
           description: ID of a zone (unique within a home)
         - in: query
@@ -1176,9 +1131,7 @@ components:
             type: object
             properties:
               roomId:
-                type: integer
-                format: int64
-                example: 1
+                $ref: '#/components/schemas/ZoneId'
               temperatureLevel:
                 type: string
                 example: COMFY
@@ -1626,9 +1579,7 @@ components:
           type: object
           properties:
             discriminator:
-              type: integer
-              example: 4
-              description: a zone ID (a.k.a. room ID)
+              $ref: '#/components/schemas/ZoneId'
             duties:
               type: array
               items:
@@ -1839,14 +1790,17 @@ components:
       type: object
       properties:
         id:
-          type: integer
-          format: int64
-          description: unique home ID
-          example: 1118186
+          $ref: '#/components/schemas/HomeId'
         name:
           type: string
           description: user assigned name for this home
           example: my home
+
+    HomeId:
+      type: integer
+      format: int64
+      example: 1118186
+      description: unique home ID
 
     HomeState:
       type: object
@@ -1921,6 +1875,51 @@ components:
             locale:
               type: string
               example: nl
+    Overlay:
+      type: object
+      properties:
+        # mandatory for put zone overlay? (not included in post home overlay)
+        type:
+          $ref: '#/components/schemas/OverlayType'
+        setting:
+          $ref: '#/components/schemas/ZoneSetting'
+        termination:
+          type: object
+          properties:
+            type:
+              $ref: '#/components/schemas/OverlayTerminationType'
+            durationInSeconds:
+              type: integer
+              example: 1400
+              description: "applicable when termination.type = TIMER"
+            remainingTimeInSeconds:
+              type: integer
+              example: 1400
+              description: "applicable when termination.type = TIMER"
+            typeSkillBasedApp:
+              $ref: '#/components/schemas/TypeSkillBasedApp'
+            expiry:
+              type: string
+              format: date-time
+              example: "2024-08-14T23:07:13Z"
+              nullable: true
+              description: "applicable when termination.type = TIMER"
+            projectedExpiry:
+              type: string
+              format: date-time
+              example: "2024-08-14T23:07:13Z"
+              nullable: true
+              description: "applicable when termination.type = TIMER"
+
+    OverlayTerminationType:
+      type: string
+      enum: [ MANUAL, TADO_MODE, TIMER ]
+      example: MANUAL
+
+    OverlayType:
+      type: string
+      example: MANUAL
+      description: only known value is MANUAL, but not entirely sure, so no enum
 
     Power:
       type: string
@@ -1967,6 +1966,11 @@ components:
           type: string
           example: ONE_DAY
           description: "known values: ONE_DAY (0), THREE_DAY (1), SEVEN_DAY (2)"
+
+    TypeSkillBasedApp:
+      type: string
+      enum: [ MANUAL, TADO_MODE, TIMER, NEXT_TIME_BLOCK ]
+      example: MANUAL
 
     User:
       type: object
@@ -2081,10 +2085,7 @@ components:
       description: a room in a home whose temperature is controlled by tado
       properties:
         id:
-          type: integer
-          format: int64
-          description: id of the zone (unique within the scope of the home it belongs to)
-          example: 2
+          $ref: '#/components/schemas/ZoneId'
         name:
           type: string
           description: user assigned name
@@ -2193,47 +2194,10 @@ components:
           example: false
           description: property available for zone type HOT_WATER
 
-    ZoneOverlay:
-      type: object
-      properties:
-        # mandatory for put zone overlay? (not included in post home overlay)
-        type:
-          type: string
-          example: MANUAL
-          description: "known values: MANUAL"
-        setting:
-          $ref: '#/components/schemas/ZoneSetting'
-        termination:
-          type: object
-          properties:
-            type:
-              type: string
-              example: MANUAL
-              description: "known values: MANUAL, TADO_MODE, TIMER"
-            durationInSeconds:
-              type: integer
-              example: 1400
-              description: "applicable when termination.type = TIMER"
-            remainingTimeInSeconds:
-              type: integer
-              example: 1400
-              description: "applicable when termination.type = TIMER"
-            typeSkillBasedApp:
-              type: string
-              example: MANUAL
-              description: "known values: MANUAL"
-            expiry:
-              type: string
-              format: date-time
-              example: "2024-08-14T23:07:13Z"
-              nullable: true
-              description: "applicable when termination.type = TIMER"
-            projectedExpiry:
-              type: string
-              format: date-time
-              example: "2024-08-14T23:07:13Z"
-              nullable: true
-              description: "applicable when termination.type = TIMER"
+    ZoneId:
+      type: integer
+      example: 3
+      description: ID of a zone (unique only within the home it belongs to)
 
     ZoneSetting:
       type: object
@@ -2275,53 +2239,29 @@ components:
         setting:
           $ref: '#/components/schemas/ZoneSetting'
         overlayType:
-          type: string
-          example: MANUAL
-          description: "known values: MANUAL"
+          $ref: '#/components/schemas/OverlayType'
           nullable: true
         overlay:
+          $ref: '#/components/schemas/Overlay'
+        openWindow:
+          #                type: ???
+          nullable: true
+        nextScheduleChange:
           type: object
           nullable: true
-          properties:
-            type:
-              type: string
-              example: MANUAL
-              description: "known values: MANUAL"
-            setting:
-              $ref: '#/components/schemas/ZoneSetting'
-            termination:
-              type: object
-              properties:
-                type:
-                  type: string
-                  example: TADO_MODE
-                  description: "known values: TADO_MODE"
-                typeSkillBasedApp:
-                  type: string
-                  example: TADO_MODE
-                  description: "known values: TADO_MODE"
-                projectedExpiry:
-                  #                  type: ???
-                  nullable: true
-            openWindow:
-              #                type: ???
-              nullable: true
-            nextScheduleChange:
-              type: object
-              nullable: true
-              properties:
-                start:
-                  type: string
-                  format: date-time
-                setting:
-                  $ref: '#/components/schemas/ZoneSetting'
-        nextTimeBlock:
-          type: object
           properties:
             start:
               type: string
               format: date-time
-              example: "2024-07-31T20:00:00.000Z"
+            setting:
+              $ref: '#/components/schemas/ZoneSetting'
+        nextTimeBlock:
+            type: object
+            properties:
+              start:
+                type: string
+                format: date-time
+                example: "2024-07-31T20:00:00.000Z"
         link:
           type: object
           properties:
