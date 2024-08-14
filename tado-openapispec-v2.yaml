@@ -7,7 +7,7 @@ info:
     
     Github repository where this specification is maintained: 
     [https://github.com/kritsel/tado-openapispec-v2](https://github.com/kritsel/tado-openapispec-v2)
-  version: 2.2024.08.14.5
+  version: 2.2024.08.14.6
 servers:
   - url: https://my.tado.com/api/v2/
 security:
@@ -907,7 +907,7 @@ paths:
         - in: path
           name: timetableTypeId
           schema:
-            type: integer
+            $ref: '#/components/schemas/TimetableTypeId'
           required: true
           example: 1
           description: ID of a timetable type
@@ -1456,16 +1456,17 @@ components:
 
     DayType:
       type: string
+      enum: [MONDAY_TO_SUNDAY, MONDAY_TO_FRIDAY, MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY]
       example: MONDAY_TO_FRIDAY
-      # the double empty lines below are intentional, the control the presentation in Swagger UI
+      # the double empty lines below are intentional, this controls the presentation in Swagger UI
       description: >
-        known values for timetableType 0 (ONE_DAY) : MONDAY_TO_SUNDAY;
+        applicable values for timetableTypeId 0 (ONE_DAY) : MONDAY_TO_SUNDAY;
 
 
-        for timetableType 1 (THREE_DAY): MONDAY_TO_FRIDAY, SATURDAY, SUNDAY; 
+        for timetableTypeId 1 (THREE_DAY): MONDAY_TO_FRIDAY, SATURDAY, SUNDAY; 
 
 
-        for timetable 2 (SEVEN_DAY): MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY
+        for timetableTypeId 2 (SEVEN_DAY): MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY
 
     Device:
       description: >
@@ -1959,13 +1960,29 @@ components:
       type: object
       properties:
         id:
-          type: integer
-          example: 0
-          description: "known values: 0 (ONE_DAY), 1 (THREE_DAY), 2 (SEVEN_DAY)"
+          $ref: '#/components/schemas/TimetableTypeId'
         type:
-          type: string
-          example: ONE_DAY
-          description: "known values: ONE_DAY (0), THREE_DAY (1), SEVEN_DAY (2)"
+          $ref: '#/components/schemas/TimetableTypeType'
+
+    TimetableTypeId:
+      type: integer
+      enum: [0, 1, 2]
+      example: 0
+      description: 0 = ONE_DAY, 1 = THREE_DAY, 2 = SEVEN_DAY
+
+    TimetableTypeType:
+      type: string
+      enum: [ONE_DAY, THREE_DAY, SEVEN_DAY]
+      example: ONE_DAY
+      # double empty lines are intentional to control Swagger UI rendering
+      description: >
+        ONE_DAY = single timetable, used for every day of the week   
+        
+        
+        THREE_DAY = 3 different timetables, one for MONDAY_TO_FRIDAY, one for SATURDAY and one for SUNDAY
+        
+        
+        SEVEN_DAY = 7 different timetables, one for every day of the week
 
     TypeSkillBasedApp:
       type: string
