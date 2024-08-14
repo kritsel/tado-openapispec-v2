@@ -7,7 +7,7 @@ info:
     
     Github repository where this specification is maintained: 
     [https://github.com/kritsel/tado-openapispec-v2](https://github.com/kritsel/tado-openapispec-v2)
-  version: 2.2024.08.12.4
+  version: 2.2024.08.14.0
 servers:
   - url: https://my.tado.com/api/v2/
 security:
@@ -1178,11 +1178,11 @@ components:
               temperatureLevel:
                 type: string
                 example: COMFY
-                description: "known values: COMFY, WARM"
+                description: "known values: COLD, COMFY, WARM, HOT"
               humidityLevel:
                 type: string
                 example: COMFY
-                description: "known values: COMFY, HUMID"
+                description: "known values: HUMID, COMFY, DRY"
               coordinate:
                 type: object
                 properties:
@@ -1353,7 +1353,7 @@ components:
                         type: string
                         example: HOME_LOCATION_BASED_CONTROL_OFF
                       setting:
-                        $ref: '#/components/schemas/TemperatureSetting'
+                        $ref: '#/components/schemas/ZoneSetting'
 
         callForHeat:
           type: object
@@ -1518,13 +1518,13 @@ components:
         But you cannot count on this information being fully complete.
       allOf:
         - $ref: '#/components/schemas/DeviceBase'
-      properties:
-        duties:
-          type: array
-          items:
-            type: string
-            example: ZONE_UI
-            description: "known values: ZONE_UI (seen for DeviceType SU02, VA02), ZONE_LEADER (seen for DeviceType SU02, VA02), ZONE_DRIVER (seen for DeviceType VA02)"
+        - properties:
+            duties:
+              type: array
+              items:
+                type: string
+                example: ZONE_UI
+                description: "known values: ZONE_UI (seen for DeviceType SU02, VA02), ZONE_LEADER (seen for DeviceType SU02, VA02), ZONE_DRIVER (seen for DeviceType VA02)"
 
     DeviceBase:
       type: object
@@ -1701,135 +1701,135 @@ components:
     Home:
       allOf:
         - $ref: '#/components/schemas/HomeBase'
-      properties:
-        dateTimeZone:
-          type: string
-          example: "Europe/London"
-        dateCreated:
-          type: string
-          format: date-time
-          example: "2022-11-25T09:40:14.803Z"
-        temperatureUnit:
-          type: string
-          enum: [CELSIUS, FAHRENHEIT]
-          example: CELSIUS
-        partner:
-          #          type: ???
-          nullable: true
-        simpleSmartScheduleEnabled:
-          type: boolean
-          example: true
-        awayRadiusInMeters:
-          type: integer
-          example: 400
-        installationCompleted:
-          type: boolean
-          example: true
-        incidentDetection:
-          type: object
-          properties:
-            supported:
+        - properties:
+            dateTimeZone:
+              type: string
+              example: "Europe/London"
+            dateCreated:
+              type: string
+              format: date-time
+              example: "2022-11-25T09:40:14.803Z"
+            temperatureUnit:
+              type: string
+              enum: [CELSIUS, FAHRENHEIT]
+              example: CELSIUS
+            partner:
+              #          type: ???
+              nullable: true
+            simpleSmartScheduleEnabled:
               type: boolean
               example: true
-            enabled:
+            awayRadiusInMeters:
+              type: integer
+              example: 400
+            installationCompleted:
               type: boolean
               example: true
-        generation:
-          type: string
-          example: PRE_LINE_X
-          description: "known values: PRE_LINE_X"
-        zonesCount:
-          type: integer
-          example: 5
-          description: number of zones is this home
-        language:
-          type: string
-          example: nl
-        skills:
-          type: array
-          items:
-            type: string
-          description: this is assumed to be an array of strings, currently tested set-up returns an empty array
-        christmasModeEnabled:
-          type: boolean
-          example: true
-          description: no idea what this means, but would be really interesting to know more...
-        showAutoAssistReminders:
-          type: boolean
-          example: true
-        contactDetails:
-          type: object
-          description: >
-            the primary contact for this home; 
-            also appears to be the only one to receive any email notifications (like 'low battery' or 'open window' warnings)
-          properties:
-            name:
+            incidentDetection:
+              type: object
+              properties:
+                supported:
+                  type: boolean
+                  example: true
+                enabled:
+                  type: boolean
+                  example: true
+            generation:
               type: string
-              example: "Kristel"
-            email:
+              example: PRE_LINE_X
+              description: "known values: PRE_LINE_X"
+            zonesCount:
+              type: integer
+              example: 5
+              description: number of zones is this home
+            language:
               type: string
-              example: "kristel@example.com"
-            phone:
-              type: string
-              example: "+31123456789"
-        address:
-          type: object
-          description: postal address of this home
-          properties:
-            addressLine1:
-              type: string
-              example: "Kerkstraat 1"
-            addressLine2:
-              type: string
-              nullable: true
-            zipCode:
-              type: string
-              example: "1234AA"
-            city:
-              type: string
-              example: "Utrecht"
-            state:
-              type: string
-              nullable: true
-            country:
-              type: string
-              description: most probably an ISO 3166-1 alpha-3 country code
-              example: "NLD"
-        geolocation:
-          type: object
-          description: geo location of this home, most probably used to associated weather information with this home
-          properties:
-            latitude:
-              type: number
-              format: float
-              example: 50.1234567
-            longitude:
-              type: number
-              format: float
-              example: -1.1234567
-        consentGrantSkippable:
-          type: boolean
-          example: true
-        enabledFeatures:
-          type: array
-          items:
-            type: string
-            description: "known values: AA_SETTINGS_AS_WEBVIEW, AA_UPSELLING_A, CLIMATE_REPORT_AS_WEBVIEW, EIQ_SETTINGS_AS_WEBVIEW, HIDE_BOILER_REPAIR_SERVICE, OWD_SETTINGS_AS_WEBVIEW, SMART_SCHEDULE_AS_WEBVIEW"
-        isAirComfortEligible:
-          type: boolean
-          example: true
-        isBalanceAcEligible:
-          type: boolean
-          example: false
-        isEnergyIqEligible:
-          type: boolean
-          example: true,
-        isHeatSourceInstalled:
-          type: boolean
-          example: false
-        isBalanceHpEligible:
-          type: boolean
-          example: false
+              example: nl
+            skills:
+              type: array
+              items:
+                type: string
+              description: this is assumed to be an array of strings, currently tested set-up returns an empty array
+            christmasModeEnabled:
+              type: boolean
+              example: true
+              description: no idea what this means, but would be really interesting to know more...
+            showAutoAssistReminders:
+              type: boolean
+              example: true
+            contactDetails:
+              type: object
+              description: >
+                the primary contact for this home; 
+                also appears to be the only one to receive any email notifications (like 'low battery' or 'open window' warnings)
+              properties:
+                name:
+                  type: string
+                  example: "Kristel"
+                email:
+                  type: string
+                  example: "kristel@example.com"
+                phone:
+                  type: string
+                  example: "+31123456789"
+            address:
+              type: object
+              description: postal address of this home
+              properties:
+                addressLine1:
+                  type: string
+                  example: "Kerkstraat 1"
+                addressLine2:
+                  type: string
+                  nullable: true
+                zipCode:
+                  type: string
+                  example: "1234AA"
+                city:
+                  type: string
+                  example: "Utrecht"
+                state:
+                  type: string
+                  nullable: true
+                country:
+                  type: string
+                  description: most probably an ISO 3166-1 alpha-3 country code
+                  example: "NLD"
+            geolocation:
+              type: object
+              description: geo location of this home, most probably used to associated weather information with this home
+              properties:
+                latitude:
+                  type: number
+                  format: float
+                  example: 50.1234567
+                longitude:
+                  type: number
+                  format: float
+                  example: -1.1234567
+            consentGrantSkippable:
+              type: boolean
+              example: true
+            enabledFeatures:
+              type: array
+              items:
+                type: string
+                description: "known values: AA_SETTINGS_AS_WEBVIEW, AA_UPSELLING_A, CLIMATE_REPORT_AS_WEBVIEW, EIQ_SETTINGS_AS_WEBVIEW, HIDE_BOILER_REPAIR_SERVICE, OWD_SETTINGS_AS_WEBVIEW, SMART_SCHEDULE_AS_WEBVIEW"
+            isAirComfortEligible:
+              type: boolean
+              example: true
+            isBalanceAcEligible:
+              type: boolean
+              example: false
+            isEnergyIqEligible:
+              type: boolean
+              example: true,
+            isHeatSourceInstalled:
+              type: boolean
+              example: false
+            isBalanceHpEligible:
+              type: boolean
+              example: false
 
     HomeBase:
       type: object
@@ -1878,6 +1878,30 @@ components:
             onDemandLogRetrievalEnabled:
               type: boolean
               example: false
+            pushNotifications:
+              type: object
+              properties:
+                lowBatteryReminder:
+                  type: boolean
+                  example: true
+                awayModeReminder:
+                  type: boolean
+                  example: true
+                homeModeReminder:
+                  type: boolean
+                  example: true
+                openWindowReminder:
+                  type: boolean
+                  example: true
+                energySavingsReportReminder:
+                  type: boolean
+                  example: true
+                incidentDetection:
+                  type: boolean
+                  example: true
+                energyIqReminder:
+                  type: boolean
+                  example: false
         deviceMetadata:
           type: object
           properties:
@@ -1894,6 +1918,11 @@ components:
               type: string
               example: nl
 
+    Power:
+      type: string
+      enum: [ ON, OFF ]
+      example: ON
+
     PresenceLock:
       type: object
       properties:
@@ -1901,29 +1930,6 @@ components:
           type: string
           example: AWAY
           description: "known values: HOME, AWAY"
-
-    TemperatureSetting:
-      type: object
-      properties:
-        power:
-          type: string
-          example: OFF
-          description: "known values: ON, OFF"
-        type:
-          $ref: '#/components/schemas/ZoneType'
-        temperature:
-          type: object
-          nullable: true
-          description: null for a HOT_WATER zone
-          properties:
-            celsius:
-              type: number
-              format: float
-              example: 14.0
-            fahrenheit:
-              type: number
-              format: float
-              example: 57.2
 
     TimetableBlock:
       type: object
@@ -1943,7 +1949,7 @@ components:
         geolocationOverride:
           type: boolean
         setting:
-          $ref: '#/components/schemas/TemperatureSetting'
+          $ref: '#/components/schemas/ZoneSetting'
 
     TimetableType:
       type: object
@@ -2140,7 +2146,7 @@ components:
           nullable: true
           description: property present for zone type HEATING
         setting:
-          $ref: '#/components/schemas/TemperatureSetting'
+          $ref: '#/components/schemas/ZoneSetting'
 
     ZoneCapabilities:
       type: object
@@ -2191,7 +2197,7 @@ components:
           example: MANUAL
           description: "known values: MANUAL"
         setting:
-          $ref: '#/components/schemas/TemperatureSetting'
+          $ref: '#/components/schemas/ZoneSetting'
         termination:
           type: object
           properties:
@@ -2206,6 +2212,27 @@ components:
             # TODO
             projectedExpiry:
               nullable: true
+
+    ZoneSetting:
+      type: object
+      properties:
+        power:
+          $ref: '#/components/schemas/Power'
+        type:
+          $ref: '#/components/schemas/ZoneType'
+        temperature:
+          type: object
+          nullable: true
+          description: null for a HOT_WATER zone
+          properties:
+            celsius:
+              type: number
+              format: float
+              example: 14.0
+            fahrenheit:
+              type: number
+              format: float
+              example: 57.2
 
     ZoneState:
       type: object
@@ -2224,7 +2251,7 @@ components:
           #          type: ???
           nullable: true
         setting:
-          $ref: '#/components/schemas/TemperatureSetting'
+          $ref: '#/components/schemas/ZoneSetting'
         overlayType:
           type: string
           example: MANUAL
@@ -2239,7 +2266,7 @@ components:
               example: MANUAL
               description: "known values: MANUAL"
             setting:
-              $ref: '#/components/schemas/TemperatureSetting'
+              $ref: '#/components/schemas/ZoneSetting'
             termination:
               type: object
               properties:
@@ -2265,7 +2292,7 @@ components:
                   type: string
                   format: date-time
                 setting:
-                  $ref: '#/components/schemas/TemperatureSetting'
+                  $ref: '#/components/schemas/ZoneSetting'
         nextTimeBlock:
           type: object
           properties:
@@ -2360,8 +2387,8 @@ components:
 
     ZoneType:
       type: string
+      enum: [AIR_CONDITIONING, HEATING, HOT_WATER]
       example: HEATING
-      description: "known values: HEATING, HOT_WATER"
 
 tags:
   - name: user
