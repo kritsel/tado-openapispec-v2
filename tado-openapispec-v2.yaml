@@ -7,7 +7,7 @@ info:
     
     Github repository where this specification is maintained: 
     [https://github.com/kritsel/tado-openapispec-v2](https://github.com/kritsel/tado-openapispec-v2)
-  version: 2.2024.08.14.6
+  version: 2.2024.08.14.7
 servers:
   - url: https://my.tado.com/api/v2/
 security:
@@ -850,7 +850,7 @@ paths:
         - in: path
           name: timetableTypeId
           schema:
-            type: integer
+            $ref: '#/components/schemas/TimetableTypeId'
           required: true
           example: 1
           description: ID of a timetable type
