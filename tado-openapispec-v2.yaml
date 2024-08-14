@@ -7,7 +7,7 @@ info:
     
     Github repository where this specification is maintained: 
     [https://github.com/kritsel/tado-openapispec-v2](https://github.com/kritsel/tado-openapispec-v2)
-  version: 2.2024.08.14.1
+  version: 2.2024.08.14.2
 servers:
   - url: https://my.tado.com/api/v2/
 security:
@@ -638,9 +638,9 @@ paths:
           $ref: '#/components/responses/AccessDenied403'
         '404':
           $ref: '#/components/responses/NotFound404' # when the zone does not exist of there is no overlay for this zone
-    post:
+    put:
       summary: Set the overlay (manual override of the configured temperature schedule) for the given zone (a.k.a. room)
-      operationId: postZoneOverlay # hint for client code generators
+      operationId: putZoneOverlay # hint for client code generators
       tags:
         - zone control
       parameters:
