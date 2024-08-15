@@ -7,7 +7,7 @@ info:
     
     Github repository where this specification is maintained: 
     [https://github.com/kritsel/tado-openapispec-v2](https://github.com/kritsel/tado-openapispec-v2)
-  version: 2.2024.08.15.0
+  version: 2.2024.08.15.1
 servers:
   - url: https://my.tado.com/api/v2/
 security:
@@ -190,7 +190,7 @@ paths:
           $ref: '#/components/responses/AccessDenied403'
     put:
       summary: Update the settings for a specific mobile device which is associated with the given home
-      operationId: putMobileDeviceFromHome # hint for client code generators
+      operationId: putMobileDeviceSettings # hint for client code generators
       tags:
         - mobile device
       parameters:
@@ -395,6 +395,33 @@ paths:
         '403':
           $ref: '#/components/responses/AccessDenied403'
 
+  /homes/{homeId}/heatingSystem/underfloorHeating:
+    put:
+      summary: Update information about the underfloor heating of this home
+      operationId: putUnderfloorHeating # hint for client code generators
+      tags:
+        - home
+      parameters:
+        - in: path
+          name: homeId
+          schema:
+            $ref: '#/components/schemas/HomeId'
+          required: true
+          description: unique ID of a home
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UnderfloorHeating'
+      responses:
+        '204':
+          description: successful response
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+        '403':
+          $ref: '#/components/responses/AccessDenied403'
+
   /homes/{homeId}/incidentDetection:
     get:
       summary: Get the value of the incidentDetection setting for this home
@@ -444,34 +471,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/IncidentDetection'
-        '401':
-          $ref: '#/components/responses/Unauthorized401'
-        '403':
-          $ref: '#/components/responses/AccessDenied403'
-
-
-  /homes/{homeId}/heatingSystem/underfloorHeating:
-    put:
-      summary: Update information about the underfloor heating of this home
-      operationId: putUnderfloorHeating # hint for client code generators
-      tags:
-        - home
-      parameters:
-        - in: path
-          name: homeId
-          schema:
-            $ref: '#/components/schemas/HomeId'
-          required: true
-          description: unique ID of a home
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UnderfloorHeating'
-      responses:
-        '204':
-          description: successful response
         '401':
           $ref: '#/components/responses/Unauthorized401'
         '403':
