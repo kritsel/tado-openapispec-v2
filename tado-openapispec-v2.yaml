@@ -7,7 +7,7 @@ info:
     
     Github repository where this specification is maintained: 
     [https://github.com/kritsel/tado-openapispec-v2](https://github.com/kritsel/tado-openapispec-v2)
-  version: 2.2024.08.15.1
+  version: 2.2024.08.15.2
 servers:
   - url: https://my.tado.com/api/v2/
 security:
@@ -1997,7 +1997,6 @@ components:
     Home:
       allOf:
         - $ref: '#/components/schemas/HomeBaseDetails'
-        - $ref: '#/components/schemas/IncidentDetection'
         - properties:
             dateTimeZone:
               type: string
@@ -2023,14 +2022,7 @@ components:
               type: boolean
               example: true
             incidentDetection:
-              type: object
-              properties:
-                supported:
-                  type: boolean
-                  example: true
-                enabled:
-                  type: boolean
-                  example: true
+              $ref: '#/components/schemas/IncidentDetection'
             generation:
               type: string
               example: PRE_LINE_X
