@@ -7,7 +7,7 @@ info:
     
     Github repository where this specification is maintained: 
     [https://github.com/kritsel/tado-openapispec-v2](https://github.com/kritsel/tado-openapispec-v2)
-  version: 2.2024.08.14.7
+  version: 2.2024.08.15.0
 servers:
   - url: https://my.tado.com/api/v2/
 security:
@@ -157,6 +157,84 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound404'
 
+  /homes/{homeId}/mobileDevices/{mobileDeviceId}/settings:
+    get:
+      summary: Get the settings for a specific mobile device which is associated with the given home
+      operationId: getMobileDeviceSettings # hint for client code generators
+      tags:
+        - mobile device
+      parameters:
+        - in: path
+          name: homeId
+          schema:
+            $ref: '#/components/schemas/HomeId'
+          required: true
+          description: unique ID of a home
+        - in: path
+          name: mobileDeviceId
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: ID of a mobile device
+      responses:
+        '200':
+          description: successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MobileDeviceSettings'
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+        '403':
+          $ref: '#/components/responses/AccessDenied403'
+    put:
+      summary: Update the settings for a specific mobile device which is associated with the given home
+      operationId: putMobileDeviceFromHome # hint for client code generators
+      tags:
+        - mobile device
+      parameters:
+        - in: header
+          name: Content-Type
+          schema:
+            type: string
+            pattern: "application/json"
+            example: "application/json"
+          required: true
+          description: a 'Content-Type' header with value 'application/json' is mandatory for this specific endpoint
+        - in: path
+          name: homeId
+          schema:
+            $ref: '#/components/schemas/HomeId'
+          required: true
+          description: unique ID of a home
+        - in: path
+          name: mobileDeviceId
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: ID of a mobile device
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MobileDeviceSettings'
+      responses:
+        '200':
+          description: successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MobileDeviceSettings'
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+        '403':
+          $ref: '#/components/responses/AccessDenied403'
+        '404':
+          $ref: '#/components/responses/NotFound404'
+
   ####################################################################################################################
   # home paths
   /homes/{homeId}:
@@ -211,6 +289,60 @@ paths:
         '403':
           $ref: '#/components/responses/AccessDenied403'
 
+  /homes/{homeId}/details:
+    put:
+      summary: Set home details for this home
+      operationId: putHomeDetails # hint for client code generators
+      tags:
+        - home
+      parameters:
+        - in: path
+          name: homeId
+          schema:
+            $ref: '#/components/schemas/HomeId'
+          required: true
+          description: unique ID of a home
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HomeBaseDetails'
+      responses:
+        '204':
+          description: successful response
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+        '403':
+          $ref: '#/components/responses/AccessDenied403'
+
+  /homes/{homeId}/heatingCircuits:
+    get:
+      summary: Get information about the heating circuits of this home
+      operationId: getHeatingCircuits # hint for client code generators
+      tags:
+        - home
+      parameters:
+        - in: path
+          name: homeId
+          schema:
+            $ref: '#/components/schemas/HomeId'
+          required: true
+          description: unique ID of a home
+      responses:
+        '200':
+          description: successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/HeatingCircuit'
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+        '403':
+          $ref: '#/components/responses/AccessDenied403'
+
   /homes/{homeId}/heatingSystem:
     get:
       summary: Get information about the presence of various heating systems in this home
@@ -231,6 +363,115 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HeatingSystem'
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+        '403':
+          $ref: '#/components/responses/AccessDenied403'
+
+  /homes/{homeId}/heatingSystem/boiler:
+    put:
+      summary: Update information about the boiler of this home
+      operationId: putHeatingSystemBoiler # hint for client code generators
+      tags:
+        - home
+      parameters:
+        - in: path
+          name: homeId
+          schema:
+            $ref: '#/components/schemas/HomeId'
+          required: true
+          description: unique ID of a home
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Boiler'
+      responses:
+        '204':
+          description: successful response
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+        '403':
+          $ref: '#/components/responses/AccessDenied403'
+
+  /homes/{homeId}/incidentDetection:
+    get:
+      summary: Get the value of the incidentDetection setting for this home
+      operationId: getIncidentDetection # hint for client code generators
+      tags:
+        - home
+      parameters:
+        - in: path
+          name: homeId
+          schema:
+            $ref: '#/components/schemas/HomeId'
+          required: true
+          description: unique ID of a home
+      responses:
+        '200':
+          description: successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IncidentDetection'
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+        '403':
+          $ref: '#/components/responses/AccessDenied403'
+    put:
+      summary: Set the value of the incidentDetection setting for this home
+      operationId: putIncidentDetection # hint for client code generators
+      tags:
+        - home
+      parameters:
+        - in: path
+          name: homeId
+          schema:
+            $ref: '#/components/schemas/HomeId'
+          required: true
+          description: unique ID of a home
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IncidentDetectionInput'
+      responses:
+        '200':
+          description: successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IncidentDetection'
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+        '403':
+          $ref: '#/components/responses/AccessDenied403'
+
+
+  /homes/{homeId}/heatingSystem/underfloorHeating:
+    put:
+      summary: Update information about the underfloor heating of this home
+      operationId: putUnderfloorHeating # hint for client code generators
+      tags:
+        - home
+      parameters:
+        - in: path
+          name: homeId
+          schema:
+            $ref: '#/components/schemas/HomeId'
+          required: true
+          description: unique ID of a home
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UnderfloorHeating'
+      responses:
+        '204':
+          description: successful response
         '401':
           $ref: '#/components/responses/Unauthorized401'
         '403':
@@ -266,7 +507,9 @@ paths:
 
   /homes/{homeId}/overlay:
     post:
-      summary: Control the overlays (manual override of the configured temperature schedule) of multiple rooms (a.k.a. zones) with a single API method
+      summary: Control the overlays (manual override of the configured schedule) of multiple rooms (a.k.a. zones) with a single API method
+      description: >
+        Used in app feature: Home page > Turn OFF All Rooms
       operationId: postZoneOverlays # hint for client code generators
       tags:
         - home control
@@ -295,7 +538,9 @@ paths:
         '422':
           $ref: '#/components/responses/InputError422'
     delete:
-      summary: Remove the overlays (manual override of the configured temperature schedule) of multiple rooms (a.k.a. zones) with a single API method
+      summary: Remove the overlays (manual override of the configured schedule) of multiple rooms (a.k.a. zones) with a single API method
+      description: >
+        Used in app feature: Home page > Resume Schedule All Rooms
       operationId: deleteZoneOverlays # hint for client code generators
       tags:
         - home control
@@ -385,6 +630,9 @@ paths:
         Includes full information of the tado devices present in each zone. 
         The response does not include any device of DeviceType `IB01` (Internet Bridge);
         use `/homes/{homeId}/devices` instead.
+        
+        
+        Used in app feature: Home page
       operationId: getZones # hint for client code generators
       tags:
         - zone
@@ -446,7 +694,10 @@ paths:
   /homes/{homeId}/zones/{zoneId}/state:
     get:
       summary: Get the current state details of a zone (a.k.a. room).
-      description: This includes current temperature, humidity and heating power information.
+      description: >
+        This includes current temperature, humidity and heating power information.
+        
+        Used in app feature: Home page > a room tile
       operationId: getZoneState # hint for client code generators
       tags:
         - zone
@@ -480,7 +731,12 @@ paths:
   /homes/{homeId}/zoneStates:
     get:
       summary: Get zone state details of every zone (a.k.a. room) in the specified home
-      description: This includes current temperature, humidity and heating power information.
+      # double empty lines are intentional
+      description: >
+        This includes current temperature, humidity and heating power information.
+        
+        
+        Used in app feature: Home page
       operationId: getZoneStates # hint for client code generators
       tags:
         - zone
@@ -818,19 +1074,22 @@ paths:
       summary: Get the user defined timetable blocks for the given zoneId and given timetableId.
       # the double empty lines below are intentional, they control the layout in Swagger UI.
       description: >
-        For each zone you can define three different schedules, where each schedule is identified by a timetable type: 
-        ONE_DAY (the same schedule for every day of the week),
-        THREE_DAY (the same schedule for weekdays, and a separate schedule for saturday and sunday) and
-        SEVEN_DAY (a different schedule for each day of the week).
+        For each zone you can define three different timetables, where each timetable is identified by a timetable type: 
+        
+        * ONE_DAY (the same schedule for every day of the week),
+        
+        * THREE_DAY (the same schedule for weekdays, and a separate schedule for saturday and sunday) and
+        
+        * SEVEN_DAY (a different schedule for each day of the week).
         
         
-        Only one of these schedules can be active at any one time 
+        Only one of these timetables can be active at any one time 
         (see `/homes/{homeId}/zones/{zoneId}/schedule/activeTimetable`).
         
         
-        Each schedule for a timetable type consists of an array of blocks.
+        Each timetable for a timetable type consists of an array of blocks.
         Each block consists of a day type (e.g. MONDAY_TO_FRIDAY for the THREE_DAY timetable type), a start time and end time 
-        and the temperature setting for that time period.
+        and the setting (e.g. temperature) for that time period.
       operationId: getZoneTimetableBlocks # hint for client code generators
       tags:
         - zone control
@@ -875,19 +1134,22 @@ paths:
       summary: Get the user defined timetable blocks for the given zoneId, timetableId and dayType
       # the double empty lines below are intentional, they control the layout in Swagger UI.
       description: >
-        For each zone you can define three different schedules, where each schedule is identified by a timetable type: 
-        ONE_DAY (the same schedule for every day of the week),
-        THREE_DAY (the same schedule for weekdays, and a separate schedule for saturday and sunday) and
-        SEVEN_DAY (a different schedule for each day of the week).
-        
-        
-        Only one of these schedules can be active at any one time 
+        For each zone you can define three different timetables, where each timetable is identified by a timetable type: 
+
+        * ONE_DAY (the same schedule for every day of the week),
+
+        * THREE_DAY (the same schedule for weekdays, and a separate schedule for saturday and sunday) and
+
+        * SEVEN_DAY (a different schedule for each day of the week).
+
+
+        Only one of these timetables can be active at any one time 
         (see `/homes/{homeId}/zones/{zoneId}/schedule/activeTimetable`).
-        
-        
-        Each schedule for a timetable type consists of an array of blocks.
+
+
+        Each timetable for a timetable type consists of an array of blocks.
         Each block consists of a day type (e.g. MONDAY_TO_FRIDAY for the THREE_DAY timetable type), a start time and end time 
-        and the temperature setting for that time period.
+        and the setting (e.g. temperature) for that time period.
       operationId: getZoneTimetableBlocksByDayType # hint for client code generators
       tags:
         - zone control
@@ -918,6 +1180,61 @@ paths:
           required: true
           example: MONDAY_TO_FRIDAY
           description: name of a day type
+      responses:
+        '200':
+          description: successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TimetableBlock'
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+        '403':
+          $ref: '#/components/responses/AccessDenied403'
+        '404':
+          $ref: '#/components/responses/NotFound404'
+    put:
+      summary: Update the timetable (containing all blocks!) for the given zoneId, timetableId and dayType
+      operationId: putZoneTimetableBlocks # hint for client code generators
+      tags:
+        - zone control
+      parameters:
+        - in: path
+          name: homeId
+          schema:
+            $ref: '#/components/schemas/HomeId'
+          required: true
+          description: unique ID of a home
+        - in: path
+          name: zoneId
+          schema:
+            $ref: '#/components/schemas/ZoneId'
+          required: true
+          description: ID of a zone (unique within a home)
+        - in: path
+          name: timetableTypeId
+          schema:
+            $ref: '#/components/schemas/TimetableTypeId'
+          required: true
+          example: 1
+          description: ID of a timetable type
+        - in: path
+          name: dayType
+          schema:
+            $ref: '#/components/schemas/DayType'
+          required: true
+          example: MONDAY_TO_FRIDAY
+          description: name of a day type
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/TimetableBlock'
       responses:
         '200':
           description: successful response
@@ -1150,6 +1467,19 @@ components:
                   angular:
                     type: integer
                     example: 76
+    Boiler:
+      type: object
+      description: part of HeatingSystem
+      properties:
+        present:
+          type: boolean
+          example: true
+        id:
+          type: integer
+          example: 2699
+        found:
+          type: boolean
+          example: true
 
     DayReport:
       type: object
@@ -1458,15 +1788,15 @@ components:
       type: string
       enum: [MONDAY_TO_SUNDAY, MONDAY_TO_FRIDAY, MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY]
       example: MONDAY_TO_FRIDAY
-      # the double empty lines below are intentional, this controls the presentation in Swagger UI
+      # the empty lines below are intentional, this controls the presentation in Swagger UI
       description: >
-        applicable values for timetableTypeId 0 (ONE_DAY) : MONDAY_TO_SUNDAY;
+        applicable values: 
 
+        * for timetableType 0 (ONE_DAY) : MONDAY_TO_SUNDAY
 
-        for timetableTypeId 1 (THREE_DAY): MONDAY_TO_FRIDAY, SATURDAY, SUNDAY; 
+        * for timetableType 1 (THREE_DAY): MONDAY_TO_FRIDAY, SATURDAY, SUNDAY
 
-
-        for timetableTypeId 2 (SEVEN_DAY): MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY
+        * for timetableType 2 (SEVEN_DAY): MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY
 
     Device:
       description: >
@@ -1591,7 +1921,16 @@ components:
     DeviceType:
       type: string
       example: SU02
-      description: "known values: BR02 (Wireless Receiver), IB01 (Internet Bridge), SU02 (Wireless Smart Thermostat V3+), VA02 (Smart Radiator Thermostat V3+)"
+      description: >
+        known values: 
+        
+        * BR02 (Wireless Receiver)
+        
+        * IB01 (Internet Bridge)
+        
+        * SU02 (Wireless Smart Thermostat V3+)
+        
+        * VA02 (Smart Radiator Thermostat V3+)
 
     EarlyStart:
       type: object
@@ -1632,31 +1971,34 @@ components:
           example: HOT_WATER
           description: "the problematic zone type, known values: HOT_WATER"
 
+    HeatingCircuit:
+      type: object
+      description: a tado device which acts as / controls a heating circuit
+      properties:
+        number:
+          type: integer
+          example: 1
+        driverSerialNo:
+          type: string
+          example: BR3209250550
+          description: driverSerialNo of a tado device present in the home
+        driverShortSerialNo:
+          type: string
+          example: BR3209250550
+          description: driverShortSerialNo of a tado device present in the home
+
     HeatingSystem:
       type: object
       properties:
         boiler:
-          type: object
-          properties:
-            present:
-              type: boolean
-              example: true
-            id:
-              type: integer
-              example: 2699
-            found:
-              type: boolean
-              example: true
+          $ref: '#/components/schemas/Boiler'
         underfloorHeating:
-          type: object
-          properties:
-            present:
-              type: boolean
-              example: false
+          $ref: '#/components/schemas/UnderfloorHeating'
 
     Home:
       allOf:
-        - $ref: '#/components/schemas/HomeBase'
+        - $ref: '#/components/schemas/HomeBaseDetails'
+        - $ref: '#/components/schemas/IncidentDetection'
         - properties:
             dateTimeZone:
               type: string
@@ -1713,6 +2055,44 @@ components:
             showAutoAssistReminders:
               type: boolean
               example: true
+            consentGrantSkippable:
+              type: boolean
+              example: true
+            enabledFeatures:
+              type: array
+              items:
+                type: string
+                description: "known values: AA_SETTINGS_AS_WEBVIEW, AA_UPSELLING_A, CLIMATE_REPORT_AS_WEBVIEW, EIQ_SETTINGS_AS_WEBVIEW, HIDE_BOILER_REPAIR_SERVICE, OWD_SETTINGS_AS_WEBVIEW, SMART_SCHEDULE_AS_WEBVIEW"
+            isAirComfortEligible:
+              type: boolean
+              example: true
+            isBalanceAcEligible:
+              type: boolean
+              example: false
+            isEnergyIqEligible:
+              type: boolean
+              example: true,
+            isHeatSourceInstalled:
+              type: boolean
+              example: false
+            isBalanceHpEligible:
+              type: boolean
+              example: false
+
+    HomeBase:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/HomeId'
+        name:
+          type: string
+          description: user assigned name for this home
+          example: my home
+
+    HomeBaseDetails:
+      allOf:
+        - $ref: '#/components/schemas/HomeBase'
+        - properties:
             contactDetails:
               type: object
               description: >
@@ -1763,39 +2143,6 @@ components:
                   type: number
                   format: float
                   example: -1.1234567
-            consentGrantSkippable:
-              type: boolean
-              example: true
-            enabledFeatures:
-              type: array
-              items:
-                type: string
-                description: "known values: AA_SETTINGS_AS_WEBVIEW, AA_UPSELLING_A, CLIMATE_REPORT_AS_WEBVIEW, EIQ_SETTINGS_AS_WEBVIEW, HIDE_BOILER_REPAIR_SERVICE, OWD_SETTINGS_AS_WEBVIEW, SMART_SCHEDULE_AS_WEBVIEW"
-            isAirComfortEligible:
-              type: boolean
-              example: true
-            isBalanceAcEligible:
-              type: boolean
-              example: false
-            isEnergyIqEligible:
-              type: boolean
-              example: true,
-            isHeatSourceInstalled:
-              type: boolean
-              example: false
-            isBalanceHpEligible:
-              type: boolean
-              example: false
-
-    HomeBase:
-      type: object
-      properties:
-        id:
-          $ref: '#/components/schemas/HomeId'
-        name:
-          type: string
-          description: user assigned name for this home
-          example: my home
 
     HomeId:
       type: integer
@@ -1814,6 +2161,23 @@ components:
           type: boolean
           example: true
 
+    IncidentDetection:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+          example: true
+        supported:
+          type: boolean
+          example: true
+
+    IncidentDetectionInput:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+          example: true
+
     MobileDevice:
       type: object
       properties:
@@ -1826,41 +2190,7 @@ components:
           example: my device
           description: user assigned name for this device
         settings:
-          type: object
-          properties:
-            geoTrackingEnabled:
-              type: boolean
-              example: false
-            specialOffersEnabled:
-              type: boolean
-              example: true
-            onDemandLogRetrievalEnabled:
-              type: boolean
-              example: false
-            pushNotifications:
-              type: object
-              properties:
-                lowBatteryReminder:
-                  type: boolean
-                  example: true
-                awayModeReminder:
-                  type: boolean
-                  example: true
-                homeModeReminder:
-                  type: boolean
-                  example: true
-                openWindowReminder:
-                  type: boolean
-                  example: true
-                energySavingsReportReminder:
-                  type: boolean
-                  example: true
-                incidentDetection:
-                  type: boolean
-                  example: true
-                energyIqReminder:
-                  type: boolean
-                  example: false
+          $ref: '#/components/schemas/MobileDeviceSettings'
         deviceMetadata:
           type: object
           properties:
@@ -1876,6 +2206,44 @@ components:
             locale:
               type: string
               example: nl
+
+    MobileDeviceSettings:
+      type: object
+      properties:
+        geoTrackingEnabled:
+          type: boolean
+          example: false
+        specialOffersEnabled:
+          type: boolean
+          example: true
+        onDemandLogRetrievalEnabled:
+          type: boolean
+          example: false
+        pushNotifications:
+          type: object
+          properties:
+            lowBatteryReminder:
+              type: boolean
+              example: true
+            awayModeReminder:
+              type: boolean
+              example: true
+            homeModeReminder:
+              type: boolean
+              example: true
+            openWindowReminder:
+              type: boolean
+              example: true
+            energySavingsReportReminder:
+              type: boolean
+              example: true
+            incidentDetection:
+              type: boolean
+              example: true
+            energyIqReminder:
+              type: boolean
+              example: false
+
     Overlay:
       type: object
       properties:
@@ -1974,20 +2342,33 @@ components:
       type: string
       enum: [ONE_DAY, THREE_DAY, SEVEN_DAY]
       example: ONE_DAY
-      # double empty lines are intentional to control Swagger UI rendering
+      # empty lines are intentional to control Swagger UI rendering
       description: >
-        ONE_DAY = single timetable, used for every day of the week   
+        Each zone has a schedule which controls the zone's settings (like temperature) based on day of the week and time.
+        Each schedule consists of three timetables, one for each timeTableType. 
+        Only one timetable is active at anyone time.
         
+        The timetable type controls the granularity of `DayType`s used in the timetable:
         
-        THREE_DAY = 3 different timetables, one for MONDAY_TO_FRIDAY, one for SATURDAY and one for SUNDAY
+        * ONE_DAY = a timetable which support a single day type (MONDAY_TO_SUNDAY), used for every day of the week   
         
+        * THREE_DAY = a timetable which supports 3 day types, one for MONDAY_TO_FRIDAY, one for SATURDAY and one for SUNDAY
         
-        SEVEN_DAY = 7 different timetables, one for every day of the week
+        * SEVEN_DAY = at timetable which supports 7 day types, one for every day of the week
 
     TypeSkillBasedApp:
       type: string
+      description: part of Overlay
       enum: [ MANUAL, TADO_MODE, TIMER, NEXT_TIME_BLOCK ]
       example: MANUAL
+
+    UnderfloorHeating:
+      type: object
+      description: part of HeatingSystem
+      properties:
+        present:
+          type: boolean
+          example: false
 
     User:
       type: object
