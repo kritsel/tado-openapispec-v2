@@ -7,7 +7,7 @@ info:
     
     Github repository where this specification is maintained: 
     [https://github.com/kritsel/tado-openapispec-v2](https://github.com/kritsel/tado-openapispec-v2)
-  version: 2.2024.08.16.1
+  version: 2.2024.08.16.2
 servers:
   - url: https://my.tado.com/api/v2/
 security:
@@ -2435,6 +2435,12 @@ components:
                 stripeType:
                   type: string
                   example: HOME_LOCATION_BASED_CONTROL_OFF
+                  description: >
+                    known values:
+                    
+                     * OVERLAY_ACTIVE
+                    
+                     * HOME_LOCATION_BASED_CONTROL_OFF
                 setting:
                   $ref: '#/components/schemas/ZoneSetting'
 
@@ -2870,6 +2876,8 @@ components:
               $ref: '#/components/schemas/Power'
             temperature:
               $ref: '#/components/schemas/Temperature'
+            mode:
+              $ref: '#/components/schemas/AirConditioningMode'
 
     ZoneState:
       type: object
