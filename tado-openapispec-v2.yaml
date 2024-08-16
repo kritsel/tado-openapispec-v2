@@ -10,6 +10,7 @@ info:
   version: 2.2024.08.16.5
 servers:
   - url: https://my.tado.com/api/v2/
+    description: Production server
 security:
   - oauth2: [] # no scopes
 
@@ -853,6 +854,7 @@ paths:
       summary: >
         Get the overlay.termination.typeSkillBasedApp value to use when a user sets (and thus overrides) 
         the target temperature for a zone via a tado thermostat device.
+      description: Only when the type TIMER is used should durationInSeconds be specified as well.
       operationId: getZoneDefaultOverlay # hint for client code generators
       tags:
         - zone control
@@ -886,6 +888,7 @@ paths:
       summary: >
         Set the overlay.termination.typeSkillBasedApp value to use when a user sets (and thus overrides) 
         the target temperature for a zone via a tado thermostat device.
+      description: When you use the type TIMER you also need to set durationInSeconds.
       operationId: putZoneDefaultOverlay # hint for client code generators
       tags:
         - zone control
@@ -1610,7 +1613,7 @@ components:
 
     AirFreshness:
       type: string
-      enum: [FRESH, FAIR, GOOD]
+      enum: [FAIR, FRESH]
       example: FRESH
       description: The air freshness level for the entire home. Used in AirComfort.
 
