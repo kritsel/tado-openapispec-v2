@@ -7,7 +7,7 @@ info:
     
     Github repository where this specification is maintained: 
     [https://github.com/kritsel/tado-openapispec-v2](https://github.com/kritsel/tado-openapispec-v2)
-  version: 2.2024.08.16.0
+  version: 2.2024.08.16.1
 servers:
   - url: https://my.tado.com/api/v2/
 security:
@@ -1463,16 +1463,16 @@ components:
                     type: integer
                     example: 76
 
-    AirConditioningModeInitialState:
+    AirConditioningZoneSettings:
       type: object
       description: used in ZoneCapabilities for zones of type AIR_CONDITIONING
       allOf:
-        - $ref: '#/components/schemas/AirConditioningModeInitialStateBase'
+        - $ref: '#/components/schemas/AirConditioningZoneSettingsBase'
         - properties:
             temperature:
               $ref: '#/components/schemas/Temperature'
 
-    AirConditioningModeInitialStateBase:
+    AirConditioningZoneSettingsBase:
       type: object
       description: used in ZoneCapabilities for zones of type AIR_CONDITIONING
       properties:
@@ -2319,7 +2319,6 @@ components:
         is part of the overlay definition.
 
       properties:
-        # mandatory for put zone overlay? (not included in post home overlay)
         type:
           $ref: '#/components/schemas/OverlayType'
         setting:
@@ -2839,15 +2838,15 @@ components:
               type: object
               properties:
                 COOL:
-                  $ref: '#/components/schemas/AirConditioningModeInitialState'
+                  $ref: '#/components/schemas/AirConditioningZoneSettings'
                 HEAT:
-                  $ref: '#/components/schemas/AirConditioningModeInitialState'
+                  $ref: '#/components/schemas/AirConditioningZoneSettings'
                 DRY:
-                  $ref: '#/components/schemas/AirConditioningModeInitialState'
+                  $ref: '#/components/schemas/AirConditioningZoneSettings'
                 FAN:
-                  $ref: '#/components/schemas/AirConditioningModeInitialState'
+                  $ref: '#/components/schemas/AirConditioningZoneSettings'
                 AUTO:
-                  $ref: '#/components/schemas/AirConditioningModeInitialStateBase'
+                  $ref: '#/components/schemas/AirConditioningZoneSettingsBase'
 
     ZoneId:
       type: integer
@@ -2861,14 +2860,16 @@ components:
         and in AwayConfiguration (settings to be used when the home is in AWAY mode).
         
         
-        `temperature` can be null for a `HOT_WATER` zone
-      properties:
-        power:
-          $ref: '#/components/schemas/Power'
-        type:
-          $ref: '#/components/schemas/ZoneType'
-        temperature:
-          $ref: '#/components/schemas/Temperature'
+        The applicable properties depend on the zone type and the zone capabilities.
+      allOf:
+        - $ref: '#/components/schemas/AirConditioningZoneSettingsBase'
+        - properties:
+            type:
+              $ref: '#/components/schemas/ZoneType'
+            power:
+              $ref: '#/components/schemas/Power'
+            temperature:
+              $ref: '#/components/schemas/Temperature'
 
     ZoneState:
       type: object
