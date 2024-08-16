@@ -307,7 +307,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/HomeBaseDetails'
+              $ref: '#/components/schemas/HomeDetails'
       responses:
         '204':
           description: successful response
@@ -526,7 +526,7 @@ paths:
             schema:
               type: array
               items:
-                $ref: '#/components/schemas/Overlay'
+                $ref: '#/components/schemas/OverlayInput'
       responses:
         '204':
           description: successful empty response
@@ -892,7 +892,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Overlay'
+              $ref: '#/components/schemas/OverlayInput'
       responses:
         '200':
           description: successful response
@@ -1424,19 +1424,19 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ErrorResponse'
+            $ref: '#/components/schemas/ErrorResponseZoneType'
 
   schemas:
+    # AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
     AirComfort:
       type: object
+      description: result of /homes/{homeId}/airComfort
       properties:
         freshness:
           type: object
           properties:
             value:
-              type: string
-              example: FRESH
-              description: "known values: FAIR, FRESH"
+              $ref: '#/components/schemas/AirFreshness'
             lastOpenWindow:
               type: string
               format: date-time
@@ -1449,13 +1449,9 @@ components:
               roomId:
                 $ref: '#/components/schemas/ZoneId'
               temperatureLevel:
-                type: string
-                example: COMFY
-                description: "known values: COLD, COMFY, WARM, HOT"
+                $ref: '#/components/schemas/TemperatureLevel'
               humidityLevel:
-                type: string
-                example: COMFY
-                description: "known values: HUMID, COMFY, DRY"
+                $ref: '#/components/schemas/HumidityLevel'
               coordinate:
                 type: object
                 properties:
@@ -1466,9 +1462,23 @@ components:
                   angular:
                     type: integer
                     example: 76
+
+    AirFreshness:
+      type: string
+      enum: [FRESH, FAIR]
+      example: FRESH
+      description: used in AirComfort
+
+    # BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB                
+    BatteryState:
+      type: string
+      enum: [LOW, NORMAL]
+      example: NORMAL
+      description: device property known to be present for DeviceType SU02, VA02
+
     Boiler:
       type: object
-      description: part of HeatingSystem
+      description: element of HeatingSystem
       properties:
         present:
           type: boolean
@@ -1480,8 +1490,64 @@ components:
           type: boolean
           example: true
 
+    BooleanDataInterval:
+      type: object
+      description: element of DayReport
+      allOf:
+        - $ref: '#/components/schemas/DataInterval'
+        - properties:
+            value:
+              type: boolean
+              example: true
+
+    # CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+    CallForHeatTimeSeries:
+      type: object
+      description: element of DayReport
+      properties:
+        timeSeriesType:
+          type: string
+          example: dataIntervals
+        valueType:
+          type: string
+          example: callForHeat
+        dataIntervals:
+          type: array
+          items:
+            $ref: '#/components/schemas/CallForHeatDataInterval'
+
+    CallForHeatDataInterval:
+      type: object
+      description: element of DayReport
+      allOf:
+        - $ref: '#/components/schemas/DataInterval'
+        - properties:
+            value:
+              $ref: '#/components/schemas/CallForHeatValue'
+
+    CallForHeatValue:
+      type: string
+      enum: [ NONE, LOW, MEDIUM, HIGH]
+      example: LOW
+      description: element of DayReport
+
+    # DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD
+    DataInterval:
+      type: object
+      description: element of a DayReport
+      properties:
+        from:
+          type: string
+          format: date-time
+          example: "2024-01-10T22:45:00.000Z"
+        to:
+          type: string
+          format: date-time
+          example: "2024-01-11T23:15:00.000Z"
+
     DayReport:
       type: object
+      description: result of /homes/{homeId}/zones/{zoneId}/dayReport
       properties:
         zoneType:
           $ref: '#/components/schemas/ZoneType'
@@ -1502,264 +1568,24 @@ components:
         measuredData:
           properties:
             measuringDeviceConnected:
-              type: object
-              properties:
-                timeSeriesType:
-                  type: string
-                  example: dataIntervals
-                valueType:
-                  type: string
-                  example: boolean
-                dataIntervals:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      from:
-                        type: string
-                        format: date-time
-                        example: "2024-01-10T22:45:00.000Z"
-                      to:
-                        type: string
-                        format: date-time
-                        example: "2024-01-11T23:15:00.000Z"
-                      value:
-                        type: boolean
-                        example: true
+              $ref: '#/components/schemas/MeasuringDeviceConnectedTimeSeries'
             insideTemperature:
-              type: object
-              properties:
-                timeSeriesType:
-                  type: string
-                  example: dataPoints
-                valueType:
-                  type: string
-                  example: temperature
-                min:
-                  type: object
-                  properties:
-                    celsius:
-                      type: number
-                      format: float
-                      example: 13.9
-                    fahrenheit:
-                      type: number
-                      format: float
-                      example: 57.02
-                max:
-                  type: object
-                  properties:
-                    celsius:
-                      type: number
-                      format: float
-                      example: 19.07
-                    fahrenheit:
-                      type: number
-                      format: float
-                      example: 66.33
-                dataPoints:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      timestamp:
-                        type: string
-                        format: date-time
-                        example: "2024-01-10T22:45:00.000Z"
-                      value:
-                        type: object
-                        properties:
-                          celsius:
-                            type: number
-                            format: float
-                            example: 17.3
-                          fahrenheit:
-                            type: number
-                            format: float
-                            example: 63.14
+              $ref: '#/components/schemas/InsideTemperatureTimeSeries'
             humidity:
-              type: object
-              properties:
-                timeSeriesType:
-                  type: string
-                  example: dataPoints
-                valueType:
-                  type: string
-                  example: percentage
-                percentageUnit:
-                  type: string
-                  example: UNIT_INTERVAL
-                min:
-                  type: number
-                  format: float
-                  example: 0.482
-                max:
-                  type: number
-                  format: float
-                  example: 0.613
-                dataPoints:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      timestamp:
-                        type: string
-                        format: date-time
-                        example: "2024-01-10T22:45:00.000Z"
-                      value:
-                        type: number
-                        format: float
-                        example: 0.482
+              $ref: '#/components/schemas/HumidityTimeSeries'
         stripes:
-          type: object
-          properties:
-            timeSeriesType:
-              type: string
-              example: dataIntervals
-            valueType:
-              type: string
-              example: stripes
-            dataIntervals:
-              type: array
-              items:
-                type: object
-                properties:
-                  from:
-                    type: string
-                    format: date-time
-                    example: "2024-01-10T22:45:00.000Z"
-                  to:
-                    type: string
-                    format: date-time
-                    example: "2024-01-11T18:09:57.008Z"
-                  value:
-                    type: object
-                    properties:
-                      stripeType:
-                        type: string
-                        example: HOME_LOCATION_BASED_CONTROL_OFF
-                      setting:
-                        $ref: '#/components/schemas/ZoneSetting'
-
+          $ref: '#/components/schemas/StripesTimeSeries'
         callForHeat:
-          type: object
-          properties:
-            timeSeriesType:
-              type: string
-              example: dataIntervals
-            valueType:
-              type: string
-              example: callForHeat
-            dataIntervals:
-              type: array
-              items:
-                type: object
-                properties:
-                  from:
-                    type: string
-                    format: date-time
-                    example: "2024-01-10T22:45:00.000Z"
-                  to:
-                    type: string
-                    format: date-time
-                    example: "2024-01-11T18:09:57.008Z"
-                  value:
-                    type: string
-                    example: LOW
-                    description: "known values: NONE, LOW, MEDIUM, HIGH"
+          $ref: '#/components/schemas/CallForHeatTimeSeries'
         hotWaterProduction:
-          type: object
-          properties:
-            timeSeriesType:
-              type: string
-              example: dataIntervals
-            valueType:
-              type: string
-              example: boolean
-            dataIntervals:
-              type: array
-              items:
-                type: object
-                properties:
-                  from:
-                    type: string
-                    format: date-time
-                    example: "2024-01-10T22:45:00.000Z"
-                  to:
-                    type: string
-                    format: date-time
-                    example: "2024-01-11T18:09:57.008Z"
-                  value:
-                    type: boolean
-                    example: true
+          $ref: '#/components/schemas/HotWaterProductionTimeSeries'
         weather:
           type: object
           properties:
             condition:
-              type: object
-              properties:
-                timeSeriesType:
-                  type: string
-                  example: dataIntervals
-                valueType:
-                  type: string
-                  example: weatherCondition
-                dataIntervals:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      from:
-                        type: string
-                        format: date-time
-                        example: "2024-01-10T22:45:00.000Z"
-                      to:
-                        type: string
-                        format: date-time
-                        example: "2024-01-11T18:09:57.008Z"
-                      value:
-                        type: object
-                        properties:
-                          state:
-                            type: string
-                            example: NIGHT_CLEAR
-                            description: "known values: SUN, CLOUDY_PARTLY, CLOUDY_MOSTLY, NIGHT_CLEAR, NIGHT_CLOUDY"
-                          temperature:
-                            type: object
-                            properties:
-                              celsius:
-                                type: number
-                                format: float
-                                example: -3.61
-                              fahrenheit:
-                                type: number
-                                format: float
-                                example: 25.5
+              $ref: '#/components/schemas/WeatherConditionTimeSeries'
             sunny:
-              type: object
-              properties:
-                timeSeriesType:
-                  type: string
-                  example: dataIntervals
-                valueType:
-                  type: string
-                  example: weatherCondition
-                dataIntervals:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      from:
-                        type: string
-                        format: date-time
-                        example: "2024-01-10T22:45:00.000Z"
-                      to:
-                        type: string
-                        format: date-time
-                        example: "2024-01-11T18:09:57.008Z"
-                      value:
-                        type: boolean
-                        example: true
+              $ref: '#/components/schemas/SunnyTimeSeries'
             slots:
               type: object
               properties:
@@ -1787,8 +1613,10 @@ components:
       type: string
       enum: [MONDAY_TO_SUNDAY, MONDAY_TO_FRIDAY, MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY]
       example: MONDAY_TO_FRIDAY
-      # the empty lines below are intentional, this controls the presentation in Swagger UI
       description: >
+        used in timetables
+        
+        
         applicable values: 
 
         * for timetableType 0 (ONE_DAY) : MONDAY_TO_SUNDAY
@@ -1799,8 +1627,11 @@ components:
 
     Device:
       description: >
+        A piece of tado hardware.
+        
+        
         Some of the properties are only available for certain device types. 
-        Certain values for some properties are only applicable to certain device types. 
+        Certain values for some properties are only applicable for certain device types. 
         Wherever device type specific information is known, it is documented. 
         But you cannot count on this information being fully complete.
       allOf:
@@ -1811,11 +1642,21 @@ components:
               items:
                 type: string
                 example: ZONE_UI
-                description: "known values: ZONE_UI (seen for DeviceType SU02, VA02), ZONE_LEADER (seen for DeviceType SU02, VA02), ZONE_DRIVER (seen for DeviceType VA02)"
+                description: >
+                  known values: 
+                  
+                  * ZONE_UI (seen for DeviceType SU02, VA02)
+                  
+                  * ZONE_LEADER (seen for DeviceType SU02, VA02)
+                  
+                  * ZONE_DRIVER (seen for DeviceType VA02)
 
     DeviceBase:
       type: object
       description: >
+        A piece of tado hardware
+        
+        
         Some of the properties are only available for certain device types. 
         Certain values for some properties are only applicable to certain device types. 
         Wherever device type specific information is known, it is documented. 
@@ -1852,7 +1693,14 @@ components:
               items:
                 type: string
                 example: INSIDE_TEMPERATURE_MEASUREMENT
-                description: "known values: INSIDE_TEMPERATURE_MEASUREMENT (seen for DeviceType SU02, VA02), IDENTIFY (seen for DeviceType SU02, VA02), RADIO_ENCRYPTION_KEY_ACCESS (seen for DeviceType IB01)"
+                description: >
+                  known values: 
+                  
+                  * INSIDE_TEMPERATURE_MEASUREMENT (seen for DeviceType SU02, VA02)
+                  
+                  * IDENTIFY (seen for DeviceType SU02, VA02)
+                  
+                  * RADIO_ENCRYPTION_KEY_ACCESS (seen for DeviceType IB01)
         mountingState:
           type: object
           description: property known to be present for DeviceType VA02
@@ -1860,7 +1708,10 @@ components:
             value:
               type: string
               example: CALIBRATED
-              description: "known values: CALIBRATED; most probably an enum in the actual API"
+              description: >
+                known values: 
+                
+                * CALIBRATED
             timestamp:
               type: string
               format: date-time
@@ -1870,13 +1721,9 @@ components:
           example: CALIBRATED
           description: "property known to be present for DeviceType VA02; known values: CALIBRATED"
         batteryState:
-          type: string
-          example: NORMAL
-          description: "property known to be present for DeviceType SU02, VA02; known values: NORMAL, LOW"
+          $ref: '#/components/schemas/BatteryState'
         orientation:
-          type: string
-          example: HORIZONTAL
-          description: "property known to be present for DeviceType VA02; known values: HORIZONTAL, VERTICAL"
+          $ref: '#/components/schemas/Orientation'
         childLockEnabled:
           type: boolean
           example: false
@@ -1892,6 +1739,7 @@ components:
 
     DeviceList:
       type: object
+      description: result of /homes/{homeId}/zones/{zoneId}/deviceList
       properties:
         entries:
           type: array
@@ -1900,6 +1748,7 @@ components:
 
     DeviceListItem:
       type: object
+      description: element of DeviceList
       properties:
         type:
           $ref: '#/components/schemas/DeviceType'
@@ -1915,12 +1764,18 @@ components:
               items:
                 type: string
                 example: UI
-                description: "known values: UI (seen for DeviceType SU02)"
+                description: >
+                  known values: 
+                  
+                  * UI (seen for DeviceType SU02)"
 
     DeviceType:
       type: string
       example: SU02
       description: >
+        data element of Device
+        
+        
         known values: 
         
         * BR02 (Wireless Receiver)
@@ -1931,6 +1786,7 @@ components:
         
         * VA02 (Smart Radiator Thermostat V3+)
 
+    # EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
     EarlyStart:
       type: object
       properties:
@@ -1964,15 +1820,18 @@ components:
       type: object
       allOf:
         - $ref: '#/components/schemas/Error'
-      properties:
-        zoneType:
-          type: string
-          example: HOT_WATER
-          description: "the problematic zone type, known values: HOT_WATER"
+        - properties:
+            zoneType:
+              $ref: '#/components/schemas/ZoneType'
 
+    # HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
     HeatingCircuit:
       type: object
-      description: a tado device which acts as / controls a heating circuit
+      description: >
+        Result of /homes/{homeId}/heatingCircuits
+        
+        
+        A tado device which controls a heating circuit
       properties:
         number:
           type: integer
@@ -1988,6 +1847,7 @@ components:
 
     HeatingSystem:
       type: object
+      description: result of /homes/{homeId}/heatingSystem
       properties:
         boiler:
           $ref: '#/components/schemas/Boiler'
@@ -1995,8 +1855,9 @@ components:
           $ref: '#/components/schemas/UnderfloorHeating'
 
     Home:
+      description: A home controlled by tado. Result of /homes
       allOf:
-        - $ref: '#/components/schemas/HomeBaseDetails'
+        - $ref: '#/components/schemas/HomeDetails'
         - properties:
             dateTimeZone:
               type: string
@@ -2026,7 +1887,10 @@ components:
             generation:
               type: string
               example: PRE_LINE_X
-              description: "known values: PRE_LINE_X"
+              description: >
+                known values:
+                
+                * PRE_LINE_X
             zonesCount:
               type: integer
               example: 5
@@ -2053,7 +1917,33 @@ components:
               type: array
               items:
                 type: string
-                description: "known values: AA_SETTINGS_AS_WEBVIEW, AA_UPSELLING_A, CLIMATE_REPORT_AS_WEBVIEW, EIQ_SETTINGS_AS_WEBVIEW, HIDE_BOILER_REPAIR_SERVICE, OWD_SETTINGS_AS_WEBVIEW, SMART_SCHEDULE_AS_WEBVIEW"
+                description: >
+                  known values: 
+                  
+                  * AA_SETTINGS_AS_WEBVIEW
+                  
+                  * AA_UPSELLING_A
+                  
+                  * CLIMATE_REPORT_AS_WEBVIEW
+                  
+                  * EIQ_SETTINGS_AS_WEBVIEW
+                  
+                  * ELIGIBLE_FOR_ENERGY_CONSUMPTION
+                  
+                  * ENERGY_CONSUMPTION
+                  
+                  * HIDE_BOILER_REPAIR_SERVICE
+                  
+                  * HOME_SCREEN_AS_WEBVIEW_PROD
+                  
+                  * HOME_SCREEN_AS_WEBVIEW_PROD_ANDROID
+                  
+                  * OWD_SETTINGS_AS_WEBVIEW
+                  
+                  * ROOMS_AND_DEVICES_SETTING_AS_WEBVIEW
+                  
+                  * SMART_SCHEDULE_AS_WEBVIEW
+
             isAirComfortEligible:
               type: boolean
               example: true
@@ -2072,6 +1962,7 @@ components:
 
     HomeBase:
       type: object
+      description: basic home information which is present in the User component
       properties:
         id:
           $ref: '#/components/schemas/HomeId'
@@ -2080,7 +1971,8 @@ components:
           description: user assigned name for this home
           example: my home
 
-    HomeBaseDetails:
+    HomeDetails:
+      description: Part of the Home component. And used in PUT /homes/{homeId}/homeDetails
       allOf:
         - $ref: '#/components/schemas/HomeBase'
         - properties:
@@ -2141,19 +2033,76 @@ components:
       example: 1118186
       description: unique home ID
 
+    HomePresence:
+      type: string
+      enum: [HOME, AWAY]
+      example: HOME
+
     HomeState:
       type: object
+      description: >
+        Indicates if tado acts as if there are people present in the home or not. Result of /homes/{homeId}/state.
+        
+        Presence can be auto-determined by tado based on geo-fencing (when enabled via a tado subscription),
+        or can be manually set by a user.
       properties:
         presence:
-          type: string
-          example: HOME
-          description: "known values: HOME"
+          $ref: '#/components/schemas/HomePresence'
         presenceLocked:
           type: boolean
           example: true
 
+    HotWaterProductionTimeSeries:
+      type: object
+      description: element of DayReport
+      properties:
+        timeSeriesType:
+          type: string
+          example: dataIntervals
+        valueType:
+          type: string
+          example: boolean
+        dataIntervals:
+          type: array
+          items:
+            $ref: '#/components/schemas/BooleanDataInterval'
+
+    HumidityLevel:
+      type: string
+      enum:  [HUMID, COMFY, DRY]
+      example: DRY
+      description: element of AirComfort
+
+    HumidityTimeSeries:
+      type: object
+      description: element of DayReport
+      properties:
+        timeSeriesType:
+          type: string
+          example: dataPoints
+        valueType:
+          type: string
+          example: percentage
+        percentageUnit:
+          type: string
+          example: UNIT_INTERVAL
+        min:
+          type: number
+          format: float
+          example: 0.482
+        max:
+          type: number
+          format: float
+          example: 0.613
+        dataPoints:
+          type: array
+          items:
+            $ref: '#/components/schemas/PercentageDataPoint'
+
+    # IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
     IncidentDetection:
       type: object
+      description: Data elements of a Home. And used in /homes/{homeId}/incidentDetection
       properties:
         enabled:
           type: boolean
@@ -2164,13 +2113,52 @@ components:
 
     IncidentDetectionInput:
       type: object
+      description: Used in /homes/{homeId}/incidentDetection
       properties:
         enabled:
           type: boolean
           example: true
 
+    InsideTemperatureTimeSeries:
+      type: object
+      description: element of DayReport
+      properties:
+        timeSeriesType:
+          type: string
+          example: dataPoints
+        valueType:
+          type: string
+          example: temperature
+        min:
+          $ref: '#/components/schemas/Temperature'
+        max:
+          $ref: '#/components/schemas/Temperature'
+        dataPoints:
+          type: array
+          items:
+            $ref: '#/components/schemas/TemperatureDataPoint'
+
+    # MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
+    MeasuringDeviceConnectedTimeSeries:
+      type: object
+      description: element of DayReport
+      properties:
+        timeSeriesType:
+          type: string
+          example: dataIntervals
+        valueType:
+          type: string
+          example: boolean
+        dataIntervals:
+          type: array
+          items:
+            $ref: '#/components/schemas/BooleanDataInterval'
+
     MobileDevice:
       type: object
+      description: >
+        A phone/tablet/iPad which has the tado app installed, belonging to a particular user 
+        who is a member/resident of a home controlled by tado.
       properties:
         id:
           type: integer
@@ -2200,6 +2188,7 @@ components:
 
     MobileDeviceSettings:
       type: object
+      description: Data element of a MobileDevice. And used in /homes/{homeId}/mobileDevices/{mobileDeviceId}/settings.
       properties:
         geoTrackingEnabled:
           type: boolean
@@ -2235,8 +2224,21 @@ components:
               type: boolean
               example: false
 
+    # OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
+    Orientation:
+      type: string
+      enum: [HORIZONTAL, VERTICAL]
+      example: HORIZONTAL
+      description: tado device property known to be present for DeviceType VA02
+
     Overlay:
       type: object
+      description: >
+        An overlay is a user controlled override for the user defined scheduled settings of zone.
+        As long as an overlay is present for a zone, the zone's time scheduled settings do not take effect.
+        Termination of the overlay (never, set time or when a next block in a schedule starts) 
+        is part of the overlay definition.
+
       properties:
         # mandatory for put zone overlay? (not included in post home overlay)
         type:
@@ -2271,32 +2273,153 @@ components:
               nullable: true
               description: "applicable when termination.type = TIMER"
 
+    OverlayInput:
+      type: object
+      description: used in /homes/{homeId}/zones/{zoneId}/overlay
+      properties:
+        setting:
+          $ref: '#/components/schemas/ZoneSetting'
+        termination:
+          type: object
+          properties:
+            typeSkillBasedApp:
+              $ref: '#/components/schemas/TypeSkillBasedApp'
+            durationInSeconds:
+              type: integer
+              example: 1400
+              description: "applicable when termination.type = TIMER"
+
     OverlayTerminationType:
       type: string
       enum: [ MANUAL, TADO_MODE, TIMER ]
       example: MANUAL
+      description: element of an overlay
 
     OverlayType:
       type: string
       example: MANUAL
-      description: only known value is MANUAL, but not entirely sure, so no enum
+      description: Type of an Overlay. Only known value is MANUAL, but not entirely sure, so no enum
+
+    # PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
+    PercentageDataPoint:
+      type: object
+      description: element of DayReport
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+          example: "2024-01-10T22:45:00.000Z"
+        value:
+          type: number
+          format: float
+          example: 0.482
 
     Power:
       type: string
-      # without quotes, ON and OFF are interpreted as boolean values by openapi-generator
+      # quotes are necessary;
+      # without it ON and OFF are interpreted as boolean values by the yaml-to-json converter used by openapi-generator
       enum: [ 'ON', 'OFF' ]
       example: ON
+      description: used in ZoneSetting
 
     PresenceLock:
       type: object
+      description: Used in /homes/{homeId}/presenceLock
       properties:
         homePresence:
+          $ref: '#/components/schemas/HomePresence'
+
+    # SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS
+    StripesTimeSeries:
+      type: object
+      description: Element of DayReport
+      properties:
+        timeSeriesType:
           type: string
-          example: AWAY
-          description: "known values: HOME, AWAY"
+          example: dataIntervals
+        valueType:
+          type: string
+          example: stripes
+        dataIntervals:
+          type: array
+          items:
+            $ref: '#/components/schemas/StripesDataInterval'
+
+    StripesDataInterval:
+      type: object
+      description: Element of DayReport
+      allOf:
+        - $ref: '#/components/schemas/DataInterval'
+        - properties:
+            value:
+              type: object
+              properties:
+                stripeType:
+                  type: string
+                  example: HOME_LOCATION_BASED_CONTROL_OFF
+                setting:
+                  $ref: '#/components/schemas/ZoneSetting'
+
+    SunnyTimeSeries:
+      type: object
+      description: Element of DayReport
+      properties:
+        timeSeriesType:
+          type: string
+          example: dataIntervals
+        valueType:
+          type: string
+          example: boolean
+        dataIntervals:
+          type: array
+          items:
+            $ref: '#/components/schemas/BooleanDataInterval'
+
+    # TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
+    Temperature:
+      type: object
+      properties:
+        celsius:
+          type: number
+          format: float
+          example: 13.9
+        fahrenheit:
+          type: number
+          format: float
+          example: 57.02
+
+    TemperatureLevel:
+      type: string
+      enum: [ COLD, COMFY, WARM, HOT ]
+      example: WARM
+      description: Used in AirComfort
+
+    TemperaturePrecision:
+      type: object
+      properties:
+        celsius:
+          type: number
+          format: float
+          example: 0.1
+        fahrenheit:
+          type: number
+          format: float
+          example: 0.1
+
+    TemperatureDataPoint:
+      type: object
+      description: Element of DayReport
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+          example: "2024-01-10T22:45:00.000Z"
+        value:
+          $ref: '#/components/schemas/Temperature'
 
     TimetableBlock:
       type: object
+      description: Time segment of a scheduled timetable to control the settings of a zone (a.k.a. room)
       properties:
         dayType:
           $ref: '#/components/schemas/DayType'
@@ -2349,13 +2472,14 @@ components:
 
     TypeSkillBasedApp:
       type: string
-      description: part of Overlay
+      description: Used in Overlay
       enum: [ MANUAL, TADO_MODE, TIMER, NEXT_TIME_BLOCK ]
       example: MANUAL
 
+    # UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU
     UnderfloorHeating:
       type: object
-      description: part of HeatingSystem
+      description: Element of HeatingSystem
       properties:
         present:
           type: boolean
@@ -2363,6 +2487,7 @@ components:
 
     User:
       type: object
+      description: a user with a tado account
       properties:
         name:
           type: string
@@ -2392,8 +2517,10 @@ components:
           items:
             $ref: '#/components/schemas/MobileDevice'
 
+    # WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
     Weather:
       type: object
+      description: Result of /homes/{homeId}/weather
       properties:
         solarIntensity:
           type: object
@@ -2410,33 +2537,18 @@ components:
               example: "2024-08-04T09:20:08.370Z"
         outsideTemperature:
           type: object
-          properties:
-            celsius:
-              type: number
-              format: float
-              example: 19.68
-            fahrenheit:
-              type: number
-              format: float
-              example: 67.42
-            timestamp:
-              type: string
-              format: date-time
-              example: "2024-08-04T09:20:08.370Z"
-            type:
-              type: string
-              example: TEMPERATURE
-            precision:
-              type: object
-              properties:
-                celsius:
-                  type: number
-                  format: float
-                  example: 0.01
-                fahrenheit:
-                  type: number
-                  format: float
-                  example: 0.01
+          allOf:
+            -  $ref: '#/components/schemas/Temperature'
+            - properties:
+                timestamp:
+                  type: string
+                  format: date-time
+                  example: "2024-08-04T09:20:08.370Z"
+                type:
+                  type: string
+                  example: TEMPERATURE
+                precision:
+                  $ref: '#/components/schemas/TemperaturePrecision'
         weatherState:
           type: object
           properties:
@@ -2444,31 +2556,57 @@ components:
               type: string
               example: WEATHER_STATE
             value:
-              type: string
-              example: CLOUDY
+              $ref: '#/components/schemas/WeatherState'
             timestamp:
               type: string
               format: date-time
               example: "2024-08-04T09:20:08.370Z"
+
+    WeatherConditionTimeSeries:
+      type: object
+      description: Element of DayReport
+      properties:
+        timeSeriesType:
+          type: string
+          example: dataIntervals
+        valueType:
+          type: string
+          example: weatherCondition
+        dataIntervals:
+          type: array
+          items:
+            $ref: '#/components/schemas/WeatherConditionDataInterval'
+
+    WeatherConditionDataInterval:
+      type: object
+      description: Element of DayReport
+      allOf:
+        - $ref: '#/components/schemas/DataInterval'
+        - properties:
+            value:
+              type: object
+              properties:
+                state:
+                  $ref: '#/components/schemas/WeatherState'
+                temperature:
+                  $ref: '#/components/schemas/Temperature'
+
     WeatherSlot:
       type: object
-      description: a WeatherSlot is a sub-element of a DayReport
+      description: Element of DayReport
       properties:
         state:
-          type: string
-          example: NIGHT_CLEAR
+          $ref: '#/components/schemas/WeatherState'
         temperature:
-          type: object
-          properties:
-            celsius:
-              type: number
-              format: float
-              example: -5.21
-            fahrenheit:
-              type: number
-              format: float
-              example: 22.78
+          $ref: '#/components/schemas/Temperature'
 
+    WeatherState:
+      type: string
+      enum: [SUN, CLOUDY, CLOUDY_PARTLY, CLOUDY_MOSTLY, SCATTERED_RAIN, NIGHT_CLEAR, NIGHT_CLOUDY]
+      example: CLOUDY_PARTLY
+      description: Used in DayReport and Weather
+
+    # ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ
     Zone:
       type: object
       description: a room in a home whose temperature is controlled by tado
@@ -2529,6 +2667,11 @@ components:
 
     ZoneAwayConfiguration:
       type: object
+      description: >
+        Controls the settings for a zone when the home the zone belongs to is in AWAY mode.
+        The scheduled timetable settings are not used in that situation.
+        
+        Used in /homes/{homeId}/zones/{zoneId}/awayConfiguration.
       properties:
         type:
           $ref: '#/components/schemas/ZoneType'
@@ -2545,6 +2688,7 @@ components:
 
     ZoneCapabilities:
       type: object
+      description: Used in /homes/{homeId}/zones/{zoneId}/capabilities.
       properties:
         type:
           $ref: '#/components/schemas/ZoneType'
@@ -2590,32 +2734,31 @@ components:
 
     ZoneSetting:
       type: object
+      description: >
+        Settings for a zone which is used in scheduled TimeTableBlocks, in Overlays (manual override for the scheduled setting),
+        and in AwayConfiguration (settings to be used when the home is in AWAY mode).
+        
+        
+        `temperature` can be null for a `HOT_WATER` zone
       properties:
         power:
           $ref: '#/components/schemas/Power'
         type:
           $ref: '#/components/schemas/ZoneType'
         temperature:
-          type: object
-          nullable: true
-          description: null for a HOT_WATER zone
-          properties:
-            celsius:
-              type: number
-              format: float
-              example: 14.0
-            fahrenheit:
-              type: number
-              format: float
-              example: 57.2
+          $ref: '#/components/schemas/Temperature'
 
     ZoneState:
       type: object
+      description: Result of /homes/{homeId}/zone/{zoneId}/state
       properties:
         tadoMode:
           type: string
           example: HOME
-          description: "known values: HOME"
+          description: >
+            known values: 
+            
+            * HOME
         geolocationOverride:
           type: boolean
           example: true
@@ -2645,19 +2788,22 @@ components:
             setting:
               $ref: '#/components/schemas/ZoneSetting'
         nextTimeBlock:
-            type: object
-            properties:
-              start:
-                type: string
-                format: date-time
-                example: "2024-07-31T20:00:00.000Z"
+          type: object
+          properties:
+            start:
+              type: string
+              format: date-time
+              example: "2024-07-31T20:00:00.000Z"
         link:
           type: object
           properties:
             state:
               type: string
               example: ONLINE
-              description: "known values: ONLINE"
+              description: >
+                known values: 
+                
+                * ONLINE
         runningOfflineSchedule:
           type: boolean
           example: false
@@ -2671,7 +2817,6 @@ components:
                 type:
                   type: string
                   example: PERCENTAGE
-                  description: "known values: PERCENTAGE"
                 percentage:
                   type: number
                   example: 0
@@ -2684,42 +2829,24 @@ components:
           description: empty for a HOT_WATER zone
           properties:
             insideTemperature:
-              type: object
-              properties:
-                celsius:
-                  type: number
-                  format: float
-                  example: 27.97
-                fahrenheit:
-                  type: number
-                  format: float
-                  example: 82.35
-                timestamp:
-                  type: string
-                  format: date-time
-                  example: "2024-07-30T21:51:41.178Z"
-                type:
-                  type: string
-                  example: "TEMPERATURE"
-                  description: "known values: TEMPERATURE"
-                precision:
-                  type: object
-                  properties:
-                    celsius:
-                      type: number
-                      format: float
-                      example: 0.1
-                    fahrenheit:
-                      type: number
-                      format: float
-                      example: 0.1
+              allOf:
+                -  $ref: '#/components/schemas/Temperature'
+                - properties:
+                    timestamp:
+                      type: string
+                      format: date-time
+                      example: "2024-07-30T21:51:41.178Z"
+                    type:
+                      type: string
+                      example: "TEMPERATURE"
+                    precision:
+                      $ref: '#/components/schemas/TemperaturePrecision'
             humidity:
               type: object
               properties:
                 type:
                   type: string
                   example: PERCENTAGE
-                  description: "known values: PERCENTAGE"
                 percentage:
                   type: number
                   example: 51
@@ -2730,6 +2857,7 @@ components:
 
     ZoneStates:
       type: object
+      description: Result of /homes/{homeId}/zoneStates. Basically a map with a zoneID as key and ZoneState as value.
       properties:
         zoneStates:
           description: a dictionary with zone IDs (a.k.a. room IDs) as keys
