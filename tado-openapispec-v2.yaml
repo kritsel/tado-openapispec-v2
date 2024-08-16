@@ -7,7 +7,7 @@ info:
     
     Github repository where this specification is maintained: 
     [https://github.com/kritsel/tado-openapispec-v2](https://github.com/kritsel/tado-openapispec-v2)
-  version: 2.2024.08.16.3
+  version: 2.2024.08.16.4
 servers:
   - url: https://my.tado.com/api/v2/
 security:
@@ -848,6 +848,42 @@ paths:
         '422':
           $ref: '#/components/responses/UnsupportedForZoneType422'
 
+  /homes/{homeId}/zones/{zoneId}/defaultOverlay:
+    get:
+      summary: >
+        Get the overlay.termination.typeSkillBasedApp value to use when a user sets (and thus overrides) 
+        the target temperature for a zone via a tado thermostat device.
+      operationId: getZoneDefaultOverlay # hint for client code generators
+      tags:
+        - zone control
+      parameters:
+        - in: path
+          name: homeId
+          schema:
+            $ref: '#/components/schemas/HomeId'
+          required: true
+          description: unique ID of a home
+        - in: path
+          name: zoneId
+          schema:
+            $ref: '#/components/schemas/ZoneId'
+          required: true
+          description: ID of a zone (unique within a home)
+      responses:
+        '200':
+          description: successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TerminationCondition'
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+        '403':
+          $ref: '#/components/responses/AccessDenied403'
+        '404':
+          $ref: '#/components/responses/NotFound404' # when the zone does not exist of there is no overlay for this zone
+
+
   /homes/{homeId}/zones/{zoneId}/overlay:
     get:
       summary: Get the overlay (manual override of the configured temperature schedule) of the given zone (a.k.a. room)
@@ -1535,9 +1571,9 @@ components:
 
     AirFreshness:
       type: string
-      enum: [FRESH, FAIR]
+      enum: [FRESH, FAIR, GOOD]
       example: FRESH
-      description: used in AirComfort
+      description: The air freshness level for the entire home. Used in AirComfort.
 
     # BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
     BatteryState:
@@ -2373,6 +2409,8 @@ components:
         termination:
           type: object
           properties:
+            type:
+              $ref: '#/components/schemas/OverlayTerminationType'
             typeSkillBasedApp:
               $ref: '#/components/schemas/TypeSkillBasedApp'
             durationInSeconds:
@@ -2544,6 +2582,17 @@ components:
           example: "2024-01-10T22:45:00.000Z"
         value:
           $ref: '#/components/schemas/Temperature'
+
+    TerminationCondition:
+      type: object
+      description: Used in /homes/{homeId}/zones/{zoneId}/defaultOverlay
+      properties:
+        terminationCondition:
+          type: object
+          properties:
+            type:
+              # TODO: verify which values are actually possible here
+              $ref: '#/components/schemas/TypeSkillBasedApp'
 
     TimetableBlock:
       type: object
