@@ -134,7 +134,10 @@ paths:
             pattern: "application/json"
             example: "application/json"
           required: true
-          description: a 'Content-Type' header with value 'application/json' is mandatory for this specific endpoint
+          description: >
+            Strangely enough a 'Content-Type' header with value 'application/json' 
+            is mandatory for this specific endpoint.
+            No other endpoint requires it.
         - in: path
           name: homeId
           schema:
@@ -195,14 +198,6 @@ paths:
       tags:
         - mobile device
       parameters:
-        - in: header
-          name: Content-Type
-          schema:
-            type: string
-            pattern: "application/json"
-            example: "application/json"
-          required: true
-          description: a 'Content-Type' header with value 'application/json' is mandatory for this specific endpoint
         - in: path
           name: homeId
           schema:
@@ -1929,9 +1924,19 @@ components:
         
         * BR02 (Wireless Receiver)
         
+        * BU01 (Boiler controller?)
+        
+        * GW02 (Internet Gateway?)
+        
         * IB01 (Internet Bridge)
         
+        * RU01 (Remote Thermostat)
+        
+        * RU02 (Remote Thermostat)
+        
         * SU02 (Wireless Smart Thermostat V3+)
+        
+        * VA01
         
         * VA02 (Smart Radiator Thermostat V3+)
 
@@ -2542,9 +2547,13 @@ components:
                   description: >
                     known values:
                     
-                     * OVERLAY_ACTIVE
+                     * HOME
                     
                      * HOME_LOCATION_BASED_CONTROL_OFF
+                    
+                     * OPEN_WINDOW_DETECTED
+                    
+                     * OVERLAY_ACTIVE
                 setting:
                   $ref: '#/components/schemas/ZoneSetting'
 
@@ -2863,7 +2872,7 @@ components:
 
     WeatherState:
       type: string
-      enum: [SUN, CLOUDY, CLOUDY_PARTLY, CLOUDY_MOSTLY, SCATTERED_RAIN, NIGHT_CLEAR, NIGHT_CLOUDY]
+      enum: [SUN, FOGGY, CLOUDY, CLOUDY_PARTLY, CLOUDY_MOSTLY, SCATTERED_RAIN, NIGHT_CLEAR, NIGHT_CLOUDY]
       example: CLOUDY_PARTLY
       description: Used in DayReport and Weather
 
