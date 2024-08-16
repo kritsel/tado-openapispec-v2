@@ -568,7 +568,10 @@ paths:
 
   /homes/{homeId}/presenceLock:
     put:
-      summary: Specify whether someone at home or not
+      summary: Specify whether someone at home or not.
+      description: >
+        When the state is 'AWAY' the AwayConfiguration of each zone will control
+        the (temperature) settings for that zone.
       operationId: putHomePresenceLock # hint for client code generators
       tags:
         - home control
@@ -597,7 +600,15 @@ paths:
 
   /homes/{homeId}/state:
     get:
-      summary: Get information about the presence state of the home
+      summary: Get information about the presence state of the home.
+      description: >
+        The presence state is either automatically controlled via geo-fencing (requires a paid tado subscription),
+        or it can be set via PUT /homes/{homeId}/presenceLock
+        
+        
+        When the state is 'AWAY' the AwayConfiguration of each zone will control 
+        the (temperature) settings for that zone.
+      
       operationId: getHomeState # hint for client code generators
       tags:
         - home control
@@ -934,7 +945,7 @@ paths:
 
   /homes/{homeId}/zones/{zoneId}/schedule/awayConfiguration:
     get:
-      summary: Get the settings to use for the given zone (a.k.a. room) when everyone is out of the house
+      summary: Get the (temperature) settings to use for the given zone (a.k.a. room) when the home state is AWAY.
       operationId: getZoneAwayConfiguration # hint for client code generators
       tags:
         - zone control
@@ -1070,7 +1081,7 @@ paths:
 
   /homes/{homeId}/zones/{zoneId}/schedule/timetables/{timetableTypeId}/blocks:
     get:
-      summary: Get the user defined timetable blocks for the given zoneId and given timetableId.
+      summary: Get the user defined timetable blocks for the given zoneId and given timetableTypeId.
       # the double empty lines below are intentional, they control the layout in Swagger UI.
       description: >
         For each zone you can define three different timetables, where each timetable is identified by a timetable type: 
@@ -1130,7 +1141,7 @@ paths:
 
   /homes/{homeId}/zones/{zoneId}/schedule/timetables/{timetableTypeId}/blocks/{dayType}:
     get:
-      summary: Get the user defined timetable blocks for the given zoneId, timetableId and dayType
+      summary: Get the user defined timetable blocks for the given zoneId, timetableTypeId and dayType
       # the double empty lines below are intentional, they control the layout in Swagger UI.
       description: >
         For each zone you can define three different timetables, where each timetable is identified by a timetable type: 
@@ -1195,7 +1206,7 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound404'
     put:
-      summary: Update the timetable (containing all blocks!) for the given zoneId, timetableId and dayType
+      summary: Update the timetable (containing all blocks!) for the given zoneId, timetableTypeId and dayType
       operationId: putZoneTimetableBlocks # hint for client code generators
       tags:
         - zone control
@@ -1289,7 +1300,8 @@ paths:
 
   /homes/{homeId}/devices/{deviceId}/identify:
     post:
-      summary: Instruct the device to say 'hi' on their display
+      summary: Instruct the device to say 'hi' on its display.
+      description: This is only supported for devices which have the `IDENTIFY` capability.
       operationId: identifyDevice # hint for client code generators
       tags:
         - device
@@ -1544,6 +1556,7 @@ components:
         id:
           type: integer
           example: 2699
+          description: Tado specific id of the type of boiler you have, it gets set when you select a boiler via the app
         found:
           type: boolean
           example: true
@@ -1886,7 +1899,7 @@ components:
     FanLevel:
       type: string
       enum: [AUTO, LEVEL1, LEVEL2, LEVEL3, LEVEL4, LEVEL5, SILENT]
-      description: Used in AirConditioningCapabilities
+      description: Used in AirConditioningZoneSettingsBase and AirConditioningModeCapabilitiesBase
 
     # HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
     HeatingCircuit:
@@ -2121,7 +2134,7 @@ components:
       # quotes are necessary;
       # without it ON and OFF are interpreted as boolean values by the yaml-to-json converter used by openapi-generator
       enum: [ 'OFF', 'ON', 'RIGHT', 'LEFT', 'MID_RIGHT', 'MID_LEFT']
-      description: Used in AirConditioningCapabilities
+      description: Used in AirConditioningZoneSettingsBase and AirConditioningModeCapabilitiesBase
 
     HotWaterProductionTimeSeries:
       type: object
@@ -2215,7 +2228,7 @@ components:
       # quotes are necessary;
       # without it ON and OFF are interpreted as boolean values by the yaml-to-json converter used by openapi-generator
       enum: [ 'OFF', 'ON' ]
-      description: Used in AirConditioningCapabilities
+      description: Used in AirConditioningZoneSettingsBase and AirConditioningModeCapabilitiesBase
 
     # MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
     MeasuringDeviceConnectedTimeSeries:
@@ -2313,11 +2326,11 @@ components:
     Overlay:
       type: object
       description: >
-        An overlay is a user controlled override for the user defined scheduled settings of zone.
-        As long as an overlay is present for a zone, the zone's time scheduled settings do not take effect.
-        Termination of the overlay (never, set time or when a next block in a schedule starts) 
+        An overlay is a user controlled override for the user defined scheduled (temperature) settings of a zone.
+        As long as an overlay is present for a zone, the zone's scheduled (temperature) settings do not take effect.
+        
+        Termination of the overlay (never, a set time or when the next block in the active timetable starts) 
         is part of the overlay definition.
-
       properties:
         type:
           $ref: '#/components/schemas/OverlayType'
@@ -2534,7 +2547,7 @@ components:
 
     TimetableBlock:
       type: object
-      description: Time segment of a scheduled timetable to control the settings of a zone (a.k.a. room)
+      description: Time segment of a scheduled timetable to control the (temperature) settings of a zone (a.k.a. room)
       properties:
         dayType:
           $ref: '#/components/schemas/DayType'
@@ -2573,7 +2586,7 @@ components:
       example: ONE_DAY
       # empty lines are intentional to control Swagger UI rendering
       description: >
-        Each zone has a schedule which controls the zone's settings (like temperature) based on day of the week and time.
+        Each zone has a schedule which controls the zone's (temperature) settings based on day of the week and time.
         Each schedule consists of three timetables, one for each timeTableType. 
         Only one timetable is active at anyone time.
         
@@ -2638,7 +2651,7 @@ components:
       # quotes are necessary;
       # without it ON and OFF are interpreted as boolean values by the yaml-to-json converter used by openapi-generator
       enum: [ 'OFF', 'MID_UP', 'MID_DOWN', 'ON', 'DOWN', 'UP', 'MID' ]
-      description: Used in AirConditioningCapabilities
+      description: Used in AirConditioningZoneSettingsBase and AirConditioningModeCapabilitiesBase
 
     # WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
     Weather:
@@ -2791,8 +2804,8 @@ components:
     ZoneAwayConfiguration:
       type: object
       description: >
-        Controls the settings for a zone when the home the zone belongs to is in AWAY mode.
-        The scheduled timetable settings are not used in that situation.
+        Controls the (temperature) settings for a zone when the home the zone belongs to is in AWAY mode.
+        The scheduled timetable settings are not used in such a situation.
         
         Used in /homes/{homeId}/zones/{zoneId}/awayConfiguration.
       properties:
@@ -2862,7 +2875,8 @@ components:
     ZoneSetting:
       type: object
       description: >
-        Settings for a zone which is used in scheduled TimeTableBlocks, in Overlays (manual override for the scheduled setting),
+        (temperature) settings for a zone which is used in scheduled TimeTableBlocks, 
+        in Overlays (manual override for the scheduled setting),
         and in AwayConfiguration (settings to be used when the home is in AWAY mode).
         
         

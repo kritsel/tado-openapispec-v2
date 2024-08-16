@@ -124,5 +124,5 @@ Additionally, the following github repositories have been a great help:
  * https://github.com/mattdavis90/node-tado-client
 
 # Contribute
-Feel free to submit a PR if you want to contribute to this
+Feel free to submit a PR or create an issue if you want to contribute to this
 OpenAPI specification.
