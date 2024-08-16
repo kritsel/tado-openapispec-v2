@@ -113,11 +113,15 @@ specification as input: https://github.com/kritsel/tado-api-demo-kotlin
 * Java demo application with generated API client code which uses this OpenAPI
 specification as input: https://github.com/kritsel/tado-api-demo-java
 
-# Gratitudes
-Without the groundwork done by Stephen C. Phillips (https://blog.scphillips.com/posts/2017/01/the-tado-api-v2/)
-and Terence Eden (https://shkspr.mobi/blog/2019/02/tado-api-guide-updated-for-2019/)
+# Acknowledgments
+Without the groundwork done by **Stephen C. Phillips** 
+(https://blog.scphillips.com/posts/2017/01/the-tado-api-v2/)
+and **Terence Eden** (https://shkspr.mobi/blog/2019/02/tado-api-guide-updated-for-2019/)
 I would have never started experimenting with the tado API,
 and this tado OpenAPI specification would have never seen the light of day.
+
+Additionally, the following github repositories have been a great help:
+ * https://github.com/mattdavis90/node-tado-client
 
 # Contribute
 Feel free to submit a PR if you want to contribute to this

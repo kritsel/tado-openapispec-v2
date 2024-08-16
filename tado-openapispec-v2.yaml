@@ -7,7 +7,7 @@ info:
     
     Github repository where this specification is maintained: 
     [https://github.com/kritsel/tado-openapispec-v2](https://github.com/kritsel/tado-openapispec-v2)
-  version: 2.2024.08.15.2
+  version: 2.2024.08.16.0
 servers:
   - url: https://my.tado.com/api/v2/
 security:
@@ -1463,13 +1463,71 @@ components:
                     type: integer
                     example: 76
 
+    AirConditioningModeInitialState:
+      type: object
+      description: used in ZoneCapabilities for zones of type AIR_CONDITIONING
+      allOf:
+        - $ref: '#/components/schemas/AirConditioningModeInitialStateBase'
+        - properties:
+            temperature:
+              $ref: '#/components/schemas/Temperature'
+
+    AirConditioningModeInitialStateBase:
+      type: object
+      description: used in ZoneCapabilities for zones of type AIR_CONDITIONING
+      properties:
+        fanLevel:
+          $ref: '#/components/schemas/FanLevel'
+        verticalSwing:
+          $ref: '#/components/schemas/VerticalSwing'
+        horizontalSwing:
+          $ref: '#/components/schemas/HorizontalSwing'
+        light:
+          $ref: '#/components/schemas/Light'
+
+    AirConditioningMode:
+      type: string
+      enum: [AUTO, COOL, HEAT, DRY, FAN]
+      example: COOL
+
+
+    AirConditioningModeCapabilities:
+      type: object
+      description: used in ZoneCapabilities for zones of type AIR_CONDITIONING
+      allOf:
+        - $ref: '#/components/schemas/AirConditioningModeCapabilitiesBase'
+        - properties:
+            temperatures:
+              $ref: '#/components/schemas/TemperatureCapability'
+
+    AirConditioningModeCapabilitiesBase:
+      type: object
+      description: used in ZoneCapabilities for zones of type AIR_CONDITIONING
+      properties:
+        fanLevel:
+          type: array
+          items:
+            $ref: '#/components/schemas/FanLevel'
+        verticalSwing:
+          type: array
+          items:
+            $ref: '#/components/schemas/VerticalSwing'
+        horizontalSwing:
+          type: array
+          items:
+            $ref: '#/components/schemas/HorizontalSwing'
+        light:
+          type: array
+          items:
+            $ref: '#/components/schemas/Light'
+
     AirFreshness:
       type: string
       enum: [FRESH, FAIR]
       example: FRESH
       description: used in AirComfort
 
-    # BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB                
+    # BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
     BatteryState:
       type: string
       enum: [LOW, NORMAL]
@@ -1824,6 +1882,12 @@ components:
             zoneType:
               $ref: '#/components/schemas/ZoneType'
 
+    # FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+    FanLevel:
+      type: string
+      enum: [AUTO, LEVEL1, LEVEL2, LEVEL3, LEVEL4, LEVEL5]
+      description: Used in AirConditioningCapabilities
+
     # HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
     HeatingCircuit:
       type: object
@@ -1861,7 +1925,7 @@ components:
         - properties:
             dateTimeZone:
               type: string
-              example: "Europe/London"
+              example: "Europe/Amsterdam"
             dateCreated:
               type: string
               format: date-time
@@ -2052,6 +2116,13 @@ components:
           type: boolean
           example: true
 
+    HorizontalSwing:
+      type: string
+      # quotes are necessary;
+      # without it ON and OFF are interpreted as boolean values by the yaml-to-json converter used by openapi-generator
+      enum: [ 'OFF', 'ON' ]
+      description: Used in AirConditioningCapabilities
+
     HotWaterProductionTimeSeries:
       type: object
       description: element of DayReport
@@ -2137,6 +2208,14 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/TemperatureDataPoint'
+
+    # LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
+    Light:
+      type: string
+      # quotes are necessary;
+      # without it ON and OFF are interpreted as boolean values by the yaml-to-json converter used by openapi-generator
+      enum: [ 'OFF', 'ON' ]
+      description: Used in AirConditioningCapabilities
 
     # MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
     MeasuringDeviceConnectedTimeSeries:
@@ -2388,6 +2467,37 @@ components:
           format: float
           example: 57.02
 
+    TemperatureCapability:
+      type: object
+      description: property available for zone type HEATING
+      properties:
+        celsius:
+          type: object
+          properties:
+            min:
+              type: integer
+              example: 5
+            max:
+              type: integer
+              example: 25
+            step:
+              type: number
+              format: float
+              example: 0.1
+        fahrenheit:
+          type: object
+          properties:
+            min:
+              type: integer
+              example: 41
+            max:
+              type: integer
+              example: 77
+            step:
+              type: number
+              format: float
+              example: 0.1
+
     TemperatureLevel:
       type: string
       enum: [ COLD, COMFY, WARM, HOT ]
@@ -2516,6 +2626,14 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/MobileDevice'
+
+    # VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
+    VerticalSwing:
+      type: string
+      # quotes are necessary;
+      # without it ON and OFF are interpreted as boolean values by the yaml-to-json converter used by openapi-generator
+      enum: [ 'OFF', 'MID_UP', 'MID_DOWN', 'ON', 'DOWN', 'UP', 'MID' ]
+      description: Used in AirConditioningCapabilities
 
     # WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
     Weather:
@@ -2688,44 +2806,48 @@ components:
 
     ZoneCapabilities:
       type: object
-      description: Used in /homes/{homeId}/zones/{zoneId}/capabilities.
+      description: >
+        The presence of the various properties depends on the ZoneType and capabilities of the zone who's capabilities are requested.
+        E.g. `temperatures` will not be available for a HOT_WATER zone with `canSetTemperature: false`.
+        
+        Used in /homes/{homeId}/zones/{zoneId}/capabilities.
       properties:
         type:
           $ref: '#/components/schemas/ZoneType'
         temperatures:
-          type: object
-          description: property available for zone type HEATING
-          properties:
-            celsius:
-              type: object
-              properties:
-                min:
-                  type: integer
-                  example: 5
-                max:
-                  type: integer
-                  example: 25
-                step:
-                  type: number
-                  format: float
-                  example: 0.1
-            fahrenheit:
-              type: object
-              properties:
-                min:
-                  type: integer
-                  example: 41
-                max:
-                  type: integer
-                  example: 77
-                step:
-                  type: number
-                  format: float
-                  example: 0.1
+          $ref: '#/components/schemas/TemperatureCapability'
         canSetTemperature:
           type: boolean
           example: false
           description: property available for zone type HOT_WATER
+        AUTO:
+          $ref: '#/components/schemas/AirConditioningModeCapabilitiesBase'
+        HEAT:
+          $ref: '#/components/schemas/AirConditioningModeCapabilities'
+        FAN:
+          $ref: '#/components/schemas/AirConditioningModeCapabilities'
+        COOL:
+          $ref: '#/components/schemas/AirConditioningModeCapabilities'
+        DRY:
+          $ref: '#/components/schemas/AirConditioningModeCapabilities'
+        initialStates:
+          type: object
+          properties:
+            mode:
+              $ref: '#/components/schemas/AirConditioningMode'
+            modes:
+              type: object
+              properties:
+                COOL:
+                  $ref: '#/components/schemas/AirConditioningModeInitialState'
+                HEAT:
+                  $ref: '#/components/schemas/AirConditioningModeInitialState'
+                DRY:
+                  $ref: '#/components/schemas/AirConditioningModeInitialState'
+                FAN:
+                  $ref: '#/components/schemas/AirConditioningModeInitialState'
+                AUTO:
+                  $ref: '#/components/schemas/AirConditioningModeInitialStateBase'
 
     ZoneId:
       type: integer
