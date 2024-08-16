@@ -7,7 +7,7 @@ info:
     
     Github repository where this specification is maintained: 
     [https://github.com/kritsel/tado-openapispec-v2](https://github.com/kritsel/tado-openapispec-v2)
-  version: 2.2024.08.16.4
+  version: 2.2024.08.16.5
 servers:
   - url: https://my.tado.com/api/v2/
 security:
@@ -875,13 +875,52 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TerminationCondition'
+                $ref: '#/components/schemas/DefaultOverlay'
         '401':
           $ref: '#/components/responses/Unauthorized401'
         '403':
           $ref: '#/components/responses/AccessDenied403'
         '404':
-          $ref: '#/components/responses/NotFound404' # when the zone does not exist of there is no overlay for this zone
+          $ref: '#/components/responses/NotFound404' # when the zone does not exist
+    put:
+      summary: >
+        Set the overlay.termination.typeSkillBasedApp value to use when a user sets (and thus overrides) 
+        the target temperature for a zone via a tado thermostat device.
+      operationId: putZoneDefaultOverlay # hint for client code generators
+      tags:
+        - zone control
+      parameters:
+        - in: path
+          name: homeId
+          schema:
+            $ref: '#/components/schemas/HomeId'
+          required: true
+          description: unique ID of a home
+        - in: path
+          name: zoneId
+          schema:
+            $ref: '#/components/schemas/ZoneId'
+          required: true
+          description: ID of a zone (unique within a home)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DefaultOverlay'
+      responses:
+        '200':
+          description: successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultOverlay'
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+        '403':
+          $ref: '#/components/responses/AccessDenied403'
+        '404':
+          $ref: '#/components/responses/NotFound404' # when the zone does not exist
 
 
   /homes/{homeId}/zones/{zoneId}/overlay:
@@ -915,7 +954,7 @@ paths:
         '403':
           $ref: '#/components/responses/AccessDenied403'
         '404':
-          $ref: '#/components/responses/NotFound404' # when the zone does not exist of there is no overlay for this zone
+          $ref: '#/components/responses/NotFound404' # when the zone does not exist or there is no overlay for this zone
     put:
       summary: Set the overlay (manual override of the configured temperature schedule) for the given zone (a.k.a. room)
       operationId: putZoneOverlay # hint for client code generators
@@ -2409,8 +2448,6 @@ components:
         termination:
           type: object
           properties:
-            type:
-              $ref: '#/components/schemas/OverlayTerminationType'
             typeSkillBasedApp:
               $ref: '#/components/schemas/TypeSkillBasedApp'
             durationInSeconds:
@@ -2422,7 +2459,20 @@ components:
       type: string
       enum: [ MANUAL, TADO_MODE, TIMER ]
       example: MANUAL
-      description: element of an overlay
+      description: >
+        Element of an overlay.
+        
+        Does not contain NEXT_TIME_BLOCK which is present in the TypeSkillBasedApp enum.
+        
+        Value descriptions:
+
+        * MANUAL: the (temperature) settings in the Overlay will last indefinitely
+
+        * TIMER: the (temperature) settings in the Overlay will last for a fixed number of seconds, 
+        starting at the moment the Overlay was set (requires setting durationInSeconds as well)
+
+        * TADO_MODE: the (temperature) settings in the Overlay will last until the next
+        time block in the active timetable starts
 
     OverlayType:
       type: string
@@ -2583,16 +2633,25 @@ components:
         value:
           $ref: '#/components/schemas/Temperature'
 
-    TerminationCondition:
+    DefaultOverlay:
       type: object
-      description: Used in /homes/{homeId}/zones/{zoneId}/defaultOverlay
+      description: > 
+        Used in /homes/{homeId}/zones/{zoneId}/defaultOverlay.
+        
+        It defines the default overlay termination condition which tado will use when a user sets the zone temperature
+        via a tado device (this results in setting an Overlay).
+        
+        The `type` defined here is used as the value for overlay.termination.typeSkillBasedApp when setting the Overlay.
       properties:
         terminationCondition:
           type: object
           properties:
             type:
-              # TODO: verify which values are actually possible here
-              $ref: '#/components/schemas/TypeSkillBasedApp'
+              $ref: '#/components/schemas/OverlayTerminationType'
+            durationInSeconds:
+              type: integer
+              example: 600
+              description: only applicable when type is TIMER
 
     TimetableBlock:
       type: object
@@ -2649,7 +2708,21 @@ components:
 
     TypeSkillBasedApp:
       type: string
-      description: Used in Overlay
+      description: >
+        Used in Overlay to specify until when the Overlay should be active.
+        
+        
+        Compared to OverlayTerminationType it contains NEXT_TIME_BLOCK as an extra value.
+        
+        Value descriptions:
+        
+        * MANUAL: the (temperature) settings in the Overlay will last indefinitely
+
+        * TIMER: the (temperature) settings in the Overlay will last for a fixed number of seconds, 
+        starting at the moment the Overlay was set (requires setting durationInSeconds as well)
+
+        * TADO_MODE and NEXT_TIME_BLOCK: the (temperature) settings in the Overlay will last until the next
+        time block in the active timetable starts
       enum: [ MANUAL, TADO_MODE, TIMER, NEXT_TIME_BLOCK ]
       example: MANUAL
 
