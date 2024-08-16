@@ -7,7 +7,7 @@ info:
     
     Github repository where this specification is maintained: 
     [https://github.com/kritsel/tado-openapispec-v2](https://github.com/kritsel/tado-openapispec-v2)
-  version: 2.2024.08.16.5
+  version: 2.2024.08.16.6
 servers:
   - url: https://my.tado.com/api/v2/
     description: Production server
