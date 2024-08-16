@@ -7,7 +7,7 @@ info:
     
     Github repository where this specification is maintained: 
     [https://github.com/kritsel/tado-openapispec-v2](https://github.com/kritsel/tado-openapispec-v2)
-  version: 2.2024.08.16.2
+  version: 2.2024.08.16.3
 servers:
   - url: https://my.tado.com/api/v2/
 security:
@@ -1885,7 +1885,7 @@ components:
     # FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
     FanLevel:
       type: string
-      enum: [AUTO, LEVEL1, LEVEL2, LEVEL3, LEVEL4, LEVEL5]
+      enum: [AUTO, LEVEL1, LEVEL2, LEVEL3, LEVEL4, LEVEL5, SILENT]
       description: Used in AirConditioningCapabilities
 
     # HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
@@ -2120,7 +2120,7 @@ components:
       type: string
       # quotes are necessary;
       # without it ON and OFF are interpreted as boolean values by the yaml-to-json converter used by openapi-generator
-      enum: [ 'OFF', 'ON' ]
+      enum: [ 'OFF', 'ON', 'RIGHT', 'LEFT', 'MID_RIGHT', 'MID_LEFT']
       description: Used in AirConditioningCapabilities
 
     HotWaterProductionTimeSeries:
