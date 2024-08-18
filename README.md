@@ -29,11 +29,13 @@ The contents of this API specification is a best-effort product.
 There are no guarantees that this API specification is a complete and 
 correct representation of the actual API as provided by tado.
 
+# Specification characteristics
+
 ## Versioning
 As this is a community managed OpenAPI specification for an API which is 
 actually controlled by another company (being tado&ordm;),
-the specification grows gradually based on the discoveries made by 
-software developers using the API. 
+the specification grows and matures gradually based on the discoveries made by 
+software developers who are reverse-engineering the API. 
 
 The changes and releases of this *specification* do not represent the changes 
 in the API itself. 
@@ -55,6 +57,21 @@ Unfortunately you cannot execute API requests via the Swagger UI,
 due to cross-site scripting protection:
 the Swagger UI is basically a javascript application hosted by github.io,
 and it is not allowed to make calls to the tado.com host.
+
+## Limitations
+Not all functionality in tado's webapp or mobile apps is supported via this tado API.
+
+When you use the webapp while keeping an eye on Network traffic via your browser's
+developer tools, you can see other tado APIs scrolling by as well.
+
+* https://acme.tado.com : additional air comfort information (display texts, visuals to use, outdoor air quality)
+* https://auth.tado.com/: manage your account information like name, email and password
+* https://energy-insights.tado.com: functionality behind Energy IQ
+* https://ivar.tado.com/graphql: retrieve brand and boiler model information to help the user select their boiler type
+* https://nibbler.tado.com/graphql: registering new devices
+* https://minder.tado.com: get incidents information
+* https://susi.tado.com: get skill information (related to paid Auto-Assist subscription)
+* https://tariff-experience.tado.com
 
 # OAuth 2.0 authentication
 The only authentication mechanism supported by the tado API is OAuth 2.0.

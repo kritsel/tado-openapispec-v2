@@ -7,7 +7,7 @@ info:
     
     Github repository where this specification is maintained: 
     [https://github.com/kritsel/tado-openapispec-v2](https://github.com/kritsel/tado-openapispec-v2)
-  version: 2.2024.08.16.6
+  version: 2.2024.08.18.0
 servers:
   - url: https://my.tado.com/api/v2/
     description: Production server
@@ -102,14 +102,11 @@ paths:
           schema:
             $ref: '#/components/schemas/HomeId'
           required: true
-          description: unique ID of a home
         - in: path
           name: mobileDeviceId
           schema:
-            type: integer
-            format: int64
+            $ref: '#/components/schemas/MobileDeviceId'
           required: true
-          description: ID of a mobile device
       responses:
         '200':
           description: successful response
@@ -173,14 +170,11 @@ paths:
           schema:
             $ref: '#/components/schemas/HomeId'
           required: true
-          description: unique ID of a home
         - in: path
           name: mobileDeviceId
           schema:
-            type: integer
-            format: int64
+            $ref: '#/components/schemas/MobileDeviceId'
           required: true
-          description: ID of a mobile device
       responses:
         '200':
           description: successful response
@@ -217,6 +211,13 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/MobileDeviceSettings'
+            examples:
+              enable-geotracking:
+                value:
+                  geoTrackingEnabled: true
+              disable-geotracking:
+                value:
+                  geoTrackingEnabled: false
       responses:
         '200':
           description: successful response
@@ -230,6 +231,8 @@ paths:
           $ref: '#/components/responses/AccessDenied403'
         '404':
           $ref: '#/components/responses/NotFound404'
+        '422':
+          $ref: '#/components/responses/InputError422'
 
   ####################################################################################################################
   # home paths
@@ -287,7 +290,10 @@ paths:
 
   /homes/{homeId}/details:
     put:
-      summary: Set home details for this home
+      summary: Set home details for this home.
+      description: >
+        This endpoint expects a complete HomeDetails object, 
+        you cannot send a partial object which only contains the properties you would like to update.
       operationId: putHomeDetails # hint for client code generators
       tags:
         - home
@@ -311,6 +317,8 @@ paths:
           $ref: '#/components/responses/Unauthorized401'
         '403':
           $ref: '#/components/responses/AccessDenied403'
+        '422':
+          $ref: '#/components/responses/InputError422'
 
   /homes/{homeId}/heatingCircuits:
     get:
@@ -366,7 +374,16 @@ paths:
 
   /homes/{homeId}/heatingSystem/boiler:
     put:
-      summary: Update information about the boiler of this home
+      summary: Inform tado about the presence of a boiler in this home
+      description: >
+        When setting the boiler presence to true with a boiler id, the tado api does not seem to generate any
+        errors when you supply an unknown boiler id. 
+        The resulting response of /homes/{homeId}/heatingSystem will always have boiler.id set to the supplied
+        boiler id value and boiler.found set to true.
+        
+        
+        The app assists the user in finding the boiler by brand and model. 
+        This is supported by tado's graphql API, and not via the API described in this specification.
       operationId: putHeatingSystemBoiler # hint for client code generators
       tags:
         - home
@@ -383,6 +400,17 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/Boiler'
+            examples:
+              not-present:
+                value:
+                  present: false
+              present_no-id:
+                value:
+                  present: true
+              present_with-id:
+                value:
+                  present: true
+                  id: 2699
       responses:
         '204':
           description: successful response
@@ -390,10 +418,12 @@ paths:
           $ref: '#/components/responses/Unauthorized401'
         '403':
           $ref: '#/components/responses/AccessDenied403'
+        '422':
+          $ref: '#/components/responses/InputError422'
 
   /homes/{homeId}/heatingSystem/underfloorHeating:
     put:
-      summary: Update information about the underfloor heating of this home
+      summary: Inform tado about the presence of underfloor heating in this home
       operationId: putUnderfloorHeating # hint for client code generators
       tags:
         - home
@@ -410,6 +440,13 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/UnderfloorHeating'
+            examples:
+              not-present:
+                value:
+                  present: false
+              present:
+                value:
+                  present: true
       responses:
         '204':
           description: successful response
@@ -417,10 +454,29 @@ paths:
           $ref: '#/components/responses/Unauthorized401'
         '403':
           $ref: '#/components/responses/AccessDenied403'
+        '422':
+          $ref: '#/components/responses/InputError422'
 
   /homes/{homeId}/incidentDetection:
     get:
-      summary: Get the value of the incidentDetection setting for this home
+      summary: Get the value of the incidentDetection setting for this home.
+      description: >
+        From https://support.tado.com/en/articles/4467468-what-is-care-protect:
+        
+        
+        If you have Auto-Assist, or if Incident Detection is included in your tado° starter kit, 
+        then tado° will constantly monitor your heating system to let you know if something isn’t working properly.
+        It considers various factors, including the indoor temperature of each room, your Smart Schedule and open windows.
+
+
+        If there are any unexpected changes, you’ll receive a notification and be given the option 
+        to try to identify and resolve the issue or call in a professional to do so for you. 
+        This means you can address boiler problems as they arise, and in some cases even avoid costly repairs. 
+
+
+
+        Incident Detection works with all boiler types and interfaces, however it might not detect every incident. 
+        For instance, the tado° app won’t show bus interface errors of digitally connected boilers (e.g. regarding a broken pump).
       operationId: getIncidentDetection # hint for client code generators
       tags:
         - home
@@ -443,7 +499,11 @@ paths:
         '403':
           $ref: '#/components/responses/AccessDenied403'
     put:
-      summary: Set the value of the incidentDetection setting for this home
+      summary: Enable or disable incident detection setting for this home.
+      description: >
+        You won't be able to enable incident detection when it is not supported for your home.
+        
+        See the description for GET /homes/{homeId}/incidentDetection for more information.
       operationId: putIncidentDetection # hint for client code generators
       tags:
         - home
@@ -459,7 +519,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/IncidentDetectionInput'
+              $ref: '#/components/schemas/IncidentDetection'
+            examples:
+              enable:
+                value:
+                  enabled: true
+              disable:
+                value:
+                  enabled: false
       responses:
         '200':
           description: successful response
@@ -471,6 +538,8 @@ paths:
           $ref: '#/components/responses/Unauthorized401'
         '403':
           $ref: '#/components/responses/AccessDenied403'
+        '422':
+          $ref: '#/components/responses/InputError422'
 
   /homes/{homeId}/weather:
     get:
@@ -522,7 +591,7 @@ paths:
             schema:
               type: array
               items:
-                $ref: '#/components/schemas/OverlayInput'
+                $ref: '#/components/schemas/ZoneOverlay'
       responses:
         '204':
           description: successful empty response
@@ -584,6 +653,13 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/PresenceLock'
+            examples:
+              HOME:
+                value:
+                  homePresence: HOME
+              AWAY:
+                value:
+                  homePresence: AWAY
       responses:
         '204':
           description: successful empty response
@@ -598,7 +674,7 @@ paths:
     get:
       summary: Get information about the presence state of the home.
       description: >
-        The presence state is either automatically controlled via geo-fencing (requires a paid tado subscription),
+        The presence state is either automatically controlled via geofencing (requires a paid tado subscription),
         or it can be set via PUT /homes/{homeId}/presenceLock
         
         
@@ -633,9 +709,27 @@ paths:
     get:
       summary: Get all zones (a.k.a. rooms) associated with the provided homeId.
       description: >
-        Includes full information of the tado devices present in each zone. 
-        The response does not include any device of DeviceType `IB01` (Internet Bridge);
-        use `/homes/{homeId}/devices` instead.
+        Delivers information about each zone in the given home, including the tado devices present in each zone.
+        
+        
+        About the devices: there are multiple ways to determine all tado devices in a home or zone:
+
+        * GET /homes/{homeId}/devices 
+
+        * GET /homes/{homeId}/deviceList
+
+        * GET /homes/{homeId}/zones **this operation**
+        
+        * GET /homes/{homeId}/zones/{zoneId}/control
+        
+        
+        Distinguishing features of **this operation**:
+
+        * **DeviceType 'IB01'**: devices of DeviceType 'IB01' (Internet Bridge) are not included in the response
+
+        * **duties**: the response does tell you the duties of each device
+
+        * **zone**: the response tells you the zone each device belongs to
         
         
         Used in app feature: Home page
@@ -803,7 +897,7 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound404'
         '422':
-          $ref: '#/components/responses/UnsupportedForZoneType422'
+          $ref: '#/components/responses/InputError422'
     put:
       summary: Control whether Tado makes sure a set temperature is reached at the start of a block
       operationId: putZoneEarlyStart # hint for client code generators
@@ -828,6 +922,13 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/EarlyStart'
+            examples:
+              enable:
+                value:
+                  enabled: true
+              disable:
+                value:
+                  enabled: false
       responses:
         '200':
           description: successful response
@@ -842,7 +943,7 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound404'
         '422':
-          $ref: '#/components/responses/UnsupportedForZoneType422'
+          $ref: '#/components/responses/InputError422'
 
   /homes/{homeId}/zones/{zoneId}/defaultOverlay:
     get:
@@ -872,7 +973,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DefaultOverlay'
+                $ref: '#/components/schemas/DefaultZoneOverlay'
         '401':
           $ref: '#/components/responses/Unauthorized401'
         '403':
@@ -905,20 +1006,36 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/DefaultOverlay'
+              $ref: '#/components/schemas/DefaultZoneOverlay'
+            examples:
+              MANUAL:
+                value:
+                  terminationCondition:
+                    type: MANUAL
+              TADO_MODE:
+                value:
+                  terminationCondition:
+                    type: TADO_MODE
+              TIMER:
+                value:
+                  terminationCondition:
+                    type: TIMER
+                    durationInSeconds: 900
       responses:
         '200':
           description: successful response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DefaultOverlay'
+                $ref: '#/components/schemas/DefaultZoneOverlay'
         '401':
           $ref: '#/components/responses/Unauthorized401'
         '403':
           $ref: '#/components/responses/AccessDenied403'
         '404':
           $ref: '#/components/responses/NotFound404' # when the zone does not exist
+        '422':
+          $ref: '#/components/responses/InputError422'
 
 
   /homes/{homeId}/zones/{zoneId}/overlay:
@@ -946,7 +1063,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Overlay'
+                $ref: '#/components/schemas/ZoneOverlay'
         '401':
           $ref: '#/components/responses/Unauthorized401'
         '403':
@@ -976,14 +1093,59 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/OverlayInput'
+              $ref: '#/components/schemas/ZoneOverlay'
+            examples:
+              MANUAL-OFF:
+                value:
+                  setting:
+                    type: HEATING
+                    power: OFF
+                  termination:
+                    typeSkillBasedApp: MANUAL
+              MANUAL-ON:
+                value:
+                  setting:
+                    type: HEATING
+                    power: ON
+                    temperature:
+                      celsius: 19.5
+                  termination:
+                    typeSkillBasedApp: MANUAL
+              TADO_MODE-ON:
+                value:
+                  setting:
+                    type: HEATING
+                    power: ON
+                    temperature:
+                      celsius: 19.5
+                  termination:
+                    typeSkillBasedApp: TADO_MODE
+              NEXT_TIME_BLOCK-ON:
+                value:
+                  setting:
+                    type: HEATING
+                    power: ON
+                    temperature:
+                      celsius: 19.5
+                  termination:
+                    typeSkillBasedApp: NEXT_TIME_BLOCK
+              TIMER-ON:
+                value:
+                  setting:
+                    type: HEATING
+                    power: ON
+                    temperature:
+                      celsius: 19.5
+                  termination:
+                    typeSkillBasedApp: TIMER
+                    durationInSeconds: 3600
       responses:
         '200':
           description: successful response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Overlay'
+                $ref: '#/components/schemas/ZoneOverlay'
         '401':
           $ref: '#/components/responses/Unauthorized401'
         '403':
@@ -1046,6 +1208,60 @@ paths:
           $ref: '#/components/responses/Unauthorized401'
         '403':
           $ref: '#/components/responses/AccessDenied403'
+    put:
+      summary: Set the (temperature) settings to use for the given zone (a.k.a. room) when the home state is AWAY.
+      operationId: setZoneAwayConfiguration # hint for client code generators
+      tags:
+        - zone control
+      parameters:
+        - in: path
+          name: homeId
+          schema:
+            $ref: '#/components/schemas/HomeId'
+          required: true
+          description: unique ID of a home
+        - in: path
+          name: zoneId
+          schema:
+            $ref: '#/components/schemas/ZoneId'
+          required: true
+          description: ID of a zone (unique within a home)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ZoneAwayConfiguration'
+            examples:
+              HEATING-OFF:
+                value:
+                  type: HEATING
+                  preheatingLevel: OFF
+                  setting:
+                    type: HEATING
+                    power: OFF
+              HEATING-ON:
+                value:
+                  type: HEATING
+                  preheatingLevel: OFF
+                  setting:
+                    type: HEATING
+                    power: ON
+                    temperature:
+                      celsius: 12
+      responses:
+        '200':
+          description: successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ZoneAwayConfiguration'
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+        '403':
+          $ref: '#/components/responses/AccessDenied403'
+        '422':
+          $ref: '#/components/responses/InputError422'
 
   /homes/{homeId}/zones/{zoneId}/schedule/activeTimetable:
     get:
@@ -1077,6 +1293,55 @@ paths:
           $ref: '#/components/responses/Unauthorized401'
         '403':
           $ref: '#/components/responses/AccessDenied403'
+        '422':
+          $ref: '#/components/responses/InputError422'
+    put:
+      summary: Set the active timetable type for the given zone (a.k.a. room)
+      operationId: setZoneActiveTimetable # hint for client code generators
+      tags:
+        - zone control
+      parameters:
+        - in: path
+          name: homeId
+          schema:
+            $ref: '#/components/schemas/HomeId'
+          required: true
+          description: unique ID of a home
+        - in: path
+          name: zoneId
+          schema:
+            $ref: '#/components/schemas/ZoneId'
+          required: true
+          description: ID of a zone (unique within a home)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TimetableType'
+            examples:
+              ONE_DAY:
+                value:
+                  id: 0
+              THREE_DAY:
+                value:
+                  id: 1
+              SEVEN_DAY:
+                value:
+                  id: 2
+      responses:
+        '200':
+          description: successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TimetableType'
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+        '403':
+          $ref: '#/components/responses/AccessDenied403'
+        '422':
+          $ref: '#/components/responses/InputError422'
 
   /homes/{homeId}/zones/{zoneId}/schedule/timetables:
     get:
@@ -1318,6 +1583,45 @@ paths:
               type: array
               items:
                 $ref: '#/components/schemas/TimetableBlock'
+            examples:
+              heating-workday:
+                value:
+                  - dayType: MONDAY_TO_FRIDAY
+                    start: "00:00"
+                    end: "07:00"
+                    geolocationOverride: false
+                    setting:
+                      type: HEATING
+                      power: "ON"
+                      temperature:
+                        celsius: 15
+                  - dayType: MONDAY_TO_FRIDAY
+                    start: "07:00"
+                    end: "08:30"
+                    geolocationOverride: false
+                    setting:
+                      type: HEATING
+                      power: "ON"
+                      temperature:
+                        celsius: 19.5
+                  - dayType: MONDAY_TO_FRIDAY
+                    start: "08:30"
+                    end: "17:30"
+                    geolocationOverride: false
+                    setting:
+                      type: HEATING
+                      power: "ON"
+                      temperature:
+                        celsius: 15
+                  - dayType: MONDAY_TO_FRIDAY
+                    start: "17:30"
+                    end: "00:00"
+                    geolocationOverride: false
+                    setting:
+                      type: HEATING
+                      power: "ON"
+                      temperature:
+                        celsius: 19.5
       responses:
         '200':
           description: successful response
@@ -1333,20 +1637,112 @@ paths:
           $ref: '#/components/responses/AccessDenied403'
         '404':
           $ref: '#/components/responses/NotFound404'
+        '422':
+          $ref: '#/components/responses/InputError422'
 
   ####################################################################################################################
   # device paths
+  /devices/{deviceId}/temperatureOffset:
+    get:
+      summary: Get the temperature offset for the given device.
+      description: >
+        Depending on how close the tado measuring device in a room is to the heating/cooling source,
+        the measured temperature might be off.
+        
+        The offset instructs tado to increase/decrease the measured temperature by a certain amount,
+        before it starts using the value as input for automated temperature control.
+      operationId: getTemperatureOffset # hint for client code generators
+      tags:
+        - device
+      parameters:
+        - in: path
+          name: deviceId
+          schema:
+            $ref: '#/components/schemas/DeviceId'
+          required: true
+          description: the shortSerialNo of a tado device
+      responses:
+        '200':
+          description: successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Temperature'
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+        '403':
+          $ref: '#/components/responses/AccessDenied403'
+    put:
+      summary: Set the temperature offset for the given device.
+      description: >
+        Depending on how close the tado measuring device in a room is to the heating/cooling source,
+        the measured temperature might be off.
+        
+        The offset instructs tado to increase/decrease the measured temperature by a certain amount,
+        before it starts using the value as input for automated temperature control.
+      operationId: putTemperatureOffset # hint for client code generators
+      tags:
+        - device
+      parameters:
+        - in: path
+          name: deviceId
+          schema:
+            $ref: '#/components/schemas/DeviceId'
+          required: true
+          description: the shortSerialNo of a tado device
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Temperature'
+            examples:
+              celsius:
+                value:
+                  celsius: 1.75
+              fahrenheit:
+                value:
+                  fahrenheit: -2.25
+      responses:
+        '200':
+          description: successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Temperature'
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+        '403':
+          $ref: '#/components/responses/AccessDenied403'
+        '422':
+          $ref: '#/components/responses/InputError422'
+
   /homes/{homeId}/devices:
     get:
       summary: Get all tado devices associated with the provided homeId.
-      # the float blank lines int the description are intentional, to force a new line in the rendered text on Swagger UI
       description: >
-        The device information included in the response for `/homes/{homeId}/zones` and `/homes/{homeId}/zones/{zoneId}`
-        includes the `duties` property, while the response for this path does not. 
+        There are multiple ways to determine all tado devices in a home or zone:
+        
+        * GET /homes/{homeId}/devices **this operation**
+        
+        * GET /homes/{homeId}/deviceList
+        
+        * GET /homes/{homeId}/zones
+        
+        * GET /homes/{homeId}/zones/{zoneId}/control
         
         
-        The response for this path does include devices of DeviceType `IB01` (Internet Bridge), 
-        while the responses for the zone related paths do not.
+        Distinguishing features of **this operation**:
+        
+        * **DeviceType 'IB01'**: device of DeviceType 'IB01' (Internet Bridge) is included in the response
+
+        * **duties**: the response does not tell you the duties of each device
+
+        * **zone**: the response does not tell you the zone each device belongs to
       operationId: getDevices # hint for client code generators
       tags:
         - device
@@ -1365,7 +1761,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/DeviceBase'
+                  $ref: '#/components/schemas/Device'
         '401':
           $ref: '#/components/responses/Unauthorized401'
         '403':
@@ -1384,13 +1780,11 @@ paths:
           schema:
             $ref: '#/components/schemas/HomeId'
           required: true
-          description: unique ID of a home
         - in: path
           name: deviceId
           schema:
-            type: string
+            $ref: '#/components/schemas/DeviceId'
           required: true
-          description: the `shortSerialNo` of a device
       responses:
         '200':
           description: successful response; response body is empty, but response statuscode is 200 and not 204
@@ -1401,7 +1795,27 @@ paths:
 
   /homes/{homeId}/deviceList:
     get:
-      summary: Get all tado devices associated with the provided homeId, together with the zone (a.k.a. room) they are in
+      summary: Get all tado devices associated with the provided homeId, together with the zone (a.k.a. room) they are in.
+      description: >
+        There are multiple ways to determine all tado devices in a home or zone:
+        
+        * GET /homes/{homeId}/devices 
+        
+        * GET /homes/{homeId}/deviceList **this operation**
+        
+        * GET /homes/{homeId}/zones
+        
+        * GET /homes/{homeId}/zones/{zoneId}/control
+        
+        
+        Distinguishing features of **this operation**:
+        
+        * **DeviceType 'IB01'**: device of DeviceType 'IB01' (Internet Bridge) is included in the response
+        
+        * **duties**: the response only tells you if the device has a UI duty, no other duties (like driver or leader) are mentioned
+        
+        * **zone**: the response tells you the zone each device belongs to
+
       operationId: getDeviceList # hint for client code generators
       tags:
         - device
@@ -1425,6 +1839,132 @@ paths:
           $ref: '#/components/responses/Unauthorized401'
         '403':
           $ref: '#/components/responses/AccessDenied403'
+
+  /homes/{homeId}/zones/{zoneId}/control:
+    get:
+      summary: Returns the devices within the given zone (a.k.a. room), grouped by their duty.
+      description: >
+        There are multiple ways to determine all tado devices in a home or zone:
+
+        * GET /homes/{homeId}/devices 
+
+        * GET /homes/{homeId}/deviceList 
+
+        * GET /homes/{homeId}/zones
+
+        * GET /homes/{homeId}/zones/{zoneId}/control **this operation**
+
+
+        Distinguishing features of **this operation**:
+
+        * **DeviceType 'IB01'**: device of DeviceType 'IB01' (Internet Bridge) is not included in the response
+
+        * **duties**: the response tells you thy duty each device has (ui, driver, leader)
+
+        * **zone**: the response tells you the zone each device belongs to
+
+      operationId: getZoneControl # hint for client code generators
+      tags:
+        - device
+      parameters:
+        - in: path
+          name: homeId
+          schema:
+            $ref: '#/components/schemas/HomeId'
+          required: true
+          description: unique ID of a home
+        - in: path
+          name: zoneId
+          schema:
+            $ref: '#/components/schemas/ZoneId'
+          required: true
+          description: ID of a zone (unique within a home)
+      responses:
+        '200':
+          description: successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ZoneControl'
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+        '403':
+          $ref: '#/components/responses/AccessDenied403'
+        '404':
+          $ref: '#/components/responses/NotFound404'
+
+  /homes/{homeId}/zones/{zoneId}/measuringDevice:
+    get:
+      summary: Returns the tado device which measures temperature and humidity in the given zone (a.k.a. room).
+      description: Returns 404 when applied to a HOT_WATER zone
+      operationId: getZoneMeasuringDevice # hint for client code generators
+      tags:
+        - device
+      parameters:
+        - in: path
+          name: homeId
+          schema:
+            $ref: '#/components/schemas/HomeId'
+          required: true
+          description: unique ID of a home
+        - in: path
+          name: zoneId
+          schema:
+            $ref: '#/components/schemas/ZoneId'
+          required: true
+          description: ID of a zone (unique within a home)
+      responses:
+        '200':
+          description: successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Device'
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+        '403':
+          $ref: '#/components/responses/AccessDenied403'
+        '404':
+          $ref: '#/components/responses/NotFound404'
+    put:
+      summary: Set the tado device which should measure temperature and humidity in the given zone (a.k.a. room).
+      description: Not applicable for a HOT_WATER zone
+      operationId: putZoneMeasuringDevice # hint for client code generators
+      tags:
+        - device
+      parameters:
+        - in: path
+          name: homeId
+          schema:
+            $ref: '#/components/schemas/HomeId'
+          required: true
+          description: unique ID of a home
+        - in: path
+          name: zoneId
+          schema:
+            $ref: '#/components/schemas/ZoneId'
+          required: true
+          description: ID of a zone (unique within a home)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                serialNo:
+                  $ref: '#/components/schemas/DeviceId'
+      responses:
+        '204':
+          description: successful response
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+        '403':
+          $ref: '#/components/responses/AccessDenied403'
+        '404':
+          $ref: '#/components/responses/NotFound404'
+        '422':
+          $ref: '#/components/responses/InputError422'
 
   ####################################################################################################################
   # report paths
@@ -1499,17 +2039,23 @@ components:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
     InputError422:
-      description: the request body contains errors (e.g. a required property is missing)
+      description: >
+        The request body is invalid or the requested operation is not supported.
+        This can have all kinds of reasons, some examples:
+        
+        * a required property is missing
+        
+        * an invalid value is used for a property
+        
+        * a particular operation is not allowed on a resource given the state of the resource
+        
+        * a particular zone specific operation is not supported for the zone's ZoneTYpe
+        
+        * a particular operation requires a paid subscription which is not active for the home
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
-    UnsupportedForZoneType422:
-      description: the requested operation is not supported for the zone type of the specified zone
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponseZoneType'
 
   schemas:
     # AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
@@ -1636,13 +2182,34 @@ components:
 
     BooleanDataInterval:
       type: object
-      description: element of DayReport
+      description:
+        Element of DayReport and ZoneState.
+        Used to express measuredData.measuringDeviceConnected (ZoneState), hotWaterProduction (ZoneState)
+        and weather.sunny (DayReport)
       allOf:
         - $ref: '#/components/schemas/DataInterval'
         - properties:
             value:
               type: boolean
               example: true
+
+    BooleanTimeSeries:
+      type: object
+      description: >
+        Element of DayReport and ZoneState. 
+        Used to express measuredData.measuringDeviceConnected (ZoneState), hotWaterProduction (ZoneState) 
+        and weather.sunny (DayReport)
+      properties:
+        timeSeriesType:
+          type: string
+          example: dataIntervals
+        valueType:
+          type: string
+          example: boolean
+        dataIntervals:
+          type: array
+          items:
+            $ref: '#/components/schemas/BooleanDataInterval'
 
     # CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
     CallForHeatTimeSeries:
@@ -1712,46 +2279,26 @@ components:
         measuredData:
           properties:
             measuringDeviceConnected:
-              $ref: '#/components/schemas/MeasuringDeviceConnectedTimeSeries'
+              $ref: '#/components/schemas/BooleanTimeSeries'
             insideTemperature:
-              $ref: '#/components/schemas/InsideTemperatureTimeSeries'
+              $ref: '#/components/schemas/TemperatureTimeSeries'
             humidity:
-              $ref: '#/components/schemas/HumidityTimeSeries'
+              $ref: '#/components/schemas/PercentageTimeSeries'
         stripes:
           $ref: '#/components/schemas/StripesTimeSeries'
         callForHeat:
           $ref: '#/components/schemas/CallForHeatTimeSeries'
         hotWaterProduction:
-          $ref: '#/components/schemas/HotWaterProductionTimeSeries'
+          $ref: '#/components/schemas/BooleanTimeSeries'
         weather:
           type: object
           properties:
             condition:
               $ref: '#/components/schemas/WeatherConditionTimeSeries'
             sunny:
-              $ref: '#/components/schemas/SunnyTimeSeries'
+              $ref: '#/components/schemas/BooleanTimeSeries'
             slots:
-              type: object
-              properties:
-                timeSeriesType:
-                  type: string
-                  example: slots
-                valueType:
-                  type: string
-                  example: weatherCondition
-                slots:
-                  type: object
-                  properties:
-                    '04:00':
-                      $ref: '#/components/schemas/WeatherSlot'
-                    '08:00':
-                      $ref: '#/components/schemas/WeatherSlot'
-                    '12:00':
-                      $ref: '#/components/schemas/WeatherSlot'
-                    '16:00':
-                      $ref: '#/components/schemas/WeatherSlot'
-                    '20:00':
-                      $ref: '#/components/schemas/WeatherSlot'
+              $ref: '#/components/schemas/WeatherSlotTimeSeries'
 
     DayType:
       type: string
@@ -1769,33 +2316,28 @@ components:
 
         * for timetableType 2 (SEVEN_DAY): MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY
 
-    Device:
+    DefaultZoneOverlay:
+      type: object
       description: >
-        A piece of tado hardware.
-        
-        
-        Some of the properties are only available for certain device types. 
-        Certain values for some properties are only applicable for certain device types. 
-        Wherever device type specific information is known, it is documented. 
-        But you cannot count on this information being fully complete.
-      allOf:
-        - $ref: '#/components/schemas/DeviceBase'
-        - properties:
-            duties:
-              type: array
-              items:
-                type: string
-                example: ZONE_UI
-                description: >
-                  known values: 
-                  
-                  * ZONE_UI (seen for DeviceType SU02, VA02)
-                  
-                  * ZONE_LEADER (seen for DeviceType SU02, VA02)
-                  
-                  * ZONE_DRIVER (seen for DeviceType VA02)
+        Used in /homes/{homeId}/zones/{zoneId}/defaultOverlay.
 
-    DeviceBase:
+        It defines the default overlay termination type which tado will use when a user set zone settings (like temperature)
+        via a physical tado device like a Smart Thermostat.
+        (this results in setting a ZoneOverlay).
+
+        The `type` defined here is used as the value for overlay.termination.typeSkillBasedApp when setting a ZoneOverlay.
+      properties:
+        terminationCondition:
+          type: object
+          properties:
+            type:
+              $ref: '#/components/schemas/ZoneOverlayTerminationType'
+            durationInSeconds:
+              type: integer
+              example: 600
+              description: only applicable when type is TIMER
+
+    Device:
       type: object
       description: >
         A piece of tado hardware
@@ -1812,8 +2354,7 @@ components:
           type: string
           example: SU4126033143
         shortSerialNo:
-          type: string
-          example: SU4126033143
+          $ref: '#/components/schemas/DeviceId'
         currentFwVersion:
           type: string
           example: 215.1
@@ -1881,6 +2422,36 @@ components:
           example: false
           description: "property known to be present for DeviceType IB01"
 
+    DeviceExtra:
+      description: >
+        A piece of tado hardware.
+        
+        
+        Some of the properties are only available for certain device types. 
+        Certain values for some properties are only applicable for certain device types. 
+        Wherever device type specific information is known, it is documented.
+      allOf:
+        - $ref: '#/components/schemas/Device'
+        - properties:
+            duties:
+              type: array
+              items:
+                type: string
+                example: ZONE_UI
+                description: >
+                  known values: 
+                  
+                  * ZONE_UI (seen for DeviceType SU02, VA02)
+                  
+                  * ZONE_LEADER (seen for DeviceType SU02, VA02)
+                  
+                  * ZONE_DRIVER (seen for DeviceType VA02)
+
+    DeviceId:
+      type: string
+      example: SU4126033143
+      description: the shortSerialNo of a tado device
+
     DeviceList:
       type: object
       description: result of /homes/{homeId}/zones/{zoneId}/deviceList
@@ -1897,7 +2468,7 @@ components:
         type:
           $ref: '#/components/schemas/DeviceType'
         device:
-          $ref: '#/components/schemas/DeviceBase'
+          $ref: '#/components/schemas/Device'
         zone:
           type: object
           properties:
@@ -1950,6 +2521,9 @@ components:
 
     Error:
       type: object
+      description: >
+        The zoneType is only available for certain 422 errors, 
+        to indicate that a certain zone specific operation is not allowed because of the ZoneType of the zone.
       properties:
         code:
           type: string
@@ -1957,26 +2531,15 @@ components:
         title:
           type: string
           description: detailed description of the error in natural language (english)
+        zoneType:
+          $ref: '#/components/schemas/ZoneType'
+          description: some 422 errors include this property, to indicate that a certain operation is not allowed for a certain zonetype
 
     ErrorResponse:
       type: array
       description: error object returned for non-200 responses
       items:
         $ref: '#/components/schemas/Error'
-
-    ErrorResponseZoneType:
-      type: array
-      description: error object returned for non-200 responses
-      items:
-        $ref: '#/components/schemas/ErrorZoneType'
-
-    ErrorZoneType:
-      type: object
-      allOf:
-        - $ref: '#/components/schemas/Error'
-        - properties:
-            zoneType:
-              $ref: '#/components/schemas/ZoneType'
 
     # FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
     FanLevel:
@@ -1994,8 +2557,7 @@ components:
         A tado device which controls a heating circuit
       properties:
         number:
-          type: integer
-          example: 1
+          $ref: '#/components/schemas/HeatingCircuitId'
         driverSerialNo:
           type: string
           example: BR3209250550
@@ -2004,6 +2566,10 @@ components:
           type: string
           example: BR3209250550
           description: driverShortSerialNo of a tado device present in the home
+
+    HeatingCircuitId:
+      type: integer
+      example: 1
 
     HeatingSystem:
       type: object
@@ -2176,7 +2742,7 @@ components:
                   example: "NLD"
             geolocation:
               type: object
-              description: geo location of this home, most probably used to associated weather information with this home
+              description: Geo location of this home.
               properties:
                 latitude:
                   type: number
@@ -2203,14 +2769,23 @@ components:
       description: >
         Indicates if tado acts as if there are people present in the home or not. Result of /homes/{homeId}/state.
         
-        Presence can be auto-determined by tado based on geo-fencing (when enabled via a tado subscription),
-        or can be manually set by a user.
+        Presence can be auto-determined by tado based on geofencing of the mobile devices linked to the home
+        (requires a paid Auto-Assist subscription), or can be manually set by a user.
       properties:
         presence:
           $ref: '#/components/schemas/HomePresence'
         presenceLocked:
           type: boolean
           example: true
+        showHomePresenceSwitchButton:
+          type: boolean
+          example: true
+          description: >
+            This property is present when all mobile devices linked to this home which have geofencing enabled 
+            are no longer in (or near) the home.
+            
+            It is a hint to the user to manually set the home presence to AWAY. 
+            When you have a Auto-Assist subscription, tado will do that automatically for you.
 
     HorizontalSwing:
       type: string
@@ -2219,52 +2794,11 @@ components:
       enum: [ 'OFF', 'ON', 'RIGHT', 'LEFT', 'MID_RIGHT', 'MID_LEFT']
       description: Used in AirConditioningZoneSettingsBase and AirConditioningModeCapabilitiesBase
 
-    HotWaterProductionTimeSeries:
-      type: object
-      description: element of DayReport
-      properties:
-        timeSeriesType:
-          type: string
-          example: dataIntervals
-        valueType:
-          type: string
-          example: boolean
-        dataIntervals:
-          type: array
-          items:
-            $ref: '#/components/schemas/BooleanDataInterval'
-
     HumidityLevel:
       type: string
       enum:  [HUMID, COMFY, DRY]
       example: DRY
-      description: element of AirComfort
-
-    HumidityTimeSeries:
-      type: object
-      description: element of DayReport
-      properties:
-        timeSeriesType:
-          type: string
-          example: dataPoints
-        valueType:
-          type: string
-          example: percentage
-        percentageUnit:
-          type: string
-          example: UNIT_INTERVAL
-        min:
-          type: number
-          format: float
-          example: 0.482
-        max:
-          type: number
-          format: float
-          example: 0.613
-        dataPoints:
-          type: array
-          items:
-            $ref: '#/components/schemas/PercentageDataPoint'
+      description: Element of AirComfort
 
     # IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
     IncidentDetection:
@@ -2278,33 +2812,6 @@ components:
           type: boolean
           example: true
 
-    IncidentDetectionInput:
-      type: object
-      description: Used in /homes/{homeId}/incidentDetection
-      properties:
-        enabled:
-          type: boolean
-          example: true
-
-    InsideTemperatureTimeSeries:
-      type: object
-      description: element of DayReport
-      properties:
-        timeSeriesType:
-          type: string
-          example: dataPoints
-        valueType:
-          type: string
-          example: temperature
-        min:
-          $ref: '#/components/schemas/Temperature'
-        max:
-          $ref: '#/components/schemas/Temperature'
-        dataPoints:
-          type: array
-          items:
-            $ref: '#/components/schemas/TemperatureDataPoint'
-
     # LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
     Light:
       type: string
@@ -2314,21 +2821,6 @@ components:
       description: Used in AirConditioningZoneSettingsBase and AirConditioningModeCapabilitiesBase
 
     # MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
-    MeasuringDeviceConnectedTimeSeries:
-      type: object
-      description: element of DayReport
-      properties:
-        timeSeriesType:
-          type: string
-          example: dataIntervals
-        valueType:
-          type: string
-          example: boolean
-        dataIntervals:
-          type: array
-          items:
-            $ref: '#/components/schemas/BooleanDataInterval'
-
     MobileDevice:
       type: object
       description: >
@@ -2336,15 +2828,40 @@ components:
         who is a member/resident of a home controlled by tado.
       properties:
         id:
-          type: integer
-          format: int64
-          example: 8254700
+          $ref: '#/components/schemas/MobileDeviceId'
         name:
           type: string
           example: my device
           description: user assigned name for this device
         settings:
           $ref: '#/components/schemas/MobileDeviceSettings'
+        location:
+          type: object
+          description: >
+            This data element is only present for mobile devices which have geofencing switched on
+            in their tado app.
+          properties:
+            stale:
+              type: boolean
+              example: false
+            atHome:
+              type: boolean
+              example: false
+            bearingFromHome:
+              type: object
+              properties:
+                degrees:
+                  type: number
+                  format: float
+                  example: 282.4422946462286
+                radians:
+                  type: number
+                  format: float
+                  example: 4.929547988464642
+                relativeDistanceFromHomeFence:
+                  type: number
+                  format: float
+                  example: 0.4075597114308104
         deviceMetadata:
           type: object
           properties:
@@ -2361,6 +2878,11 @@ components:
               type: string
               example: nl
 
+    MobileDeviceId:
+      type: integer
+      format: int64
+      example: 8254700
+
     MobileDeviceSettings:
       type: object
       description: Data element of a MobileDevice. And used in /homes/{homeId}/mobileDevices/{mobileDeviceId}/settings.
@@ -2368,6 +2890,10 @@ components:
         geoTrackingEnabled:
           type: boolean
           example: false
+          description: >
+            When geotracking is enabled for a MobileDevice, 
+            and the tado app installed on the device has location permissions on the device, 
+            the MobileDevice object will also contain location details.
         specialOffersEnabled:
           type: boolean
           example: true
@@ -2406,91 +2932,25 @@ components:
       example: HORIZONTAL
       description: tado device property known to be present for DeviceType VA02
 
-    Overlay:
-      type: object
-      description: >
-        An overlay is a user controlled override for the user defined scheduled (temperature) settings of a zone.
-        As long as an overlay is present for a zone, the zone's scheduled (temperature) settings do not take effect.
-        
-        Termination of the overlay (never, a set time or when the next block in the active timetable starts) 
-        is part of the overlay definition.
-      properties:
-        type:
-          $ref: '#/components/schemas/OverlayType'
-        setting:
-          $ref: '#/components/schemas/ZoneSetting'
-        termination:
-          type: object
-          properties:
-            type:
-              $ref: '#/components/schemas/OverlayTerminationType'
-            durationInSeconds:
-              type: integer
-              example: 1400
-              description: "applicable when termination.type = TIMER"
-            remainingTimeInSeconds:
-              type: integer
-              example: 1400
-              description: "applicable when termination.type = TIMER"
-            typeSkillBasedApp:
-              $ref: '#/components/schemas/TypeSkillBasedApp'
-            expiry:
-              type: string
-              format: date-time
-              example: "2024-08-14T23:07:13Z"
-              nullable: true
-              description: "applicable when termination.type = TIMER"
-            projectedExpiry:
-              type: string
-              format: date-time
-              example: "2024-08-14T23:07:13Z"
-              nullable: true
-              description: "applicable when termination.type = TIMER"
-
-    OverlayInput:
-      type: object
-      description: used in /homes/{homeId}/zones/{zoneId}/overlay
-      properties:
-        setting:
-          $ref: '#/components/schemas/ZoneSetting'
-        termination:
-          type: object
-          properties:
-            typeSkillBasedApp:
-              $ref: '#/components/schemas/TypeSkillBasedApp'
-            durationInSeconds:
-              type: integer
-              example: 1400
-              description: "applicable when termination.type = TIMER"
-
-    OverlayTerminationType:
-      type: string
-      enum: [ MANUAL, TADO_MODE, TIMER ]
-      example: MANUAL
-      description: >
-        Element of an overlay.
-        
-        Does not contain NEXT_TIME_BLOCK which is present in the TypeSkillBasedApp enum.
-        
-        Value descriptions:
-
-        * MANUAL: the (temperature) settings in the Overlay will last indefinitely
-
-        * TIMER: the (temperature) settings in the Overlay will last for a fixed number of seconds, 
-        starting at the moment the Overlay was set (requires setting durationInSeconds as well)
-
-        * TADO_MODE: the (temperature) settings in the Overlay will last until the next
-        time block in the active timetable starts
-
-    OverlayType:
-      type: string
-      example: MANUAL
-      description: Type of an Overlay. Only known value is MANUAL, but not entirely sure, so no enum
-
     # PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
     PercentageDataPoint:
       type: object
-      description: element of DayReport
+      description: Used in Weather and ZoneState, to express quantities like heating power, humidity and solar intensity.
+      properties:
+        type:
+          type: string
+          example: PERCENTAGE
+        percentage:
+          type: integer
+          example: 51
+        timestamp:
+          type: string
+          format: date-time
+          example: "2024-07-30T21:51:41.178Z"
+
+    PercentageDataPointInTimeSeries:
+      type: object
+      description: Element of DayReport, used to express humidity.
       properties:
         timestamp:
           type: string
@@ -2500,6 +2960,32 @@ components:
           type: number
           format: float
           example: 0.482
+
+    PercentageTimeSeries:
+      type: object
+      description: Element of DayReport, used to express humidity.
+      properties:
+        timeSeriesType:
+          type: string
+          example: dataPoints
+        valueType:
+          type: string
+          example: percentage
+        percentageUnit:
+          type: string
+          example: UNIT_INTERVAL
+        min:
+          type: number
+          format: float
+          example: 0.482
+        max:
+          type: number
+          format: float
+          example: 0.613
+        dataPoints:
+          type: array
+          items:
+            $ref: '#/components/schemas/PercentageDataPointInTimeSeries'
 
     Power:
       type: string
@@ -2557,21 +3043,6 @@ components:
                 setting:
                   $ref: '#/components/schemas/ZoneSetting'
 
-    SunnyTimeSeries:
-      type: object
-      description: Element of DayReport
-      properties:
-        timeSeriesType:
-          type: string
-          example: dataIntervals
-        valueType:
-          type: string
-          example: boolean
-        dataIntervals:
-          type: array
-          items:
-            $ref: '#/components/schemas/BooleanDataInterval'
-
     # TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
     Temperature:
       type: object
@@ -2616,6 +3087,33 @@ components:
               format: float
               example: 0.1
 
+    TemperatureDataPoint:
+      type: object
+      description: Used in Weather and ZoneState, used to express outside or inside temperature.
+      allOf:
+        - $ref: '#/components/schemas/Temperature'
+        - properties:
+            timestamp:
+              type: string
+              format: date-time
+              example: "2024-08-04T09:20:08.370Z"
+            type:
+              type: string
+              example: TEMPERATURE
+            precision:
+              $ref: '#/components/schemas/TemperaturePrecision'
+
+    TemperatureDataPointInTimeSeries:
+      type: object
+      description: Element of DayReport
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+          example: "2024-01-10T22:45:00.000Z"
+        value:
+          $ref: '#/components/schemas/Temperature'
+
     TemperatureLevel:
       type: string
       enum: [ COLD, COMFY, WARM, HOT ]
@@ -2634,36 +3132,24 @@ components:
           format: float
           example: 0.1
 
-    TemperatureDataPoint:
+    TemperatureTimeSeries:
       type: object
-      description: Element of DayReport
+      description: Element of DayReport, used to express inside temperature.
       properties:
-        timestamp:
+        timeSeriesType:
           type: string
-          format: date-time
-          example: "2024-01-10T22:45:00.000Z"
-        value:
+          example: dataPoints
+        valueType:
+          type: string
+          example: temperature
+        min:
           $ref: '#/components/schemas/Temperature'
-
-    DefaultOverlay:
-      type: object
-      description: > 
-        Used in /homes/{homeId}/zones/{zoneId}/defaultOverlay.
-        
-        It defines the default overlay termination condition which tado will use when a user sets the zone temperature
-        via a tado device (this results in setting an Overlay).
-        
-        The `type` defined here is used as the value for overlay.termination.typeSkillBasedApp when setting the Overlay.
-      properties:
-        terminationCondition:
-          type: object
-          properties:
-            type:
-              $ref: '#/components/schemas/OverlayTerminationType'
-            durationInSeconds:
-              type: integer
-              example: 600
-              description: only applicable when type is TIMER
+        max:
+          $ref: '#/components/schemas/Temperature'
+        dataPoints:
+          type: array
+          items:
+            $ref: '#/components/schemas/TemperatureDataPointInTimeSeries'
 
     TimetableBlock:
       type: object
@@ -2683,6 +3169,13 @@ components:
           description : end time of this block in 24 hour clock notation
         geolocationOverride:
           type: boolean
+          example: false
+          description: >
+            When false, the settings of this time block are only active when tado is in HOME mode. 
+            If in AWAY mode, tado will use the AwayConfiguration settings for this zone.
+            
+            When true, the settings of this time block are always active, regardless of whether
+            tado is in HOME or AWAY mode.
         setting:
           $ref: '#/components/schemas/ZoneSetting'
 
@@ -2717,26 +3210,6 @@ components:
         * THREE_DAY = a timetable which supports 3 day types, one for MONDAY_TO_FRIDAY, one for SATURDAY and one for SUNDAY
         
         * SEVEN_DAY = at timetable which supports 7 day types, one for every day of the week
-
-    TypeSkillBasedApp:
-      type: string
-      description: >
-        Used in Overlay to specify until when the Overlay should be active.
-        
-        
-        Compared to OverlayTerminationType it contains NEXT_TIME_BLOCK as an extra value.
-        
-        Value descriptions:
-        
-        * MANUAL: the (temperature) settings in the Overlay will last indefinitely
-
-        * TIMER: the (temperature) settings in the Overlay will last for a fixed number of seconds, 
-        starting at the moment the Overlay was set (requires setting durationInSeconds as well)
-
-        * TADO_MODE and NEXT_TIME_BLOCK: the (temperature) settings in the Overlay will last until the next
-        time block in the active timetable starts
-      enum: [ MANUAL, TADO_MODE, TIMER, NEXT_TIME_BLOCK ]
-      example: MANUAL
 
     # UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU
     UnderfloorHeating:
@@ -2793,44 +3266,11 @@ components:
       description: Result of /homes/{homeId}/weather
       properties:
         solarIntensity:
-          type: object
-          properties:
-            type:
-              type: string
-              example: PERCENTAGE
-            percentage:
-              type: number
-              example: 0
-            timestamp:
-              type: string
-              format: date-time
-              example: "2024-08-04T09:20:08.370Z"
+          $ref: '#/components/schemas/PercentageDataPoint'
         outsideTemperature:
-          type: object
-          allOf:
-            -  $ref: '#/components/schemas/Temperature'
-            - properties:
-                timestamp:
-                  type: string
-                  format: date-time
-                  example: "2024-08-04T09:20:08.370Z"
-                type:
-                  type: string
-                  example: TEMPERATURE
-                precision:
-                  $ref: '#/components/schemas/TemperaturePrecision'
+          $ref: '#/components/schemas/TemperatureDataPoint'
         weatherState:
-          type: object
-          properties:
-            type:
-              type: string
-              example: WEATHER_STATE
-            value:
-              $ref: '#/components/schemas/WeatherState'
-            timestamp:
-              type: string
-              format: date-time
-              example: "2024-08-04T09:20:08.370Z"
+          $ref: '#/components/schemas/WeatherStateDataPoint'
 
     WeatherConditionTimeSeries:
       type: object
@@ -2870,11 +3310,49 @@ components:
         temperature:
           $ref: '#/components/schemas/Temperature'
 
+    WeatherSlotTimeSeries:
+      type: object
+      description: Element of DayReport
+      properties:
+        timeSeriesType:
+          type: string
+          example: slots
+        valueType:
+          type: string
+          example: weatherCondition
+        slots:
+          type: object
+          properties:
+            '04:00':
+              $ref: '#/components/schemas/WeatherSlot'
+            '08:00':
+              $ref: '#/components/schemas/WeatherSlot'
+            '12:00':
+              $ref: '#/components/schemas/WeatherSlot'
+            '16:00':
+              $ref: '#/components/schemas/WeatherSlot'
+            '20:00':
+              $ref: '#/components/schemas/WeatherSlot'
+
     WeatherState:
       type: string
       enum: [SUN, FOGGY, CLOUDY, CLOUDY_PARTLY, CLOUDY_MOSTLY, SCATTERED_RAIN, NIGHT_CLEAR, NIGHT_CLOUDY]
       example: CLOUDY_PARTLY
       description: Used in DayReport and Weather
+
+    WeatherStateDataPoint:
+      type: object
+      description: Used in Weather
+      properties:
+        type:
+          type: string
+          example: WEATHER_STATE
+        value:
+          $ref: '#/components/schemas/WeatherState'
+        timestamp:
+          type: string
+          format: date-time
+          example: "2024-08-04T09:20:08.370Z"
 
     # ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ
     Zone:
@@ -2900,7 +3378,7 @@ components:
         devices:
           type: array
           items:
-            $ref: '#/components/schemas/Device'
+            $ref: '#/components/schemas/DeviceExtra'
         reportAvailable:
           type: boolean
           example: false
@@ -3001,16 +3479,148 @@ components:
                 AUTO:
                   $ref: '#/components/schemas/AirConditioningZoneSettingsBase'
 
+    ZoneControl:
+      description: >
+        Result of /homes/{homeId}/zones/{zoneId}/control.
+        
+        
+        Groups the devices in a given zone by their duty.
+        
+        The elements included in the result depend on the ZoneType:
+        
+        * AIR_CONDITIONING: _unknown_
+        
+        * HEATING: includes earlyStartEnabled, heatingCircuit, duties.leader, duties.drivers and duties.uis
+        
+        * HOT_WATER: includes duties.driver and duties.ui
+      type: object
+      properties:
+        type:
+          $ref: '#/components/schemas/ZoneType'
+        earlyStartEnabled:
+          type: boolean
+          example: true
+          description: applicable for ZoneType HEATING
+        heatingCircuit:
+          $ref: '#/components/schemas/HeatingCircuitId'
+        duties:
+          type: object
+          properties:
+            driver:
+              $ref: '#/components/schemas/Device'
+            leader:
+              $ref: '#/components/schemas/Device'
+            leaders:
+              type: array
+              items:
+                $ref: '#/components/schemas/Device'
+            ui:
+              $ref: '#/components/schemas/Device'
+            uis:
+              type: array
+              items:
+                $ref: '#/components/schemas/Device'
+
     ZoneId:
       type: integer
       example: 3
       description: ID of a zone (unique only within the home it belongs to)
 
+    ZoneOverlay:
+      type: object
+      description: >
+        A zone overlay is a user controlled override for the user defined scheduled (temperature) settings of a zone.
+        As long as an overlay is present for a zone, the zone's scheduled (temperature) settings do not take effect.
+
+        Termination of the overlay (either never, a set time or when the next block in the active timetable starts) 
+        is part of the overlay definition.
+      properties:
+        type:
+          $ref: '#/components/schemas/ZoneOverlayType'
+        setting:
+          $ref: '#/components/schemas/ZoneSetting'
+        termination:
+          type: object
+          properties:
+            type:
+              $ref: '#/components/schemas/ZoneOverlayTerminationType'
+            durationInSeconds:
+              type: integer
+              example: 1400
+              description: "applicable when termination.type = TIMER"
+            remainingTimeInSeconds:
+              type: integer
+              example: 1400
+              description: "applicable when termination.type = TIMER"
+            typeSkillBasedApp:
+              $ref: '#/components/schemas/ZoneOverlayTerminationTypeSkillBasedApp'
+            expiry:
+              type: string
+              format: date-time
+              example: "2024-08-14T23:07:13Z"
+              nullable: true
+              description: "applicable when termination.type = TIMER"
+            projectedExpiry:
+              type: string
+              format: date-time
+              example: "2024-08-14T23:07:13Z"
+              nullable: true
+              description: "applicable when termination.type = TIMER"
+
+    ZoneOverlayTerminationType:
+      type: string
+      enum: [ MANUAL, TADO_MODE, TIMER ]
+      example: MANUAL
+      description: >
+        Element of an overlay.
+
+        Does not contain NEXT_TIME_BLOCK which is present in the ZoneOverlayTerminationTypeSkillBasedApp enum.
+
+        Value descriptions:
+
+        * MANUAL: the (temperature) settings in the ZoneOverlay will last indefinitely
+
+        * TIMER: the (temperature) settings in the ZoneOverlay will last for a fixed number of seconds, 
+        starting at the moment the ZoneOverlay was set (requires setting durationInSeconds as well)
+
+        * TADO_MODE: the (temperature) settings in the ZoneOverlay will last until the next
+        time block in the active timetable starts
+
+    ZoneOverlayTerminationTypeSkillBasedApp:
+      type: string
+      description: >
+        Used when setting a ZoneOverlay to specify until when the ZoneOverlay should be active.
+
+
+        Compared to ZoneOverlayTerminationType it contains NEXT_TIME_BLOCK as an extra value.
+
+
+        Value descriptions:
+
+        * MANUAL: the (temperature) settings in the ZoneOverlay will last indefinitely
+
+        * TIMER: the (temperature) settings in the ZoneOverlay will last for a fixed number of seconds, 
+        starting at the moment the ZoneOverlay was set (requires setting durationInSeconds as well)
+
+        * TADO_MODE and NEXT_TIME_BLOCK: the (temperature) settings in the ZoneOverlay will last until the next
+        time block in the active timetable starts
+
+
+        NEXT_TIME_BLOCK could be a deprecated value. The app features which allow a user to set an ZoneOverlay
+        (or a DefaultZoneOverlay) only offer options that translate into MANUAL, TIMER or TADO_MODE.
+      enum: [ MANUAL, TADO_MODE, TIMER, NEXT_TIME_BLOCK ]
+      example: MANUAL
+
+    ZoneOverlayType:
+      type: string
+      example: MANUAL
+      description: Type of an ZoneOverlay. Only known value is MANUAL, but not entirely sure, so no enum
+
     ZoneSetting:
       type: object
       description: >
         (temperature) settings for a zone which is used in scheduled TimeTableBlocks, 
-        in Overlays (manual override for the scheduled setting),
+        in ZoneOverlays (manual override for the scheduled setting),
         and in AwayConfiguration (settings to be used when the home is in AWAY mode).
         
         
@@ -3050,10 +3660,10 @@ components:
         setting:
           $ref: '#/components/schemas/ZoneSetting'
         overlayType:
-          $ref: '#/components/schemas/OverlayType'
+          $ref: '#/components/schemas/ZoneOverlayType'
           nullable: true
         overlay:
-          $ref: '#/components/schemas/Overlay'
+          $ref: '#/components/schemas/ZoneOverlay'
         openWindow:
           #                type: ???
           nullable: true
@@ -3091,48 +3701,15 @@ components:
           description: empty for a HOT_WATER zone
           properties:
             heatingPower:
-              type: object
-              properties:
-                type:
-                  type: string
-                  example: PERCENTAGE
-                percentage:
-                  type: number
-                  example: 0
-                timestamp:
-                  type: string
-                  format: date-time
-                  example: "2024-07-30T21:53:40.294Z"
+              $ref: '#/components/schemas/PercentageDataPoint'
         sensorDataPoints:
           type: object
           description: empty for a HOT_WATER zone
           properties:
             insideTemperature:
-              allOf:
-                -  $ref: '#/components/schemas/Temperature'
-                - properties:
-                    timestamp:
-                      type: string
-                      format: date-time
-                      example: "2024-07-30T21:51:41.178Z"
-                    type:
-                      type: string
-                      example: "TEMPERATURE"
-                    precision:
-                      $ref: '#/components/schemas/TemperaturePrecision'
+              $ref: '#/components/schemas/TemperatureDataPoint'
             humidity:
-              type: object
-              properties:
-                type:
-                  type: string
-                  example: PERCENTAGE
-                percentage:
-                  type: number
-                  example: 51
-                timestamp:
-                  type: string
-                  format: date-time
-                  example: "2024-07-30T21:51:41.178Z"
+              $ref: '#/components/schemas/PercentageDataPoint'
 
     ZoneStates:
       type: object
