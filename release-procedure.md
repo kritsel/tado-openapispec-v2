@@ -9,5 +9,6 @@ While on dev branch:
 8. git push --force origin --tags
 9. git checkout main
 10. git merge dev
-11. git checkout dev (to return to dev branch for future changes)
-10. create release notes
+11. git push
+12. git checkout dev (to return to dev branch for future changes)
+13. create release notes

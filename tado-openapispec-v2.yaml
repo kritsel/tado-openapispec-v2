@@ -7,7 +7,7 @@ info:
     
     Github repository where this specification is maintained: 
     [https://github.com/kritsel/tado-openapispec-v2](https://github.com/kritsel/tado-openapispec-v2)
-  version: 2.2024.08.18.0
+  version: 2.2024.08.18.1
 servers:
   - url: https://my.tado.com/api/v2/
     description: Production server
@@ -2286,6 +2286,8 @@ components:
               $ref: '#/components/schemas/PercentageTimeSeries'
         stripes:
           $ref: '#/components/schemas/StripesTimeSeries'
+        settings:
+          $ref: '#/components/schemas/HeatingSettingTimeSeries'
         callForHeat:
           $ref: '#/components/schemas/CallForHeatTimeSeries'
         hotWaterProduction:
@@ -2571,6 +2573,42 @@ components:
       type: integer
       example: 1
 
+    HeatingSettingTimeSeries:
+      type: object
+      description: element of DayReport
+      properties:
+        timeSeriesType:
+          type: string
+          example: dataIntervals
+        valueType:
+          type: string
+          example: heatingSetting
+        dataIntervals:
+          type: array
+          items:
+            $ref: '#/components/schemas/HeatingSettingDataInterval'
+
+    HeatingSettingDataInterval:
+      type: object
+      description: element of DayReport
+      allOf:
+        - $ref: '#/components/schemas/DataInterval'
+        - properties:
+            value:
+              $ref: '#/components/schemas/HeatingSettingValue'
+
+    HeatingSettingValue:
+      type: object
+      properties:
+        type:
+          type: string
+          example: HEATING
+        power:
+          $ref: '#/components/schemas/Power'
+        temperature:
+          $ref: '#/components/schemas/Temperature'
+
+
     HeatingSystem:
       type: object
       description: result of /homes/{homeId}/heatingSystem
@@ -2683,6 +2721,9 @@ components:
               type: boolean
               example: false
             isBalanceHpEligible:
+              type: boolean
+              example: false
+            isHeatPumpInstalled:
               type: boolean
               example: false
 
@@ -2858,10 +2899,10 @@ components:
                   type: number
                   format: float
                   example: 4.929547988464642
-                relativeDistanceFromHomeFence:
-                  type: number
-                  format: float
-                  example: 0.4075597114308104
+            relativeDistanceFromHomeFence:
+              type: number
+              format: float
+              example: 0.4075597114308104
         deviceMetadata:
           type: object
           properties:
