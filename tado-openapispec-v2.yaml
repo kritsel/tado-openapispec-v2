@@ -7,7 +7,7 @@ info:
     
     Github repository where this specification is maintained: 
     [https://github.com/kritsel/tado-openapispec-v2](https://github.com/kritsel/tado-openapispec-v2)
-  version: 2.2024.08.18.2
+  version: 2.2024.08.18.3
 servers:
   - url: https://my.tado.com/api/v2/
     description: Production server
@@ -3675,7 +3675,7 @@ components:
       description: Result of /homes/{homeId}/zone/{zoneId}/state
       properties:
         tadoMode:
-          $ref: '#/components/schemas/HomeState'
+          $ref: '#/components/schemas/HomePresence'
         geolocationOverride:
           type: boolean
           example: true
