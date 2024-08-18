@@ -7,7 +7,7 @@ info:
     
     Github repository where this specification is maintained: 
     [https://github.com/kritsel/tado-openapispec-v2](https://github.com/kritsel/tado-openapispec-v2)
-  version: 2.2024.08.18.4
+  version: 2.2024.08.18.5
 servers:
   - url: https://my.tado.com/api/v2/
     description: Production server
@@ -3543,6 +3543,10 @@ components:
               $ref: '#/components/schemas/ZoneType'
             driver:
               $ref: '#/components/schemas/Device'
+            drivers:
+              type: array
+              items:
+                $ref: '#/components/schemas/Device'
             leader:
               $ref: '#/components/schemas/Device'
             leaders:
