@@ -712,7 +712,7 @@ paths:
         Delivers information about each zone in the given home, including the tado devices present in each zone.
         
         
-        About the devices: there are multiple ways to determine all tado devices in a home or zone:
+        About the devices: there are multiple ways to list the tado devices in a home or zone:
 
         * GET /homes/{homeId}/devices 
 
@@ -1667,9 +1667,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Temperature'
+                $ref: '#/components/schemas/Temperature'
         '401':
           $ref: '#/components/responses/Unauthorized401'
         '403':
@@ -1725,7 +1723,7 @@ paths:
     get:
       summary: Get all tado devices associated with the provided homeId.
       description: >
-        There are multiple ways to determine all tado devices in a home or zone:
+        There are multiple ways to list the tado devices in a home or zone:
         
         * GET /homes/{homeId}/devices **this operation**
         
@@ -1767,7 +1765,7 @@ paths:
         '403':
           $ref: '#/components/responses/AccessDenied403'
 
-  /homes/{homeId}/devices/{deviceId}/identify:
+  /devices/{deviceId}/identify:
     post:
       summary: Instruct the device to say 'hi' on its display.
       description: This is only supported for devices which have the `IDENTIFY` capability.
@@ -1775,11 +1773,6 @@ paths:
       tags:
         - device
       parameters:
-        - in: path
-          name: homeId
-          schema:
-            $ref: '#/components/schemas/HomeId'
-          required: true
         - in: path
           name: deviceId
           schema:
@@ -1797,7 +1790,7 @@ paths:
     get:
       summary: Get all tado devices associated with the provided homeId, together with the zone (a.k.a. room) they are in.
       description: >
-        There are multiple ways to determine all tado devices in a home or zone:
+        There are multiple ways to list the tado devices in a home or zone:
         
         * GET /homes/{homeId}/devices 
         
@@ -1832,9 +1825,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/DeviceList'
+                $ref: '#/components/schemas/DeviceList'
         '401':
           $ref: '#/components/responses/Unauthorized401'
         '403':
@@ -1844,7 +1835,7 @@ paths:
     get:
       summary: Returns the devices within the given zone (a.k.a. room), grouped by their duty.
       description: >
-        There are multiple ways to determine all tado devices in a home or zone:
+        There are multiple ways to list the tado devices in a home or zone:
 
         * GET /homes/{homeId}/devices 
 
@@ -1971,7 +1962,8 @@ paths:
 
   /homes/{homeId}/zones/{zoneId}/dayReport:
     get:
-      summary: Get historic information for a particular day
+      summary: Get historic information for a particular day for a particular zone (a.k.a. room)
+      description: Not supported for zones of ZoneType HOT_WATER
       operationId: getZoneDayReport # hint for client code generators
       tags:
         - report
@@ -3683,12 +3675,7 @@ components:
       description: Result of /homes/{homeId}/zone/{zoneId}/state
       properties:
         tadoMode:
-          type: string
-          example: HOME
-          description: >
-            known values: 
-            
-            * HOME
+          $ref: '#/components/schemas/HomeState'
         geolocationOverride:
           type: boolean
           example: true
