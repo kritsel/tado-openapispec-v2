@@ -7,7 +7,7 @@ info:
     
     Github repository where this specification is maintained: 
     [https://github.com/kritsel/tado-openapispec-v2](https://github.com/kritsel/tado-openapispec-v2)
-  version: 2.2024.08.21.1
+  version: 2.2024.08.21.2
 servers:
   - url: https://my.tado.com/api/v2/
     description: Production server
@@ -1638,6 +1638,30 @@ paths:
 
   ####################################################################################################################
   # device paths
+  /devices/{deviceId}:
+    get:
+      summary: Get a single tado device
+      operationId: getDevice # hint for client code generators
+      tags:
+        - device
+      parameters:
+        - in: path
+          name: deviceId
+          schema:
+            $ref: '#/components/schemas/DeviceId'
+          required: true
+      responses:
+        '200':
+          description: successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Device'
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+        '403':
+          $ref: '#/components/responses/AccessDenied403'
+
   /devices/{deviceId}/temperatureOffset:
     get:
       summary: Get the temperature offset for the given device.
@@ -1656,7 +1680,6 @@ paths:
           schema:
             $ref: '#/components/schemas/DeviceId'
           required: true
-          description: the shortSerialNo of a tado device
       responses:
         '200':
           description: successful response
