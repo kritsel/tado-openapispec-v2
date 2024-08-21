@@ -7,7 +7,7 @@ info:
     
     Github repository where this specification is maintained: 
     [https://github.com/kritsel/tado-openapispec-v2](https://github.com/kritsel/tado-openapispec-v2)
-  version: 2.2024.08.18.5
+  version: 2.2024.08.21.0
 servers:
   - url: https://my.tado.com/api/v2/
     description: Production server
@@ -528,12 +528,8 @@ paths:
                 value:
                   enabled: false
       responses:
-        '200':
+        '204':
           description: successful response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/IncidentDetection'
         '401':
           $ref: '#/components/responses/Unauthorized401'
         '403':
@@ -1709,15 +1705,34 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Temperature'
+                $ref: '#/components/schemas/Temperature'
         '401':
           $ref: '#/components/responses/Unauthorized401'
         '403':
           $ref: '#/components/responses/AccessDenied403'
         '422':
           $ref: '#/components/responses/InputError422'
+
+  /devices/{deviceId}/identify:
+    post:
+      summary: Instruct the device to say 'hi' on its display.
+      description: This is only supported for devices which have the `IDENTIFY` capability.
+      operationId: identifyDevice # hint for client code generators
+      tags:
+        - device
+      parameters:
+        - in: path
+          name: deviceId
+          schema:
+            $ref: '#/components/schemas/DeviceId'
+          required: true
+      responses:
+        '200':
+          description: successful response; response body is empty, but response statuscode is 200 and not 204
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+        '403':
+          $ref: '#/components/responses/AccessDenied403'
 
   /homes/{homeId}/devices:
     get:
@@ -1741,6 +1756,7 @@ paths:
         * **duties**: the response does not tell you the duties of each device
 
         * **zone**: the response does not tell you the zone each device belongs to
+
       operationId: getDevices # hint for client code generators
       tags:
         - device
@@ -1760,27 +1776,6 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Device'
-        '401':
-          $ref: '#/components/responses/Unauthorized401'
-        '403':
-          $ref: '#/components/responses/AccessDenied403'
-
-  /devices/{deviceId}/identify:
-    post:
-      summary: Instruct the device to say 'hi' on its display.
-      description: This is only supported for devices which have the `IDENTIFY` capability.
-      operationId: identifyDevice # hint for client code generators
-      tags:
-        - device
-      parameters:
-        - in: path
-          name: deviceId
-          schema:
-            $ref: '#/components/schemas/DeviceId'
-          required: true
-      responses:
-        '200':
-          description: successful response; response body is empty, but response statuscode is 200 and not 204
         '401':
           $ref: '#/components/responses/Unauthorized401'
         '403':
@@ -1831,6 +1826,32 @@ paths:
         '403':
           $ref: '#/components/responses/AccessDenied403'
 
+  /homes/{homeId}/installations:
+    get:
+      summary: Always returns an empty list.
+      deprecated: true
+      operationId: getInstallations # hint for client code generators
+      tags:
+        - device
+      parameters:
+        - in: path
+          name: homeId
+          schema:
+            $ref: '#/components/schemas/HomeId'
+          required: true
+          description: unique ID of a home
+      responses:
+        '200':
+          description: successful response
+          content:
+            application/json:
+              schema:
+                type: array
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+        '403':
+          $ref: '#/components/responses/AccessDenied403'
+
   /homes/{homeId}/zones/{zoneId}/control:
     get:
       summary: Returns the devices within the given zone (a.k.a. room), grouped by their duty.
@@ -1848,7 +1869,7 @@ paths:
 
         Distinguishing features of **this operation**:
 
-        * **DeviceType 'IB01'**: device of DeviceType 'IB01' (Internet Bridge) is not included in the response
+        * **device types**: devices of DeviceType 'IB01' (Internet Bridge) and 'BR02' (Wireless Receiver) are not included in the response
 
         * **duties**: the response tells you thy duty each device has (ui, driver, leader)
 
