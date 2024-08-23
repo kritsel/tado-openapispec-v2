@@ -7,7 +7,7 @@ info:
     
     Github repository where this specification is maintained: 
     [https://github.com/kritsel/tado-openapispec-v2](https://github.com/kritsel/tado-openapispec-v2)
-  version: 2.2024.08.21.2
+  version: 2.2024.08.23.0
 servers:
   - url: https://my.tado.com/api/v2/
     description: Production server
@@ -585,9 +585,7 @@ paths:
         content:
           application/json:
             schema:
-              type: array
-              items:
-                $ref: '#/components/schemas/ZoneOverlay'
+              $ref: '#/components/schemas/ZoneOverlays'
       responses:
         '204':
           description: successful empty response
@@ -860,87 +858,6 @@ paths:
   ####################################################################################################################
   # zone control paths
 
-  /homes/{homeId}/zones/{zoneId}/earlyStart:
-    get:
-      summary: Control whether Tado makes sure a set temperature is reached at the start of a block
-      operationId: getZoneEarlyStart # hint for client code generators
-      tags:
-        - zone control
-      parameters:
-        - in: path
-          name: homeId
-          schema:
-            $ref: '#/components/schemas/HomeId'
-          required: true
-          description: unique ID of a home
-        - in: path
-          name: zoneId
-          schema:
-            $ref: '#/components/schemas/ZoneId'
-          required: true
-          description: ID of a zone (unique within a home)
-      responses:
-        '200':
-          description: successful response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/EarlyStart'
-        '401':
-          $ref: '#/components/responses/Unauthorized401'
-        '403':
-          $ref: '#/components/responses/AccessDenied403'
-        '404':
-          $ref: '#/components/responses/NotFound404'
-        '422':
-          $ref: '#/components/responses/InputError422'
-    put:
-      summary: Control whether Tado makes sure a set temperature is reached at the start of a block
-      operationId: putZoneEarlyStart # hint for client code generators
-      tags:
-        - zone control
-      parameters:
-        - in: path
-          name: homeId
-          schema:
-            $ref: '#/components/schemas/HomeId'
-          required: true
-          description: unique ID of a home
-        - in: path
-          name: zoneId
-          schema:
-            $ref: '#/components/schemas/ZoneId'
-          required: true
-          description: ID of a zone (unique within a home)
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/EarlyStart'
-            examples:
-              enable:
-                value:
-                  enabled: true
-              disable:
-                value:
-                  enabled: false
-      responses:
-        '200':
-          description: successful response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/EarlyStart'
-        '401':
-          $ref: '#/components/responses/Unauthorized401'
-        '403':
-          $ref: '#/components/responses/AccessDenied403'
-        '404':
-          $ref: '#/components/responses/NotFound404'
-        '422':
-          $ref: '#/components/responses/InputError422'
-
   /homes/{homeId}/zones/{zoneId}/defaultOverlay:
     get:
       summary: >
@@ -1033,6 +950,86 @@ paths:
         '422':
           $ref: '#/components/responses/InputError422'
 
+  /homes/{homeId}/zones/{zoneId}/earlyStart:
+    get:
+      summary: Control whether Tado makes sure a set temperature is reached at the start of a block
+      operationId: getZoneEarlyStart # hint for client code generators
+      tags:
+        - zone control
+      parameters:
+        - in: path
+          name: homeId
+          schema:
+            $ref: '#/components/schemas/HomeId'
+          required: true
+          description: unique ID of a home
+        - in: path
+          name: zoneId
+          schema:
+            $ref: '#/components/schemas/ZoneId'
+          required: true
+          description: ID of a zone (unique within a home)
+      responses:
+        '200':
+          description: successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EarlyStart'
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+        '403':
+          $ref: '#/components/responses/AccessDenied403'
+        '404':
+          $ref: '#/components/responses/NotFound404'
+        '422':
+          $ref: '#/components/responses/InputError422'
+    put:
+      summary: Control whether Tado makes sure a set temperature is reached at the start of a block
+      operationId: putZoneEarlyStart # hint for client code generators
+      tags:
+        - zone control
+      parameters:
+        - in: path
+          name: homeId
+          schema:
+            $ref: '#/components/schemas/HomeId'
+          required: true
+          description: unique ID of a home
+        - in: path
+          name: zoneId
+          schema:
+            $ref: '#/components/schemas/ZoneId'
+          required: true
+          description: ID of a zone (unique within a home)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EarlyStart'
+            examples:
+              enable:
+                value:
+                  enabled: true
+              disable:
+                value:
+                  enabled: false
+      responses:
+        '200':
+          description: successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EarlyStart'
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+        '403':
+          $ref: '#/components/responses/AccessDenied403'
+        '404':
+          $ref: '#/components/responses/NotFound404'
+        '422':
+          $ref: '#/components/responses/InputError422'
 
   /homes/{homeId}/zones/{zoneId}/overlay:
     get:
@@ -1206,7 +1203,7 @@ paths:
           $ref: '#/components/responses/AccessDenied403'
     put:
       summary: Set the (temperature) settings to use for the given zone (a.k.a. room) when the home state is AWAY.
-      operationId: setZoneAwayConfiguration # hint for client code generators
+      operationId: putZoneAwayConfiguration # hint for client code generators
       tags:
         - zone control
       parameters:
@@ -1246,12 +1243,8 @@ paths:
                     temperature:
                       celsius: 12
       responses:
-        '200':
+        '204':
           description: successful response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ZoneAwayConfiguration'
         '401':
           $ref: '#/components/responses/Unauthorized401'
         '403':
@@ -1293,7 +1286,7 @@ paths:
           $ref: '#/components/responses/InputError422'
     put:
       summary: Set the active timetable type for the given zone (a.k.a. room)
-      operationId: setZoneActiveTimetable # hint for client code generators
+      operationId: putZoneActiveTimetable # hint for client code generators
       tags:
         - zone control
       parameters:
@@ -1662,6 +1655,27 @@ paths:
         '403':
           $ref: '#/components/responses/AccessDenied403'
 
+  /devices/{deviceId}/identify:
+    post:
+      summary: Instruct the device to say 'hi' on its display.
+      description: This is only supported for devices which have the `IDENTIFY` capability.
+      operationId: identifyDevice # hint for client code generators
+      tags:
+        - device
+      parameters:
+        - in: path
+          name: deviceId
+          schema:
+            $ref: '#/components/schemas/DeviceId'
+          required: true
+      responses:
+        '200':
+          description: successful response; response body is empty, but response statuscode is 200 and not 204
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+        '403':
+          $ref: '#/components/responses/AccessDenied403'
+
   /devices/{deviceId}/temperatureOffset:
     get:
       summary: Get the temperature offset for the given device.
@@ -1735,27 +1749,6 @@ paths:
           $ref: '#/components/responses/AccessDenied403'
         '422':
           $ref: '#/components/responses/InputError422'
-
-  /devices/{deviceId}/identify:
-    post:
-      summary: Instruct the device to say 'hi' on its display.
-      description: This is only supported for devices which have the `IDENTIFY` capability.
-      operationId: identifyDevice # hint for client code generators
-      tags:
-        - device
-      parameters:
-        - in: path
-          name: deviceId
-          schema:
-            $ref: '#/components/schemas/DeviceId'
-          required: true
-      responses:
-        '200':
-          description: successful response; response body is empty, but response statuscode is 200 and not 204
-        '401':
-          $ref: '#/components/responses/Unauthorized401'
-        '403':
-          $ref: '#/components/responses/AccessDenied403'
 
   /homes/{homeId}/devices:
     get:
@@ -2503,7 +2496,7 @@ components:
 
     DeviceListItem:
       type: object
-      description: element of DeviceList
+      description: Element of DeviceList
       properties:
         type:
           $ref: '#/components/schemas/DeviceType'
@@ -2511,11 +2504,13 @@ components:
           $ref: '#/components/schemas/Device'
         zone:
           type: object
+          description: This property is not present for devices of type 'IB01' (Internet Bridge) and 'BR02' (Wireless Receiver).
           properties:
             discriminator:
               $ref: '#/components/schemas/ZoneId'
             duties:
               type: array
+              description: This property has only been seen for devices of type 'SU02'
               items:
                 type: string
                 example: UI
@@ -3651,6 +3646,20 @@ components:
               example: "2024-08-14T23:07:13Z"
               nullable: true
               description: "applicable when termination.type = TIMER"
+
+    ZoneOverlays:
+      description: input for POST /homes/{homeId}/overlay
+      type: object
+      properties:
+        overlays:
+          type: array
+          items:
+            type: object
+            properties:
+              room:
+                $ref: '#/components/schemas/ZoneOverlayType'
+              overlay:
+                $ref: '#/components/schemas/ZoneOverlay'
 
     ZoneOverlayTerminationType:
       type: string
