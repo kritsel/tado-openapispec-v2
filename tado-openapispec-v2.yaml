@@ -7,7 +7,7 @@ info:
     
     Github repository where this specification is maintained: 
     [https://github.com/kritsel/tado-openapispec-v2](https://github.com/kritsel/tado-openapispec-v2)
-  version: 2.2024.08.23.0
+  version: 2.2024.08.25.0
 servers:
   - url: https://my.tado.com/api/v2/
     description: Production server
@@ -102,6 +102,7 @@ paths:
           schema:
             $ref: '#/components/schemas/HomeId'
           required: true
+          description: unique ID of a home
         - in: path
           name: mobileDeviceId
           schema:
@@ -170,6 +171,7 @@ paths:
           schema:
             $ref: '#/components/schemas/HomeId'
           required: true
+          description: unique ID of a home
         - in: path
           name: mobileDeviceId
           schema:
@@ -288,6 +290,38 @@ paths:
         '403':
           $ref: '#/components/responses/AccessDenied403'
 
+  /homes/{homeId}/awayRadiusInMeters:
+    put:
+      summary: Set the geofencing distance.
+      description: >
+        When the distance between home location and the location of a mobile device which can control this home
+        is greater than this distance, tado considers the mobile device to not be at home.
+      operationId: setAwayRadiusInMeters # hint for client code generators
+      tags:
+        - home
+      parameters:
+        - in: path
+          name: homeId
+          schema:
+            $ref: '#/components/schemas/HomeId'
+          required: true
+          description: unique ID of a home
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AwayRadiusInput'
+      responses:
+        '204':
+          description: successful response
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+        '403':
+          $ref: '#/components/responses/AccessDenied403'
+        '422':
+          $ref: '#/components/responses/InputError422'
+
   /homes/{homeId}/details:
     put:
       summary: Set home details for this home.
@@ -384,7 +418,7 @@ paths:
         
         The app assists the user in finding the boiler by brand and model. 
         This is supported by tado's graphql API, and not via the API described in this specification.
-      operationId: putHeatingSystemBoiler # hint for client code generators
+      operationId: putBoiler # hint for client code generators
       tags:
         - home
       parameters:
@@ -519,7 +553,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/IncidentDetection'
+              $ref: '#/components/schemas/IncidentDetectionInput'
             examples:
               enable:
                 value:
@@ -750,6 +784,41 @@ paths:
           $ref: '#/components/responses/Unauthorized401'
         '403':
           $ref: '#/components/responses/AccessDenied403'
+    post:
+      summary: Create a new zone (a.k.a. room) and move devices to it.
+      operationId: createZone
+      tags:
+        - zone
+      parameters:
+        - in: path
+          name: homeId
+          schema:
+            $ref: '#/components/schemas/HomeId'
+          required: true
+          description: unique ID of a home
+        - in: query
+          name: force
+          schema:
+            type: boolean
+          description: >
+            To be investigated further. 
+            'true' seems to indicate that the zone the device belonged to previously should be deleted.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ZoneCreate'
+
+      responses:
+        '201':
+          description: successful response
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+        '403':
+          $ref: '#/components/responses/AccessDenied403'
+        '422':
+          $ref: '#/components/responses/InputError422'
 
   /homes/{homeId}/zones/{zoneId}/capabilities:
     get:
@@ -784,6 +853,123 @@ paths:
           $ref: '#/components/responses/AccessDenied403'
         '404':
           $ref: '#/components/responses/NotFound404'
+
+  /homes/{homeId}/zones/{zoneId}/dazzle:
+    put:
+      summary: Enable or disable the dazzle mode of this zone.
+      description: >
+        Dazzle mode is defined as: "Your tado device shows an animation when settings are changed via Manual Control."
+      operationId: setDazzle
+      tags:
+        - zone
+      parameters:
+        - in: path
+          name: homeId
+          schema:
+            $ref: '#/components/schemas/HomeId'
+          required: true
+          description: unique ID of a home
+        - in: path
+          name: zoneId
+          schema:
+            $ref: '#/components/schemas/ZoneId'
+          required: true
+          description: ID of a zone (unique within a home)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DazzleInput'
+      responses:
+        '204':
+          description: successful response
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+        '403':
+          $ref: '#/components/responses/AccessDenied403'
+        '404':
+          $ref: '#/components/responses/NotFound404'
+        '422':
+          $ref: '#/components/responses/InputError422'
+
+  /homes/{homeId}/zones/{zoneId}/details:
+    put:
+      summary: Change the name of the zone
+      operationId: setDetails
+      tags:
+        - zone
+      parameters:
+        - in: path
+          name: homeId
+          schema:
+            $ref: '#/components/schemas/HomeId'
+          required: true
+          description: unique ID of a home
+        - in: path
+          name: zoneId
+          schema:
+            $ref: '#/components/schemas/ZoneId'
+          required: true
+          description: ID of a zone (unique within a home)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ZoneDetailsInput'
+      responses:
+        '200':
+          description: successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Zone'
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+        '403':
+          $ref: '#/components/responses/AccessDenied403'
+        '404':
+          $ref: '#/components/responses/NotFound404'
+        '422':
+          $ref: '#/components/responses/InputError422'
+
+  /homes/{homeId}/zones/{zoneId}/openWindowDetection:
+    put:
+      summary: Set the open window detection settings for this zone
+      operationId: setOpenWindowDetection
+      tags:
+        - zone
+      parameters:
+        - in: path
+          name: homeId
+          schema:
+            $ref: '#/components/schemas/HomeId'
+          required: true
+          description: unique ID of a home
+        - in: path
+          name: zoneId
+          schema:
+            $ref: '#/components/schemas/ZoneId'
+          required: true
+          description: ID of a zone (unique within a home)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OpenWindowDetectionInput'
+      responses:
+        '204':
+          description: successful response
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+        '403':
+          $ref: '#/components/responses/AccessDenied403'
+        '404':
+          $ref: '#/components/responses/NotFound404'
+        '422':
+          $ref: '#/components/responses/InputError422'
 
   /homes/{homeId}/zones/{zoneId}/state:
     get:
@@ -1706,7 +1892,7 @@ paths:
         '403':
           $ref: '#/components/responses/AccessDenied403'
     put:
-      summary: Set the temperature offset for the given device.
+      summary: Set the temperature offset for the given device (there is not DELETE for this resource).
       description: >
         Depending on how close the tado measuring device in a room is to the heating/cooling source,
         the measured temperature might be off.
@@ -1722,7 +1908,7 @@ paths:
           schema:
             $ref: '#/components/schemas/DeviceId'
           required: true
-          description: the shortSerialNo of a tado device
+          description: the serialNo of a tado device
       requestBody:
         required: true
         content:
@@ -1864,7 +2050,8 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Device'
+                  type: object
+                  # no properties defined as result is an empty list
         '401':
           $ref: '#/components/responses/Unauthorized401'
         '403':
@@ -1922,6 +2109,103 @@ paths:
           $ref: '#/components/responses/AccessDenied403'
         '404':
           $ref: '#/components/responses/NotFound404'
+
+  /homes/{homeId}/zones/{zoneId}/control/heatingCircuit:
+    put:
+      summary: Assign the zone to a specific heating circuit or make it independent of a heating circuit
+      description: >
+        See /homes/{homeId}/heatingCircuits to get a list of heating circuits in a home.
+        
+        In the tado documentation a heating circuit is called a 'heating zone'. 
+        It is defined as 
+        "A Heating Zone refers to the piping system that carries hot water from the boiler to your rooms, 
+         and back to the boiler."
+        
+        A 'heating zone' is not to be confused with a 'zone'; a 'zone' represents a single room 
+        which is serviced by a 'heating zone'
+      tags:
+        - device
+      parameters:
+        - in: path
+          name: homeId
+          schema:
+            $ref: '#/components/schemas/HomeId'
+          required: true
+          description: unique ID of a home
+        - in: path
+          name: zoneId
+          schema:
+            $ref: '#/components/schemas/ZoneId'
+          required: true
+          description: ID of a zone (unique within a home)
+      requestBody:
+        required: false
+        description: leave it empty to remove a zone from a heating cicruit
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HeatingCircuitInput'
+      responses:
+        '200':
+          description: successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ZoneControl'
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+        '403':
+          $ref: '#/components/responses/AccessDenied403'
+        '404':
+          $ref: '#/components/responses/NotFound404'
+        '422':
+          $ref: '#/components/responses/InputError422'
+
+  /homes/{homeId}/zones/{zoneId}/devices:
+    post:
+      summary: Move a device to another pre-existing zone (a.k.a. room)
+      description: Use POST /homes/{homeId}/zones to move a device to a new zone.
+      operationId: moveDevice
+      tags:
+        - device
+      parameters:
+        - in: path
+          name: homeId
+          schema:
+            $ref: '#/components/schemas/HomeId'
+          required: true
+          description: unique ID of a home
+        - in: path
+          name: zoneId
+          schema:
+            $ref: '#/components/schemas/ZoneId'
+          required: true
+          description: ID of a zone (unique within a home)
+        - in: query
+          name: force
+          schema:
+            type: boolean
+          description: >
+            To be investigated further. 
+            'true' seems to indicate that the zone the device belonged to previously should be deleted.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                serialNo:
+                  $ref: '#/components/schemas/DeviceId'
+      responses:
+        '200':
+          description: successful response (empty)
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+        '403':
+          $ref: '#/components/responses/AccessDenied403'
+        '422':
+          $ref: '#/components/responses/InputError422'
 
   /homes/{homeId}/zones/{zoneId}/measuringDevice:
     get:
@@ -2086,7 +2370,7 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ErrorResponse'
+            $ref: '#/components/schemas/ErrorResponse422'
 
   schemas:
     # AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
@@ -2188,6 +2472,13 @@ components:
       enum: [FAIR, FRESH]
       example: FRESH
       description: The air freshness level for the entire home. Used in AirComfort.
+
+    AwayRadiusInput:
+      type: object
+      properties:
+        awayRadiusInMeters:
+          type: number
+          format: float
 
     # BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
     BatteryState:
@@ -2349,6 +2640,14 @@ components:
 
         * for timetableType 2 (SEVEN_DAY): MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY
 
+    DazzleInput:
+      type: object
+      description: Used in PUT /homes/{homeId}/zones/{zoneId}/dazzle
+      properties:
+        enabled:
+          type: boolean
+          example: true
+
     DefaultZoneOverlay:
       type: object
       description: >
@@ -2384,10 +2683,10 @@ components:
         deviceType:
           $ref: '#/components/schemas/DeviceType'
         serialNo:
-          type: string
-          example: SU4126033143
-        shortSerialNo:
           $ref: '#/components/schemas/DeviceId'
+        shortSerialNo:
+          type: string
+          example: SU4126044345
         currentFwVersion:
           type: string
           example: 215.1
@@ -2482,8 +2781,8 @@ components:
 
     DeviceId:
       type: string
-      example: SU4126033143
-      description: the shortSerialNo of a tado device
+      example: SU4126044356
+      description: the serialNo of a tado device
 
     DeviceList:
       type: object
@@ -2538,7 +2837,7 @@ components:
         
         * RU01 (Remote Thermostat)
         
-        * RU02 (Remote Thermostat)
+        * RU02 (Wired Smart Thermostat V3+)
         
         * SU02 (Wireless Smart Thermostat V3+)
         
@@ -2566,15 +2865,23 @@ components:
         title:
           type: string
           description: detailed description of the error in natural language (english)
-        zoneType:
-          $ref: '#/components/schemas/ZoneType'
-          description: some 422 errors include this property, to indicate that a certain operation is not allowed for a certain zonetype
 
     ErrorResponse:
       type: array
       description: error object returned for non-200 responses
       items:
         $ref: '#/components/schemas/Error'
+
+    ErrorResponse422:
+      type: array
+      description: error object returned for 422 responses
+      items:
+        type: object
+        allOf:
+          - $ref: '#/components/schemas/Error'
+          - properties:
+              zoneType:
+                $ref: '#/components/schemas/ZoneType'
 
     # FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
     FanLevel:
@@ -2596,15 +2903,24 @@ components:
         driverSerialNo:
           type: string
           example: BR3209250550
-          description: driverSerialNo of a tado device present in the home
+          description: serial number of the tado device which controls the heating circuit
         driverShortSerialNo:
           type: string
           example: BR3209250550
-          description: driverShortSerialNo of a tado device present in the home
+          description: short serial number of the tado device which controls the heating circuit
 
     HeatingCircuitId:
       type: integer
       example: 1
+
+    HeatingCircuitInput:
+      description: Used in PUT /homes/{homeId}/zones/{zoneId}/control/heatingCircuit
+      type: object
+      properties:
+        circuitNumber:
+          type: integer
+          example: 1
+          description: A heating circuit number as returned by /homes/{homeId}/heatingCircuits.
 
     HeatingSettingTimeSeries:
       type: object
@@ -2886,6 +3202,14 @@ components:
           type: boolean
           example: true
 
+    IncidentDetectionInput:
+      type: object
+      description: Used in PUT /homes/{homeId}/incidentDetection
+      properties:
+        enabled:
+          type: boolean
+          example: true
+
     # LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
     Light:
       type: string
@@ -3000,6 +3324,19 @@ components:
               example: false
 
     # OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
+    OpenWindowDetectionInput:
+      description: Used in PUT /homes/{homeId}/zones/{zoneId}/openWindowDetection
+      type: object
+      properties:
+        roomId:
+          $ref: '#/components/schemas/ZoneId'
+        enabled:
+          type: boolean
+          example: true
+        timeoutInSeconds:
+          type: integer
+          example: 900
+
     Orientation:
       type: string
       enum: [HORIZONTAL, VERTICAL]
@@ -3553,6 +3890,24 @@ components:
                 AUTO:
                   $ref: '#/components/schemas/AirConditioningZoneSettingsBase'
 
+    ZoneCreate:
+      description: Input for POST /home/{homeId}/zones
+      type: object
+      properties:
+        type:
+          type: string
+          example: IMPLICIT_CONTROL
+          description: "known values: IMPLICIT_CONTROL"
+        zoneType:
+          $ref: '#/components/schemas/ZoneType'
+        devices:
+          type: array
+          items:
+            type: object
+            properties:
+              serialNo:
+                $ref: '#/components/schemas/DeviceId'
+
     ZoneControl:
       description: >
         Result of /homes/{homeId}/zones/{zoneId}/control.
@@ -3600,6 +3955,14 @@ components:
               type: array
               items:
                 $ref: '#/components/schemas/Device'
+
+    ZoneDetailsInput:
+      description: Used in PUT /homes/{homeId}/zones/{zoneId}/details
+      type: object
+      properties:
+        name:
+          type: string
+          example: bed room
 
     ZoneId:
       type: integer
