@@ -49,9 +49,9 @@ class ZoneControlApi_IT(
     // capture the overlay status before we start running the tests
     @BeforeAll
     fun before()  = try {
-        defaultZoneOverlayBeforeTest = tadoZoneControlAPI.getDefaultOverlay(homeId, heatingZoneId)
+        defaultZoneOverlayBeforeTest = tadoZoneControlAPI.getDefaultZoneOverlay(homeId, heatingZoneId)
         earlyStartBeforeTest = tadoZoneControlAPI.getEarlyStart(homeId, heatingZoneId)
-        zoneOverlayBeforeTest = tadoZoneControlAPI.getOverlay(homeId, heatingZoneId)
+        zoneOverlayBeforeTest = tadoZoneControlAPI.getZoneOverlay(homeId, heatingZoneId)
         zoneAwayConfigurationBeforeTest = tadoZoneControlAPI.getAwayConfiguration(homeId, heatingZoneId)
         activeTimetableTypeBeforeStart = tadoZoneControlAPI.getActiveTimetableType(homeId, heatingZoneId)
     } catch (e: Exception) {
@@ -86,7 +86,7 @@ class ZoneControlApi_IT(
                     durationInSeconds = if (zoneOverlayBeforeTest?.termination?.typeSkillBasedApp == ZoneOverlayTerminationTypeSkillBasedApp.TIMER) zoneOverlayBeforeTest?.termination?.remainingTimeInSeconds else null
                 )
             )
-            tadoZoneControlAPI.setOverlay(HOME_ID, ZONE_ID, newZoneOverlay)
+            tadoZoneControlAPI.setZoneOverlay(HOME_ID, ZONE_ID, newZoneOverlay)
         }
 
         // recreate DefaultZoneOverlay
@@ -97,7 +97,7 @@ class ZoneControlApi_IT(
                     durationInSeconds = defaultZoneOverlayBeforeTest?.terminationCondition?.durationInSeconds
                 )
             )
-            tadoZoneControlAPI.setDefaultOverlay(HOME_ID, ZONE_ID, originalDefaultOverlay)
+            tadoZoneControlAPI.setDefaultZoneOverlay(HOME_ID, ZONE_ID, originalDefaultOverlay)
         }
 
         // recreate ZoneAwayConfiguration
@@ -134,9 +134,9 @@ class ZoneControlApi_IT(
     @Test
     @DisplayName("GET /homes/{homeId}/zones/{zoneId}/defaultOverlay")
     @Order(30)
-    fun getDefaultOverlay() {
+    fun getDefaultZoneOverlay() {
         val endpoint = "GET /homes/{homeId}/zones/{zoneId}/defaultOverlay"
-        val defaultZoneOverlay = tadoZoneControlAPI.getDefaultOverlay(homeId, heatingZoneId)
+        val defaultZoneOverlay = tadoZoneControlAPI.getDefaultZoneOverlay(homeId, heatingZoneId)
         val typeName = "DefaultZoneOverlay"
         verifyNested(defaultZoneOverlay, endpoint, typeName, typeName,
             nullAllowedProperties = listOf("$typeName.terminationCondition.durationInSeconds"))
@@ -145,14 +145,14 @@ class ZoneControlApi_IT(
     @Test
     @DisplayName("PUT /homes/{homeId}/zones/{zoneId}/defaultOverlay")
     @Order(40)
-    fun putDefaultOverlay() {
+    fun putDefaultZoneOverlay() {
         val endpoint = "PUT /homes/{homeId}/zones/{zoneId}/defaultOverlay"
         val newDefaultZoneOverlay = DefaultZoneOverlay(
             terminationCondition = DefaultZoneOverlayTerminationCondition(
                 type = ZoneOverlayTerminationType.TADO_MODE
             )
         )
-        val defaultZoneOverlay = tadoZoneControlAPI.setDefaultOverlay(homeId, heatingZoneId, newDefaultZoneOverlay)
+        val defaultZoneOverlay = tadoZoneControlAPI.setDefaultZoneOverlay(homeId, heatingZoneId, newDefaultZoneOverlay)
         val typeName = "DefaultZoneOverlay"
         verifyNested(defaultZoneOverlay, endpoint, typeName, typeName,
             nullAllowedProperties = listOf("$typeName.terminationCondition.durationInSeconds"))
@@ -161,7 +161,7 @@ class ZoneControlApi_IT(
     @Test
     @DisplayName("GET /homes/{homeId}/zones/{zoneId}/overlay")
     @Order(50)
-    fun getOverlay() {
+    fun getZoneOverlay() {
         val endpoint = "GET /homes/{homeId}/zones/{zoneId}/overlay"
 
         // first make sure there is an overlay, otherwise 404 will be returned
@@ -171,35 +171,35 @@ class ZoneControlApi_IT(
                 power = Power.OFF),
             termination = ZoneOverlayTermination(typeSkillBasedApp = ZoneOverlayTerminationTypeSkillBasedApp.MANUAL)
         )
-        tadoZoneControlAPI.setOverlay(homeId, heatingZoneId, zoneOverlay1)
+        tadoZoneControlAPI.setZoneOverlay(homeId, heatingZoneId, zoneOverlay1)
 
         // now we can test
-        val zoneOverlay = tadoZoneControlAPI.getOverlay(homeId, heatingZoneId)
+        val zoneOverlay = tadoZoneControlAPI.getZoneOverlay(homeId, heatingZoneId)
         verifyZoneOverlay(Pair(ZoneType.HEATING, true), zoneOverlay, endpoint)
     }
 
     @Test
     @DisplayName("GET /homes/{homeId}/zones/{zoneId}/overlay - 404 no overlay set")
     @Order(51)
-    fun getOverlay_404_noOverlay() {
+    fun getZoneOverlay_404_noOverlay() {
         val endpoint = "GET /homes/{homeId}/zones/{zoneId}/overlay"
         // first make sure there is no overlay
         tadoZoneControlAPI.deleteZoneOverlay(homeId, heatingZoneId)
 
         // now we can test
         assertHttpErrorStatus(HttpStatus.NOT_FOUND) {
-            tadoZoneControlAPI.getOverlay(homeId, heatingZoneId)
+            tadoZoneControlAPI.getZoneOverlay(homeId, heatingZoneId)
         }
     }
 
     @Test
     @DisplayName("GET /homes/{homeId}/zones/{zoneId}/overlay - 404 unknown zone")
     @Order(51)
-    fun getOverlay_404_unknownZone() {
+    fun getZoneOverlay_404_unknownZone() {
         val endpoint = "GET /homes/{homeId}/zones/{zoneId}/overlay"
         // now we can test
         assertHttpErrorStatus(HttpStatus.NOT_FOUND) {
-            tadoZoneControlAPI.getOverlay(homeId, 99999)
+            tadoZoneControlAPI.getZoneOverlay(homeId, 99999)
         }
     }
 
@@ -211,7 +211,7 @@ class ZoneControlApi_IT(
     @Test
     @DisplayName("PUT /homes/{homeId}/zones/{zoneId}/overlay - MANUAL OFF")
     @Order(60)
-    fun setOverlay_manual_off() {
+    fun setZoneOverlay_manual_off() {
         val endpoint = "PUT /homes/{homeId}/zones/{zoneId}/overlay"
         // first delete any existing overlay
         tadoZoneControlAPI.deleteZoneOverlay(homeId, heatingZoneId)
@@ -223,7 +223,7 @@ class ZoneControlApi_IT(
                 power = Power.OFF),
             termination = ZoneOverlayTermination(typeSkillBasedApp = ZoneOverlayTerminationTypeSkillBasedApp.MANUAL)
         )
-        val result = tadoZoneControlAPI.setOverlay(homeId, heatingZoneId, zoneOverlay)
+        val result = tadoZoneControlAPI.setZoneOverlay(homeId, heatingZoneId, zoneOverlay)
         verifyZoneOverlay(Pair(ZoneType.HEATING, true), result, endpoint)
     }
 
@@ -234,7 +234,7 @@ class ZoneControlApi_IT(
     @Test
     @DisplayName("PUT /homes/{homeId}/zones/{zoneId}/overlay - MANUAL ON")
     @Order(61)
-    fun setOverlay_manual_on() {
+    fun setZoneOverlay_manual_on() {
         val endpoint = "PUT /homes/{homeId}/zones/{zoneId}/overlay"
         // first delete any existing overlay
         tadoZoneControlAPI.deleteZoneOverlay(homeId, heatingZoneId)
@@ -248,7 +248,7 @@ class ZoneControlApi_IT(
             ),
             termination = ZoneOverlayTermination(typeSkillBasedApp = ZoneOverlayTerminationTypeSkillBasedApp.MANUAL)
         )
-        val result = tadoZoneControlAPI.setOverlay(homeId, heatingZoneId, zoneOverlay)
+        val result = tadoZoneControlAPI.setZoneOverlay(homeId, heatingZoneId, zoneOverlay)
         verifyZoneOverlay(Pair(ZoneType.HEATING, true), result, endpoint)
     }
 
@@ -281,7 +281,7 @@ class ZoneControlApi_IT(
     @Test
     @DisplayName("PUT /homes/{homeId}/zones/{zoneId}/overlay - TADO_MODE ON")
     @Order(62)
-    fun setOverlay_tado_mode() {
+    fun setZoneOverlay_tado_mode() {
         val endpoint = "PUT /homes/{homeId}/zones/{zoneId}/overlay"
         // first delete any existing overlay
         tadoZoneControlAPI.deleteZoneOverlay(homeId, heatingZoneId)
@@ -295,7 +295,7 @@ class ZoneControlApi_IT(
             ),
             termination = ZoneOverlayTermination(typeSkillBasedApp = ZoneOverlayTerminationTypeSkillBasedApp.TADO_MODE)
         )
-        val result = tadoZoneControlAPI.setOverlay(homeId, heatingZoneId, zoneOverlay)
+        val result = tadoZoneControlAPI.setZoneOverlay(homeId, heatingZoneId, zoneOverlay)
         verifyZoneOverlay(Pair(ZoneType.HEATING, true), result, endpoint)
     }
 
@@ -306,7 +306,7 @@ class ZoneControlApi_IT(
     @Test
     @DisplayName("PUT /homes/{homeId}/zones/{zoneId}/overlay - NEXT_TIME_BLOCK ON")
     @Order(63)
-    fun setOverlay_nextTimeBlock() {
+    fun setZoneOverlay_nextTimeBlock() {
         val endpoint = "PUT /homes/{homeId}/zones/{zoneId}/overlay"
         // first delete any existing overlay
         tadoZoneControlAPI.deleteZoneOverlay(homeId, heatingZoneId)
@@ -320,7 +320,7 @@ class ZoneControlApi_IT(
             ),
             termination = ZoneOverlayTermination(typeSkillBasedApp = ZoneOverlayTerminationTypeSkillBasedApp.NEXT_TIME_BLOCK)
         )
-        val result = tadoZoneControlAPI.setOverlay(homeId, heatingZoneId, zoneOverlay)
+        val result = tadoZoneControlAPI.setZoneOverlay(homeId, heatingZoneId, zoneOverlay)
         verifyZoneOverlay(Pair(ZoneType.HEATING, true), result, endpoint)
     }
 
@@ -330,7 +330,7 @@ class ZoneControlApi_IT(
     @Test
     @DisplayName("PUT /homes/{homeId}/zones/{zoneId}/overlay - TIMER ON")
     @Order(64)
-    fun setOverlay_timer() {
+    fun setZoneOverlay_timer() {
         val endpoint = "PUT /homes/{homeId}/zones/{zoneId}/overlay"
         // first delete any existing overlay
         tadoZoneControlAPI.deleteZoneOverlay(homeId, heatingZoneId)
@@ -347,14 +347,14 @@ class ZoneControlApi_IT(
                 durationInSeconds = 1000
             )
         )
-        val result = tadoZoneControlAPI.setOverlay(homeId, heatingZoneId, zoneOverlay)
+        val result = tadoZoneControlAPI.setZoneOverlay(homeId, heatingZoneId, zoneOverlay)
         verifyZoneOverlay(Pair(ZoneType.HEATING, true), result, endpoint)
     }
 
     @Test
     @DisplayName("DELETE /homes/{homeId}/zones/{zoneId}/overlay")
     @Order(70)
-    fun deleteOverlay() {
+    fun deleteZoneOverlay() {
         val result = tadoZoneControlAPI.deleteZoneOverlay(homeId, heatingZoneId)
         assertEquals(Unit, result)
     }

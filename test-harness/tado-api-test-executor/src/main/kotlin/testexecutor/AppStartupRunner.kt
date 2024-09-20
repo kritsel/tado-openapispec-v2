@@ -17,8 +17,9 @@ class AppStartupRunner : ApplicationRunner {
         val request: InvocationRequest = DefaultInvocationRequest()
         request.setInputStream(InputStream.nullInputStream());
         request.setPomFile(File("${System.getProperty("user.dir")}\\test-harness\\tado-api-test\\pom.xml"))
-//        request.addArgs(listOf("clean", "verify", "site"))
-        request.addArgs(listOf("site"))
+        request.addArgs(listOf("clean", "verify", "site"))
+        request.setProfiles(listOf("published-api-spec"))
+//        request.addArgs(listOf("site"))
 
         val outputHandler = InvocationOutputHandler { line -> println(line) }
         request.setOutputHandler(outputHandler)

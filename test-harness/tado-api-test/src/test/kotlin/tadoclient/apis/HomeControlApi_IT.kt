@@ -38,7 +38,7 @@ class HomeControlApi_IT(
     // capture the overlay status before we start running the tests
     @BeforeAll
     fun before()  = try {
-        zoneOverlaysBeforeTest[heatingZoneId] = tadoZoneControlAPI.getOverlay(homeId, heatingZoneId)
+        zoneOverlaysBeforeTest[heatingZoneId] = tadoZoneControlAPI.getZoneOverlay(homeId, heatingZoneId)
         homeStateBeforeTest = tadoHomeControlAPI.getHomeState(homeId)
     } catch (e: Exception) {
         // ignore
@@ -69,7 +69,7 @@ class HomeControlApi_IT(
                         beforeOverlay.termination?.remainingTimeInSeconds else null
                 )
             )
-            tadoZoneControlAPI.setOverlay(HOME_ID, ZONE_ID, newZoneOverlay)
+            tadoZoneControlAPI.setZoneOverlay(HOME_ID, ZONE_ID, newZoneOverlay)
         }
 
         // presence in home
@@ -84,7 +84,7 @@ class HomeControlApi_IT(
     @Test
     @DisplayName("POST /homes/{homeId}/overlay")
     @Order(10)
-    fun postOverlays() {
+    fun setZoneOverlays() {
         val newZoneOverlay = ZoneOverlay(
             setting = ZoneSetting(
                 type = ZoneType.HEATING,
@@ -97,7 +97,7 @@ class HomeControlApi_IT(
             )
         )
         val result = assertNoHttpErrorStatus(HttpStatus.FORBIDDEN) {
-            tadoHomeControlAPI.postZoneOverlays(homeId, ZoneOverlays(listOf(ZoneOverlaysOverlaysInner(heatingZoneId.toString(), newZoneOverlay))) )
+            tadoHomeControlAPI.setZoneOverlays(homeId, ZoneOverlays(listOf(ZoneOverlaysOverlaysInner(heatingZoneId.toString(), newZoneOverlay))) )
         }
         assertEquals(Unit, result)
     }
@@ -105,7 +105,7 @@ class HomeControlApi_IT(
     @Test
     @DisplayName("DELETE /homes/{homeId}/overlay")
     @Order(20)
-    fun deleteOverlays() {
+    fun deleteZoneOverlays() {
         val result = assertNoHttpErrorStatus(HttpStatus.FORBIDDEN) {
             tadoHomeControlAPI.deleteZoneOverlays(homeId, rooms = listOf(heatingZoneId) )
         }

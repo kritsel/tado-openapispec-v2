@@ -5,9 +5,11 @@ info:
     Community managed API specification for the tado smart thermostat solution 
     (this specification is not officially supported or published by tado).
     
+    Start with `[user] GET /me`. This will give you the id of your home and you can take it further from there.
+    
     Github repository where this specification is maintained: 
     [https://github.com/kritsel/tado-openapispec-v2](https://github.com/kritsel/tado-openapispec-v2)
-  version: 2.2024.08.25.0
+  version: 2.2024.09.20.0
 servers:
   - url: https://my.tado.com/api/v2/
     description: Production server
@@ -601,10 +603,10 @@ paths:
 
   /homes/{homeId}/overlay:
     post:
-      summary: Control the overlays (manual override of the configured schedule) of multiple rooms (a.k.a. zones) with a single API method
+      summary: Configure the zone overlay (manual override of the configured schedule) of multiple rooms (a.k.a. zones) with a single API method
       description: >
         Used in app feature: Home page > Turn OFF All Rooms
-      operationId: postZoneOverlays # hint for client code generators
+      operationId: setZoneOverlays # hint for client code generators
       tags:
         - home control
       parameters:
@@ -630,7 +632,7 @@ paths:
         '422':
           $ref: '#/components/responses/InputError422'
     delete:
-      summary: Remove the overlays (manual override of the configured schedule) of multiple rooms (a.k.a. zones) with a single API method
+      summary: Remove the zone overlay (manual override of the configured schedule) of multiple rooms (a.k.a. zones) with a single API method
       description: >
         Used in app feature: Home page > Resume Schedule All Rooms
       operationId: deleteZoneOverlays # hint for client code generators
@@ -1047,10 +1049,10 @@ paths:
   /homes/{homeId}/zones/{zoneId}/defaultOverlay:
     get:
       summary: >
-        Get the overlay.termination.typeSkillBasedApp value to use when a user sets (and thus overrides) 
+        Get the ZoneOverlay.termination.typeSkillBasedApp value to use when a user sets (and thus overrides) 
         the target temperature for a zone via a tado thermostat device.
       description: Only when the type TIMER is used should durationInSeconds be specified as well.
-      operationId: getDefaultOverlay # hint for client code generators
+      operationId: getDefaultZoneOverlay # hint for client code generators
       tags:
         - zone control
       parameters:
@@ -1081,10 +1083,10 @@ paths:
           $ref: '#/components/responses/NotFound404' # when the zone does not exist
     put:
       summary: >
-        Set the overlay.termination.typeSkillBasedApp value to use when a user sets (and thus overrides) 
+        Set the ZoneOverlay.termination.typeSkillBasedApp value to use when a user sets (and thus overrides) 
         the target temperature for a zone via a tado thermostat device.
       description: When you use the type TIMER you also need to set durationInSeconds.
-      operationId: setDefaultOverlay # hint for client code generators
+      operationId: setDefaultZoneOverlay # hint for client code generators
       tags:
         - zone control
       parameters:
@@ -1220,7 +1222,7 @@ paths:
   /homes/{homeId}/zones/{zoneId}/overlay:
     get:
       summary: Get the overlay (manual override of the configured temperature schedule) of the given zone (a.k.a. room)
-      operationId: getOverlay # hint for client code generators
+      operationId: getZoneOverlay # hint for client code generators
       tags:
         - zone control
       parameters:
@@ -1251,7 +1253,7 @@ paths:
           $ref: '#/components/responses/NotFound404' # when the zone does not exist or there is no overlay for this zone
     put:
       summary: Set the overlay (manual override of the configured temperature schedule) for the given zone (a.k.a. room)
-      operationId: setOverlay # hint for client code generators
+      operationId: setZoneOverlay # hint for client code generators
       tags:
         - zone control
       parameters:
@@ -2657,11 +2659,11 @@ components:
       description: >
         Used in /homes/{homeId}/zones/{zoneId}/defaultOverlay.
 
-        It defines the default overlay termination type which tado will use when a user set zone settings (like temperature)
+        It defines the default zone overlay termination type which tado will use when a user set zone settings (like temperature)
         via a physical tado device like a Smart Thermostat.
         (this results in setting a ZoneOverlay).
 
-        The `type` defined here is used as the value for overlay.termination.typeSkillBasedApp when setting a ZoneOverlay.
+        The `type` defined here is used as the value for ZoneOverlay.termination.typeSkillBasedApp when setting a ZoneOverlay.
       properties:
         terminationCondition:
           type: object
@@ -3075,6 +3077,9 @@ components:
               type: boolean
               example: false
             isHeatPumpInstalled:
+              type: boolean
+              example: false
+            supportsFlowTemperatureOptimization:
               type: boolean
               example: false
 
@@ -3975,10 +3980,10 @@ components:
       type: object
       description: >
         A zone overlay is a user controlled override for the user defined scheduled (temperature) settings of a zone.
-        As long as an overlay is present for a zone, the zone's scheduled (temperature) settings do not take effect.
+        As long as a zone overlay is present for a zone, the zone's scheduled (temperature) settings do not take effect.
 
-        Termination of the overlay (either never, a set time or when the next block in the active timetable starts) 
-        is part of the overlay definition.
+        Termination of the zone overlay (either never, a set time or when the next block in the active timetable starts) 
+        is part of the zone overlay definition.
       properties:
         type:
           $ref: '#/components/schemas/ZoneOverlayType'
@@ -4031,7 +4036,7 @@ components:
       enum: [ MANUAL, TADO_MODE, TIMER ]
       example: MANUAL
       description: >
-        Element of an overlay.
+        Element of a zone overlay.
 
         Does not contain NEXT_TIME_BLOCK which is present in the ZoneOverlayTerminationTypeSkillBasedApp enum.
 
@@ -4048,7 +4053,7 @@ components:
     ZoneOverlayTerminationTypeSkillBasedApp:
       type: string
       description: >
-        Used when setting a ZoneOverlay to specify until when the ZoneOverlay should be active.
+        When setting a ZoneOverlay this value is used to specify until when the ZoneOverlay should be active.
 
 
         Compared to ZoneOverlayTerminationType it contains NEXT_TIME_BLOCK as an extra value.
@@ -4073,7 +4078,7 @@ components:
     ZoneOverlayType:
       type: string
       example: MANUAL
-      description: Type of an ZoneOverlay. Only known value is MANUAL, but not entirely sure, so no enum
+      description: Type of a ZoneOverlay. Only known value is MANUAL, but not entirely sure, so no enum
 
     ZoneSetting:
       type: object
@@ -4180,23 +4185,20 @@ components:
       example: HEATING
 
 tags:
-  - name: user
-    description: >
-      Retrieve information about the authenticated user, or other users who have access to a home(s).
-  - name: mobile device
-    description: >
-      Retrieve information about and set settings for mobile devices linked to users 
-      which have the tado app installed to control a home.
   - name: home
     description: >
-      Retrieve and configure information about a home (a house or appartment) controlled by tado.
+      List and configure information about a home (a house or appartment) controlled by tado.
   - name: home control
     description: >
       All operations directly associated with temperature control in a home.
   - name: heating circuit
     description: >
-      All operations to determine the heating circuits present in a home and control how zones are assigned
-      to heating circuits.
+      A physical heating system in a home consists of one or more physical heating circuits 
+      (the piping system that carries hot water from the boiler to your rooms, and back to the boiler).
+      
+      
+      These operations allow you to determine the heating circuits in your tado home
+      and control how zones (a.k.a. rooms) are associated with heating circuits.
   - name: zone
     description: >
       Retrieve and configure information about a zone (a.k.a. room).
@@ -4206,6 +4208,13 @@ tags:
   - name: device
     description: >
       Determine and configure the tado devices in a home or zone.
+  - name: user
+    description: >
+      Retrieve information about the authenticated user, or other users who have access to a home(s).
+  - name: mobile device
+    description: >
+      Retrieve information about and set settings for mobile devices linked to users 
+      which have the tado app installed to control a home.
   - name: report
     description:
       Data reports.
