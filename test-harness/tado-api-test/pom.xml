@@ -10,7 +10,7 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>api-test</artifactId>
+    <artifactId>tado-api-test</artifactId>
     <packaging>jar</packaging>
 
     <profiles>
