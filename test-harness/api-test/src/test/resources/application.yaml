@@ -1,0 +1,41 @@
+spring:
+  main:
+    web-application-type: none
+
+  # security property values based on https://support.tado.com/en/articles/8565472-how-do-i-update-my-rest-api-authentication-method-to-oauth-2
+  security:
+    oauth2:
+      client:
+        registration:
+          tado:
+            client-id: public-api-preview
+            client-secret: 4HJGRffVR8xb3XdEUQpjgZ1VplJi6Xgw
+            authorization-grant-type: password
+        provider:
+          tado:
+            token-uri: https://auth.tado.com/oauth/token
+
+# doesn't work for unknown reason
+#  jackson:
+#    deserialization:
+#      FAIL_ON_UNKNOWN_PROPERTIES: true
+
+tado:
+  home:
+    id: 1118186
+  zone:
+    heating:
+      id: 4
+    hot-water:
+      id: 0
+      can-set-temperature: false
+  #    air-con:
+  #      id: 1234
+  device:
+    thermostat:
+      id: VA0431440896
+    non-thermostat:
+      id: BR3209250560  # BR02 wireless receiver
+  #      id: IB0221726208 # IB01 internet bridge
+  mobile-device:
+    id: 6250626

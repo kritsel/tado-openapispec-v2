@@ -1,0 +1,13 @@
+tado:
+  username: <fill in your tado username>
+  password: <fill in your tado password>
+
+
+# Most probably you can leave the section below as comments.
+# On a company managed development machine with a company managed VPN using self-signed certificate
+# this configuration option allows you to use the trust store managed by the OS.
+# In that case uncomment either the windows or the mac property setting.
+
+#system:
+#  trust-store: windows # use Windows trust store
+#  trust-store: mac     # use macOS trust store

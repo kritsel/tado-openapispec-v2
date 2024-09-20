@@ -190,7 +190,7 @@ paths:
           $ref: '#/components/responses/AccessDenied403'
     put:
       summary: Update the settings for a specific mobile device which is associated with the given home
-      operationId: putMobileDeviceSettings # hint for client code generators
+      operationId: setMobileDeviceSettings # hint for client code generators
       tags:
         - mobile device
       parameters:
@@ -328,7 +328,7 @@ paths:
       description: >
         This endpoint expects a complete HomeDetails object, 
         you cannot send a partial object which only contains the properties you would like to update.
-      operationId: putHomeDetails # hint for client code generators
+      operationId: setHomeDetails # hint for client code generators
       tags:
         - home
       parameters:
@@ -359,7 +359,7 @@ paths:
       summary: Get information about the heating circuits of this home
       operationId: getHeatingCircuits # hint for client code generators
       tags:
-        - home
+        - heating circuit
       parameters:
         - in: path
           name: homeId
@@ -418,7 +418,7 @@ paths:
         
         The app assists the user in finding the boiler by brand and model. 
         This is supported by tado's graphql API, and not via the API described in this specification.
-      operationId: putBoiler # hint for client code generators
+      operationId: setBoiler # hint for client code generators
       tags:
         - home
       parameters:
@@ -458,7 +458,7 @@ paths:
   /homes/{homeId}/heatingSystem/underfloorHeating:
     put:
       summary: Inform tado about the presence of underfloor heating in this home
-      operationId: putUnderfloorHeating # hint for client code generators
+      operationId: setUnderfloorHeating # hint for client code generators
       tags:
         - home
       parameters:
@@ -538,7 +538,7 @@ paths:
         You won't be able to enable incident detection when it is not supported for your home.
         
         See the description for GET /homes/{homeId}/incidentDetection for more information.
-      operationId: putIncidentDetection # hint for client code generators
+      operationId: setIncidentDetection # hint for client code generators
       tags:
         - home
       parameters:
@@ -665,7 +665,7 @@ paths:
       description: >
         When the state is 'AWAY' the AwayConfiguration of each zone will control
         the (temperature) settings for that zone.
-      operationId: putHomePresenceLock # hint for client code generators
+      operationId: setPresenceLock # hint for client code generators
       tags:
         - home control
       parameters:
@@ -1050,7 +1050,7 @@ paths:
         Get the overlay.termination.typeSkillBasedApp value to use when a user sets (and thus overrides) 
         the target temperature for a zone via a tado thermostat device.
       description: Only when the type TIMER is used should durationInSeconds be specified as well.
-      operationId: getZoneDefaultOverlay # hint for client code generators
+      operationId: getDefaultOverlay # hint for client code generators
       tags:
         - zone control
       parameters:
@@ -1084,7 +1084,7 @@ paths:
         Set the overlay.termination.typeSkillBasedApp value to use when a user sets (and thus overrides) 
         the target temperature for a zone via a tado thermostat device.
       description: When you use the type TIMER you also need to set durationInSeconds.
-      operationId: putZoneDefaultOverlay # hint for client code generators
+      operationId: setDefaultOverlay # hint for client code generators
       tags:
         - zone control
       parameters:
@@ -1139,7 +1139,7 @@ paths:
   /homes/{homeId}/zones/{zoneId}/earlyStart:
     get:
       summary: Control whether Tado makes sure a set temperature is reached at the start of a block
-      operationId: getZoneEarlyStart # hint for client code generators
+      operationId: getEarlyStart # hint for client code generators
       tags:
         - zone control
       parameters:
@@ -1172,7 +1172,7 @@ paths:
           $ref: '#/components/responses/InputError422'
     put:
       summary: Control whether Tado makes sure a set temperature is reached at the start of a block
-      operationId: putZoneEarlyStart # hint for client code generators
+      operationId: setEarlyStart # hint for client code generators
       tags:
         - zone control
       parameters:
@@ -1220,7 +1220,7 @@ paths:
   /homes/{homeId}/zones/{zoneId}/overlay:
     get:
       summary: Get the overlay (manual override of the configured temperature schedule) of the given zone (a.k.a. room)
-      operationId: getZoneOverlay # hint for client code generators
+      operationId: getOverlay # hint for client code generators
       tags:
         - zone control
       parameters:
@@ -1251,7 +1251,7 @@ paths:
           $ref: '#/components/responses/NotFound404' # when the zone does not exist or there is no overlay for this zone
     put:
       summary: Set the overlay (manual override of the configured temperature schedule) for the given zone (a.k.a. room)
-      operationId: putZoneOverlay # hint for client code generators
+      operationId: setOverlay # hint for client code generators
       tags:
         - zone control
       parameters:
@@ -1360,7 +1360,7 @@ paths:
   /homes/{homeId}/zones/{zoneId}/schedule/awayConfiguration:
     get:
       summary: Get the (temperature) settings to use for the given zone (a.k.a. room) when the home state is AWAY.
-      operationId: getZoneAwayConfiguration # hint for client code generators
+      operationId: getAwayConfiguration # hint for client code generators
       tags:
         - zone control
       parameters:
@@ -1389,7 +1389,7 @@ paths:
           $ref: '#/components/responses/AccessDenied403'
     put:
       summary: Set the (temperature) settings to use for the given zone (a.k.a. room) when the home state is AWAY.
-      operationId: putZoneAwayConfiguration # hint for client code generators
+      operationId: setAwayConfiguration # hint for client code generators
       tags:
         - zone control
       parameters:
@@ -1441,7 +1441,7 @@ paths:
   /homes/{homeId}/zones/{zoneId}/schedule/activeTimetable:
     get:
       summary: Get the active timetable type for the given zone (a.k.a. room)
-      operationId: getZoneActiveTimetable # hint for client code generators
+      operationId: getActiveTimetableType # hint for client code generators
       tags:
         - zone control
       parameters:
@@ -1472,7 +1472,7 @@ paths:
           $ref: '#/components/responses/InputError422'
     put:
       summary: Set the active timetable type for the given zone (a.k.a. room)
-      operationId: putZoneActiveTimetable # hint for client code generators
+      operationId: setActiveTimetableType # hint for client code generators
       tags:
         - zone control
       parameters:
@@ -1673,7 +1673,7 @@ paths:
         Each timetable for a timetable type consists of an array of blocks.
         Each block consists of a day type (e.g. MONDAY_TO_FRIDAY for the THREE_DAY timetable type), a start time and end time 
         and the setting (e.g. temperature) for that time period.
-      operationId: getZoneTimetableBlocksByDayType # hint for client code generators
+      operationId: getTimetableBlocksByDayType # hint for client code generators
       tags:
         - zone control
       parameters:
@@ -1720,7 +1720,7 @@ paths:
           $ref: '#/components/responses/NotFound404'
     put:
       summary: Update the timetable (containing all blocks!) for the given zoneId, timetableTypeId and dayType
-      operationId: putZoneTimetableBlocks # hint for client code generators
+      operationId: setTimetableBlocksForDayType # hint for client code generators
       tags:
         - zone control
       parameters:
@@ -1899,7 +1899,7 @@ paths:
         
         The offset instructs tado to increase/decrease the measured temperature by a certain amount,
         before it starts using the value as input for automated temperature control.
-      operationId: putTemperatureOffset # hint for client code generators
+      operationId: setTemperatureOffset # hint for client code generators
       tags:
         - device
       parameters:
@@ -2059,7 +2059,9 @@ paths:
 
   /homes/{homeId}/zones/{zoneId}/control:
     get:
-      summary: Returns the devices within the given zone (a.k.a. room), grouped by their duty.
+      summary: >
+        Returns the heating circuit the zone (a.k.a. room) belongs to, and the tado devices within the zone 
+        grouped by their duty.
       description: >
         There are multiple ways to list the tado devices in a home or zone:
 
@@ -2083,6 +2085,7 @@ paths:
       operationId: getZoneControl # hint for client code generators
       tags:
         - device
+        - heating circuit
       parameters:
         - in: path
           name: homeId
@@ -2123,8 +2126,9 @@ paths:
         
         A 'heating zone' is not to be confused with a 'zone'; a 'zone' represents a single room 
         which is serviced by a 'heating zone'
+      operationId: setHeatingCircuit
       tags:
-        - device
+        - heating circuit
       parameters:
         - in: path
           name: homeId
@@ -2243,7 +2247,7 @@ paths:
     put:
       summary: Set the tado device which should measure temperature and humidity in the given zone (a.k.a. room).
       description: Not applicable for a HOT_WATER zone
-      operationId: putZoneMeasuringDevice # hint for client code generators
+      operationId: setZoneMeasuringDevice # hint for client code generators
       tags:
         - device
       parameters:
@@ -2918,9 +2922,7 @@ components:
       type: object
       properties:
         circuitNumber:
-          type: integer
-          example: 1
-          description: A heating circuit number as returned by /homes/{homeId}/heatingCircuits.
+          $ref: '#/components/schemas/HeatingCircuitId'
 
     HeatingSettingTimeSeries:
       type: object
@@ -4179,10 +4181,31 @@ components:
 
 tags:
   - name: user
+    description: >
+      Retrieve information about the authenticated user, or other users who have access to a home(s).
   - name: mobile device
+    description: >
+      Retrieve information about and set settings for mobile devices linked to users 
+      which have the tado app installed to control a home.
   - name: home
+    description: >
+      Retrieve and configure information about a home (a house or appartment) controlled by tado.
   - name: home control
+    description: >
+      All operations directly associated with temperature control in a home.
+  - name: heating circuit
+    description: >
+      All operations to determine the heating circuits present in a home and control how zones are assigned
+      to heating circuits.
   - name: zone
+    description: >
+      Retrieve and configure information about a zone (a.k.a. room).
   - name: zone control
+    description: >
+      All operations directly associated with temperature control in a zone.
   - name: device
+    description: >
+      Determine and configure the tado devices in a home or zone.
   - name: report
+    description:
+      Data reports.

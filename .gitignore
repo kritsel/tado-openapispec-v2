@@ -1,3 +1,11 @@
+### IntelliJ IDEA ###
 *.iml
 .idea/*
+
+### target directory
+target/
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+### misc
 releasenotes.txt

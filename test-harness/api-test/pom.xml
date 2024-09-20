@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>nl.kritsel.tado.api</groupId>
+        <artifactId>test-harness</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>api-test</artifactId>
+    <packaging>jar</packaging>
+
+    <profiles>
+        <profile>
+            <id>local-api-spec</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <api.spec>${project.basedir}/../../tado-openapispec-v2.yaml</api.spec>
+            </properties>
+        </profile>
+        <profile>
+            <id>published-api-spec</id>
+            <properties>
+                <api.spec>https://raw.githubusercontent.com/kritsel/tado-openapispec-v2/latest/tado-openapispec-v2.yaml</api.spec>
+            </properties>
+        </profile>
+    </profiles>
+
+    <properties>
+        <generated.src.folder>generated-src</generated.src.folder>
+    </properties>
+
+    <build>
+        <sourceDirectory>${generated.src.folder}/main/kotlin</sourceDirectory>
+        <plugins>
+            <plugin>
+                <groupId>org.openapitools</groupId>
+                <artifactId>openapi-generator-maven-plugin</artifactId>
+                <version>7.7.0</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <!-- supported configuration properties documentation:
+                            https://github.com/OpenAPITools/openapi-generator/tree/master/modules/openapi-generator-maven-plugin -->
+                        <configuration>
+                            <!-- the essentials -->
+<!--                            <inputSpec>https://raw.githubusercontent.com/kritsel/tado-openapispec-v2/latest/tado-openapispec-v2.yaml</inputSpec>-->
+                            <inputSpec>${api.spec}</inputSpec>
+                            <generatorName>kotlin</generatorName>
+                            <library>jvm-spring-restclient</library>
+
+                            <!-- when to generate -->
+                            <skipIfSpecIsUnchanged>true</skipIfSpecIsUnchanged>
+
+                            <!-- where to generate to -->
+                            <output>${project.basedir}</output>
+
+                            <!-- naming preferences -->
+                            <packageName>tadoclient</packageName>
+                            <!-- kotlin generator does not support 'apiNameSuffix' -->
+
+                            <!-- do not use cleanupOutput as it will also remove pom.xml -->
+                            <!-- <cleanupOutput>true</cleanupOutput>-->
+
+                            <!-- control what files we want to have generated -->
+                            <!-- 'generateSupportingFiles' needs to be true,
+                                  otherwise the infrastructure package is not generated -->
+                            <!--                            <generateSupportingFiles>true</generateSupportingFiles>-->
+                            <!-- prevent generation of files we won't be using -->
+                            <generateApiTests>false</generateApiTests>
+                            <generateModelTests>false</generateModelTests>
+                            <generateModelDocumentation>false</generateModelDocumentation>
+                            <generateApiDocumentation>false</generateApiDocumentation>
+
+                            <!-- kotlin generator specific configOptions documentation:
+                                 https://openapi-generator.tech/docs/generators/kotlin -->
+                            <configOptions>
+                                <sourceFolder>${generated.src.folder}/main/kotlin</sourceFolder>
+                                <!-- useSpringBoot3=true is mandatory when using the 'jvm-spring-restclient' library -->
+                                <useSpringBoot3>true</useSpringBoot3>
+                                <!-- default serializationLibrary for the kotlin generator is moshi -->
+                                <serializationLibrary>jackson</serializationLibrary>
+                                <!-- prevent generation of files we won't be using -->
+                                <omitGradleWrapper>true</omitGradleWrapper>
+                            </configOptions>
+
+                            <!-- https://stackoverflow.com/questions/32437550/whats-the-difference-between-instant-and-localdatetime -->
+                            <!-- configure the Java types to use for properties/parameters specified with a specific format -->
+                            <typeMappings>
+                                <typeMapping>DateTime=Instant</typeMapping>
+                                <typeMapping>date=LocalDate</typeMapping>
+                                <typeMapping>time=LocalTime</typeMapping>
+                                <typeMapping>float=Float</typeMapping>
+                                <typeMapping>double=Double</typeMapping>
+                            </typeMappings>
+
+                            <!-- configure the imports to use for the Java types defined above -->
+                            <importMappings>
+                                <importMapping>Instant=java.time.Instant</importMapping>
+                                <importMapping>LocalDate=java.time.LocalDate</importMapping>
+                                <importMapping>LocalTime=java.time.LocalTime</importMapping>
+                                <importMapping>Float=kotlin.Float</importMapping>
+                                <importMapping>Double=kotlin.Double</importMapping>
+                            </importMappings>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- the failsafe plugin runs integration tests (test classes ending with IT) -->
+            <plugin>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>3.3.1</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+
+                <configuration>
+                    <argLine>-Dspring.config.additional-location=file:${project.basedir}/../external-config.yaml</argLine>
+                    <!-- configuration to instruct the plugin to use the test-class and test-method names as defined in
+                     the @DisplayName annotation in the reports it creates. -->
+                    <!-- https://maven.apache.org/surefire/maven-surefire-plugin/examples/junit-platform.html#surefire-extensions-and-reports-configuration-for-displayname-->
+                    <statelessTestsetReporter implementation="org.apache.maven.plugin.surefire.extensions.junit5.JUnit5Xml30StatelessReporter">
+                        <disable>false</disable>
+                        <version>3.0.2</version>
+                        <usePhrasedFileName>false</usePhrasedFileName>
+                        <usePhrasedTestSuiteClassName>true</usePhrasedTestSuiteClassName>
+                        <usePhrasedTestCaseClassName>true</usePhrasedTestCaseClassName>
+                        <usePhrasedTestCaseMethodName>true</usePhrasedTestCaseMethodName>
+                    </statelessTestsetReporter>
+                    <consoleOutputReporter implementation="org.apache.maven.plugin.surefire.extensions.junit5.JUnit5ConsoleOutputReporter">
+                        <disable>false</disable>
+                        <encoding>UTF-8</encoding>
+                        <usePhrasedFileName>false</usePhrasedFileName>
+                    </consoleOutputReporter>
+                    <statelessTestsetInfoReporter implementation="org.apache.maven.plugin.surefire.extensions.junit5.JUnit5StatelessTestsetInfoReporter">
+                        <disable>false</disable>
+                        <usePhrasedFileName>false</usePhrasedFileName>
+                        <usePhrasedClassNameInRunning>true</usePhrasedClassNameInRunning>
+                        <usePhrasedClassNameInTestCaseSummary>true</usePhrasedClassNameInTestCaseSummary>
+                    </statelessTestsetInfoReporter>
+                </configuration>
+            </plugin>
+
+            <!-- ensure all generated files get removed when executing mvn clean -->
+            <plugin>
+                <artifactId>maven-clean-plugin</artifactId>
+                <version>3.0.0</version>
+                <configuration>
+                    <filesets>
+                        <fileset>
+                            <!-- make sure to keep the files we maintain ourselves -->
+                            <directory>./</directory>
+                            <excludes>
+                                <exclude>**/src/**</exclude>
+                                <exclude>pom.xml</exclude>
+                                <exclude>README.md</exclude>
+                                <exclude>.openapi-generator-ignore</exclude>
+                                <exclude>.gitignore</exclude>
+                            </excludes>
+                        </fileset>
+                    </filesets>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <reporting>
+        <plugins>
+            <!-- instruct the maven-surefire-report-plugin to create user friendly html report
+                 based on the output of the maven-failsafe-plugin -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-report-plugin</artifactId>
+                <version>3.4.0</version>
+                <reportSets>
+                    <reportSet>
+                        <id>failsafe-reports</id>
+                        <reports>
+                            <report>failsafe-report-only</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
+            </plugin>
+        </plugins>
+    </reporting>
+
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webflux</artifactId>
+            <version>3.3.2</version>
+        </dependency>
+
+        <!-- Jackson objectmapper for kotlin -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.module</groupId>
+            <artifactId>jackson-module-kotlin</artifactId>
+            <version>2.17.2</version>
+        </dependency>
+
+        <!-- oauth2 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-oauth2-client</artifactId>
+            <version>3.3.2</version>
+        </dependency>
+
+        <!-- spring boot test -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+            <version>3.3.2</version>
+        </dependency>
+
+        <!-- config bean validation -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+            <version>3.3.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.validation</groupId>
+            <artifactId>jakarta.validation-api</artifactId>
+            <version>3.1.0</version>
+            <scope>test</scope>
+        </dependency>
+
+    </dependencies>
+
+</project>

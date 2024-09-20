@@ -1,0 +1,2 @@
+### files which should stay local as it contains secrets:
+external-config.yaml
