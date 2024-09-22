@@ -12,7 +12,7 @@ The automated API test uses `kotlin` and `maven` and consists of the following e
 * `maven-failsafe-plugin` is used to execute the integration tests
 
 
-The goal of the API test is to identify:
+The goal of the API test suite is to identify:
 
 * API operations which are no longer supported
 * API GET operations which return a response containing a new (yet unspecified) JSON property
@@ -23,4 +23,4 @@ while the same input used to be successful
 
 # API test results
 
-The [Failsafe report](failsafe-report.html) lists the results of the most recently executed tests.
+The [Failsafe Report](failsafe-report.html) lists the results of the most recently executed tests.
