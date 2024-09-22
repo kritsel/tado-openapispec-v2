@@ -9,7 +9,7 @@ info:
     
     Github repository where this specification is maintained: 
     [https://github.com/kritsel/tado-openapispec-v2](https://github.com/kritsel/tado-openapispec-v2)
-  version: 2.2024.09.20.0
+  version: 2.2024.09.22.0
 servers:
   - url: https://my.tado.com/api/v2/
     description: Production server
@@ -3754,7 +3754,7 @@ components:
 
     WeatherState:
       type: string
-      enum: [SUN, FOGGY, CLOUDY, CLOUDY_PARTLY, CLOUDY_MOSTLY, SCATTERED_RAIN, NIGHT_CLEAR, NIGHT_CLOUDY]
+      enum: [SUN, FOGGY, CLOUDY, CLOUDY_PARTLY, CLOUDY_MOSTLY, RAIN, SCATTERED_RAIN, NIGHT_CLEAR, NIGHT_CLOUDY]
       example: CLOUDY_PARTLY
       description: Used in DayReport and Weather
 
