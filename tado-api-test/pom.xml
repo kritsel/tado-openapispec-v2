@@ -128,7 +128,7 @@
                 </executions>
 
                 <configuration>
-                    <argLine>-Dspring.config.additional-location=file:${project.basedir}/external-config.yaml</argLine>
+                    <argLine>-Dspring.config.additional-location=file:${project.basedir}\external-config.yaml</argLine>
                     <!-- configuration to instruct the plugin to use the test-class and test-method names as defined in
                      the @DisplayName annotation in the reports it creates. -->
                     <!-- https://maven.apache.org/surefire/maven-surefire-plugin/examples/junit-platform.html#surefire-extensions-and-reports-configuration-for-displayname-->
@@ -169,7 +169,8 @@
                                 <exclude>README.md</exclude>
                                 <exclude>.openapi-generator-ignore</exclude>
                                 <exclude>.gitignore</exclude>
-                                <exclude>external-config*.yaml</exclude>
+                                <exclude>external-config.yaml</exclude>
+                                <exclude>external-config-example*.yaml</exclude>
                             </excludes>
                         </fileset>
                     </filesets>
