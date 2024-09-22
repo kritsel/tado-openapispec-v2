@@ -1,16 +1,15 @@
 package tadoclient.apis
 
 import org.junit.jupiter.api.*
+import org.junit.jupiter.api.condition.EnabledIf
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.http.HttpStatus
-import org.springframework.test.context.ActiveProfiles
 import org.springframework.web.client.RestClient
 import tadoclient.Application
 import tadoclient.TadoConfig
 import tadoclient.models.Temperature
-import tadoclient.verify.assertNoHttpErrorStatus
+import tadoclient.verify.assertCorrectResponse
 import tadoclient.verify.verifyDevice
 import tadoclient.verify.verifyDeviceListItem
 import tadoclient.verify.verifyNested
@@ -22,46 +21,39 @@ import kotlin.test.assertNotEquals
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 @DisplayName("tado API - device")
 class DeviceApi_IT (
-    @Qualifier("tadoRestClient")
-    val tadoRestClient: RestClient
-) {
-    val tadoDeviceAPI = DeviceApi(tadoRestClient)
+    @Qualifier("tadoStrictRestClient")
+    val tadoStrictRestClient: RestClient,
 
     @Autowired
-    lateinit var tadoConfig: TadoConfig
+    tadoConfig: TadoConfig
+): BaseTest(tadoConfig) {
+    val tadoStrictDeviceAPI = DeviceApi(tadoStrictRestClient)
 
     @Test
-    @DisplayName("POST /devices/{deviceId}")
+    @DisplayName("GET /devices/{deviceId}")
     @Order(5)
+    @EnabledIf(value = "isThermostatDeviceConfigured", disabledReason = "no thermostat device specified in tado set-up")
     fun getDevice() {
-        println("username from tadoConfig: ${tadoConfig.username}")
         val endpoint = "GET /devices/{deviceId}"
-        val device = assertNoHttpErrorStatus(HttpStatus.FORBIDDEN) {
-            tadoDeviceAPI.getDevice(VA_DEVICE)
-        }
+        val device = assertCorrectResponse { tadoStrictDeviceAPI.getDevice(tadoConfig.device!!.thermostat!!.id) }
         verifyDevice(device, endpoint)
     }
 
     @Test
     @DisplayName("POST /devices/{deviceId}/identify")
     @Order(10)
+    @EnabledIf(value = "isThermostatDeviceConfigured", disabledReason = "no thermostat device specified in tado set-up")
     fun identifyDevice() {
-        val endpoint = "POST /devices/{deviceId}/identify"
-        val result = assertNoHttpErrorStatus(HttpStatus.FORBIDDEN) {
-            tadoDeviceAPI.identifyDevice(VA_DEVICE)
-        }
-
-        assertEquals(Unit, result)
+        assertCorrectResponse { tadoStrictDeviceAPI.identifyDevice(tadoConfig.device!!.thermostat!!.id) }
     }
 
     @Test
     @DisplayName("GET /devices/{deviceId}/temperatureOffset")
     @Order(20)
+    @EnabledIf(value = "isThermostatDeviceConfigured", disabledReason = "no thermostat device specified in tado set-up")
     fun getTemperatureOffset() {
         val endpoint = "GET /devices/{deviceId}/temperatureOffset"
-        val offset = assertNoHttpErrorStatus(HttpStatus.FORBIDDEN) {
-            tadoDeviceAPI.getTemperatureOffset(VA_DEVICE)
-        }
+        val offset = assertCorrectResponse { tadoStrictDeviceAPI.getTemperatureOffset(tadoConfig.device!!.thermostat!!.id) }
         val typeName = "TemperatureOffset"
         verifyNested(offset, endpoint, typeName, typeName)
     }
@@ -69,11 +61,10 @@ class DeviceApi_IT (
     @Test
     @DisplayName("PUT /devices/{deviceId}/temperatureOffset")
     @Order(30)
+    @EnabledIf(value = "isThermostatDeviceConfigured", disabledReason = "no thermostat device specified in tado set-up")
     fun putTemperatureOffset() {
         val endpoint = "OYT /devices/{deviceId}/temperatureOffset"
-        val offset = assertNoHttpErrorStatus(HttpStatus.FORBIDDEN) {
-            tadoDeviceAPI.setTemperatureOffset(VA_DEVICE, Temperature(0.5f))
-        }
+        val offset = assertCorrectResponse { tadoStrictDeviceAPI.setTemperatureOffset(tadoConfig.device!!.thermostat!!.id, Temperature(0.5f)) }
         val typeName = "TemperatureOffset"
         verifyNested(offset, endpoint, typeName, typeName)
     }
@@ -81,11 +72,10 @@ class DeviceApi_IT (
     @Test
     @DisplayName("GET /homes/{homeId}/devices")
     @Order(40)
+    @EnabledIf(value = "isHomeConfigured", disabledReason = "no home specified in tado set-up")
     fun getDevices() {
         val endpoint = "GET /homes/{homeId}/devices"
-        val devices = assertNoHttpErrorStatus(HttpStatus.FORBIDDEN) {
-            tadoDeviceAPI.getDevices(HOME_ID)
-        }
+        val devices = assertCorrectResponse { tadoStrictDeviceAPI.getDevices(tadoConfig.home!!.id) }
 
         // check devices
         assertNotEquals(0, devices.size)
@@ -95,11 +85,10 @@ class DeviceApi_IT (
     @Test
     @DisplayName("GET /homes/{homeId}/deviceList")
     @Order(60)
+    @EnabledIf(value = "isHomeConfigured", disabledReason = "no home specified in tado set-up")
     fun getDeviceList() {
         val endpoint = "GET /homes/{homeId}/deviceList"
-        val deviceList = assertNoHttpErrorStatus(HttpStatus.FORBIDDEN) {
-            tadoDeviceAPI.getDeviceList(HOME_ID)
-        }
+        val deviceList = assertCorrectResponse { tadoStrictDeviceAPI.getDeviceList(tadoConfig.home!!.id) }
 
         assertNotEquals(0, deviceList.propertyEntries?.size)
         deviceList.propertyEntries?.forEachIndexed { i, elem ->
@@ -114,11 +103,10 @@ class DeviceApi_IT (
     @Test
     @DisplayName("GET /homes/{homeId}/installations")
     @Order(65)
+    @EnabledIf(value = "isHomeConfigured", disabledReason = "no home specified in tado set-up")
     fun getInstallations() {
         val endpoint = "GET /homes/{homeId}/installations"
-        val installations = assertNoHttpErrorStatus(HttpStatus.FORBIDDEN) {
-            tadoDeviceAPI.getInstallations(HOME_ID)
-        }
+        val installations = assertCorrectResponse { tadoStrictDeviceAPI.getInstallations(tadoConfig.home!!.id) }
 
         // this operation appears to be practically deprected, as it always returns an empty array
         // let's verify if that is still the case
@@ -128,11 +116,10 @@ class DeviceApi_IT (
     @Test
     @DisplayName("GET /homes/{homeId}/zones/{zoneId}/control")
     @Order(70)
+    @EnabledIf(value = "isHomeConfigured", disabledReason = "no home specified in tado set-up")
     fun getControl() {
         val endpoint = "GET /homes/{homeId}/zones/{zoneId}/control"
-        val zoneControl = assertNoHttpErrorStatus(HttpStatus.FORBIDDEN) {
-            tadoDeviceAPI.getZoneControl(HOME_ID, ZONE_ID)
-        }
+        val zoneControl = assertCorrectResponse { tadoStrictDeviceAPI.getZoneControl(tadoConfig.home!!.id, tadoConfig.zone!!.heating!!.id) }
 
         val typeName = "ZoneControl"
         verifyNested(zoneControl, endpoint, endpoint, typeName,
@@ -185,19 +172,18 @@ class DeviceApi_IT (
     @Test
     @DisplayName("PUT /homes/{homeId}/zones/{zoneId}/control/heatingCircuit")
     @Order(80)
-    @Disabled("not yet available in the OpenAPI spec")
+    @Disabled("to be implemented")
     fun putControl() {
-        // TODO: once available in the spec
+        // TODO: to be implemented
     }
 
     @Test
     @DisplayName("GET /homes/{homeId}/zones/{zoneId}/measuringDevice")
     @Order(90)
+    @EnabledIf(value = "isHomeAndHeatingZoneConfigured", disabledReason = "no home specified in tado set-up")
     fun getMeasuringDevice() {
         val endpoint = "GET /homes/{homeId}/zones/{zoneId}/measuringDevice"
-        val device = assertNoHttpErrorStatus(HttpStatus.FORBIDDEN) {
-            tadoDeviceAPI.getZoneMeasuringDevice(HOME_ID, ZONE_ID)
-        }
+        val device = assertCorrectResponse { tadoStrictDeviceAPI.getZoneMeasuringDevice(tadoConfig.home!!.id, tadoConfig.zone!!.heating!!.id) }
         verifyDevice(device, endpoint)
     }
 

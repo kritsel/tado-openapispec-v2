@@ -21,12 +21,17 @@ open class RestClientConfig(
 ) {
     @Bean("tadoRestClient")
     open fun tadoClient(): RestClient {
-        return getRestClient()
+        return getRestClient(false)
+    }
+
+    @Bean("tadoStrictRestClient")
+    open fun tadoStrictClient(): RestClient {
+        return getRestClient(true)
     }
 
     @Bean("tadoChaosMonkeyInjectedPropertyClient")
     open fun tadoChaosMonkeyClient2(): RestClient {
-        return getRestClient()
+        return getRestClient(true)
             .mutate()
             .requestInterceptor(chaosMonkeyInjectPropertyInterceptor)
             .build()
@@ -35,7 +40,7 @@ open class RestClientConfig(
     @DependsOn(value = ["jackson2ObjectMapperBuilder", "tadoJsonCustomizer", "messageConverter"])
     @Bean("tadoChaosMonkeyUnknownEnumValueClient")
     open fun tadoChaosMonkeyClient3(): RestClient {
-        return getRestClient()
+        return getRestClient(true)
             .mutate()
             .requestInterceptor(chaosMonkeyUseUnknownEnumValueInterceptor)
             .build()
@@ -75,7 +80,7 @@ open class RestClientConfig(
         return converter
     }
 
-    private fun getRestClient(): RestClient {
+    private fun getRestClient(strict: Boolean): RestClient {
         return RestClient
             .builder()
             .baseUrl("https://my.tado.com/api/v2/")
@@ -84,15 +89,23 @@ open class RestClientConfig(
             // we'll enable FAIL_ON_UNKNOWN_PROPERTIES here
             .messageConverters { converters ->
 //                println("message converters:")
-                converters.forEach {
+                if (strict) {
+                    converters.forEach {
 //                    println("  " + it.javaClass.simpleName)
-                    if (it is MappingJackson2HttpMessageConverter) {
-                        println("FAIL_ON_UNKNOWN_PROPERTIES enabled: ${it.objectMapper.deserializationConfig.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)}")
-                        println("converter: $it")
-                        println("object mapper: ${it.objectMapper}")
-                        it.objectMapper.enable(
-                            DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES
-                        )
+                        if (it is MappingJackson2HttpMessageConverter) {
+                            println(
+                                "FAIL_ON_UNKNOWN_PROPERTIES enabled: ${
+                                    it.objectMapper.deserializationConfig.isEnabled(
+                                        DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES
+                                    )
+                                }"
+                            )
+                            println("converter: $it")
+                            println("object mapper: ${it.objectMapper}")
+                            it.objectMapper.enable(
+                                DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES
+                            )
+                        }
                     }
                 }
             }

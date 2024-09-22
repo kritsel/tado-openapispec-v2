@@ -29,8 +29,8 @@ tado:
     hot-water:
       id: 0
       can-set-temperature: false
-  #    air-con:
-  #      id: 1234
+#    air-con:
+#      id: 9999
   device:
     thermostat:
       id: VA0431440896

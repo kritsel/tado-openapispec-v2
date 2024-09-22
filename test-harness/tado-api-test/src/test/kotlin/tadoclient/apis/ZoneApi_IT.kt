@@ -2,12 +2,14 @@ package tadoclient.apis
 
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.condition.EnabledIf
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.HttpStatus
 import org.springframework.web.client.RestClient
 import tadoclient.Application
+import tadoclient.TadoConfig
 import tadoclient.models.ZoneType
 import tadoclient.verify.*
 import kotlin.test.Test
@@ -17,41 +19,34 @@ import kotlin.test.assertNotEquals
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 @DisplayName("tado API - zone")
 class ZoneApi_IT(
+    // rest client to use when not testing an API method
     @Qualifier("tadoRestClient")
     val tadoRestClient: RestClient,
 
-    @Value("\${tado.home.id:-1}")
-    val homeId: Long,
+    // rest client to use when testing an API method,
+    // this one is strict as it throws an exception when it receives an unknown JSON property
+    @Qualifier("tadoStrictRestClient")
+    val tadoStrictRestClient: RestClient,
 
-    @Value("\${tado.zone.heating.id:-1}")
-    val heatingZoneId: Int,
-
-    @Value("\${tado.zone.hot-water.id:-1}")
-    val hotWaterZoneId: Int,
-
-    @Value("\${tado.zone.air-con.id:-1}")
-    val airConZoneId: Int,
-
-    @Value("\${tado.zone.hot-water.can-set-temperature:false}")
-    val hotWaterZoneCanSetTemperature: Boolean
-) {
-    val tadoZoneAPI = ZoneApi(tadoRestClient)
+    @Autowired
+    tadoConfig: TadoConfig
+) : BaseTest(tadoConfig) {
+    val tadoStrictZoneAPI = ZoneApi(tadoStrictRestClient)
 
     @Test
     @DisplayName("GET /homes/{homeId}/zones")
     @Order(10)
+    @EnabledIf(value = "isHomeConfigured", disabledReason = "no home specified in tado set-up")
     fun getZones() {
         val endpoint = "GET /homes/{homeId}/zones"
-        val zones = assertNoHttpErrorStatus(HttpStatus.FORBIDDEN) {
-            tadoZoneAPI.getZones(HOME_ID)
-        }
+        val zones = assertCorrectResponse { tadoStrictZoneAPI.getZones(tadoConfig.home!!.id) }
         assertNotEquals(0, zones.size)
         verifyZone(zones[0], endpoint, "response[0]")
     }
 
     @Test
     @DisplayName("GET /homes/{homeId}/zones/{zoneId}/capabilities - AIR_CONDITIONING")
-    @EnabledIf(value = "isAirConZoneAvailable", disabledReason = "no AIR_CONDITIONING zone available in tado set-up")
+    @EnabledIf(value = "isHomeAndAirConZoneConfigured", disabledReason = "no home and/or AIR_CONDITIONING zone specified in tado set-up")
     @Order(20)
     fun getZoneCapabilities_AirConZone() {
        // TODO: implement for AIR_CONDITIONING
@@ -59,65 +54,60 @@ class ZoneApi_IT(
 
     @Test
     @DisplayName("GET /homes/{homeId}/zones/{zoneId}/capabilities - HEATING")
-    @EnabledIf(value = "isHeatingZoneAvailable", disabledReason = "no HEATING zone available in tado set-up")
+    @EnabledIf(value = "isHomeAndHeatingZoneConfigured", disabledReason = "no home and/or HEATING zone specified in tado set-up")
     @Order(21)
     fun getZoneCapabilities_HeatingZone() {
         val endpoint = "GET /homes/{homeId}/zones/{zoneId}/capabilities"
-        val zoneCapabilities = assertNoHttpErrorStatus(HttpStatus.FORBIDDEN) {
-            tadoZoneAPI.getZoneCapabilities(homeId, heatingZoneId)
-        }
+        val zoneCapabilities = assertCorrectResponse { tadoStrictZoneAPI.getZoneCapabilities(tadoConfig.home!!.id, tadoConfig.zone!!.heating!!.id) }
         verifyZoneCapabilities(Pair(ZoneType.HEATING, true), zoneCapabilities, endpoint)
     }
 
     @Test
     @DisplayName("GET /homes/{homeId}/zones/{zoneId}/capabilities - HOT_WATER")
-    @EnabledIf(value = "isHotWaterZoneAvailable", disabledReason = "no HOT_WATER zone available in tado set-up")
+    @EnabledIf(value = "isHomeAndHotWaterZoneConfigured", disabledReason = "no home and/or HOT_WATER zone specified in tado set-up")
     @Order(22)
     fun getZoneCapabilities_HotWaterZone() {
         val endpoint = "GET /homes/{homeId}/zones/{zoneId}/capabilities"
-        val zoneCapabilities = assertNoHttpErrorStatus(HttpStatus.FORBIDDEN) {
-            tadoZoneAPI.getZoneCapabilities(homeId, hotWaterZoneId)
-        }
-        verifyZoneCapabilities(Pair(ZoneType.HOT_WATER, hotWaterZoneCanSetTemperature), zoneCapabilities, endpoint)
+        val zoneCapabilities = assertCorrectResponse { tadoStrictZoneAPI.getZoneCapabilities(tadoConfig.home!!.id, tadoConfig.zone!!.hotWater!!.id) }
+        verifyZoneCapabilities(Pair(ZoneType.HOT_WATER, tadoConfig.zone!!.hotWater!!.canSetTemperature), zoneCapabilities, endpoint)
+        verifyZoneCapabilities(Pair(ZoneType.HOT_WATER, tadoConfig.zone!!.hotWater!!.canSetTemperature), zoneCapabilities, endpoint)
     }
 
     @Test
     @DisplayName("GET /homes/{homeId}/zones/{zoneId}/capabilities - 404 (unknown zoneID)")
     @Order(23)
+    @EnabledIf(value = "isHomeConfigured", disabledReason = "no home specified in tado set-up")
     fun getZoneCapabilities_404() {
-        val endpoint = "GET /homes/{homeId}/zones/{zoneId}/capabilities"
-        assertHttpErrorStatus(HttpStatus.NOT_FOUND) {
-            tadoZoneAPI.getZoneCapabilities(homeId, 99999)
-        }
+        assertHttpErrorStatus(HttpStatus.NOT_FOUND)  { tadoStrictZoneAPI.getZoneCapabilities(tadoConfig.home!!.id, 99999) }
     }
 
     @Test
     @DisplayName("PUT /homes/{homeId}/zones/{zoneId}/dazzle")
     @Order(25)
-    @Disabled("not yet available n spec")
+    @Disabled("to be implemented")
     fun putDazzle() {
-        // TODO: implement once in spec
+        // TODO: implement
     }
 
     @Test
     @DisplayName("PUT /homes/{homeId}/zones/{zoneId}/details")
     @Order(27)
-    @Disabled("not yet available n spec")
+    @Disabled("to be implemented")
     fun putDetails() {
-        // TODO: implement once in spec
+        // TODO: implement
     }
 
     @Test
     @DisplayName("PUT /homes/{homeId}/zones/{zoneId}/openWindowDetection")
     @Order(28)
-    @Disabled("not yet available n spec")
+    @Disabled("to be implemented")
     fun putOpenWindowDetection() {
-        // TODO: implement once in spec
+        // TODO: implement
     }
 
     @Test
     @DisplayName("GET /homes/{homeId}/zones/{zoneId}/state - AIR_CONDITIONING")
-    @EnabledIf(value = "isAirConZoneAvailable", disabledReason = "no AIR_CONDITIONING zone available in tado set-up")
+    @EnabledIf(value = "isHomeAndAirConZoneConfigured", disabledReason = "no home and/or AIR_CONDITIONING zone specified in tado set-up")
     @Order(30)
     fun getZoneState_AirCon() {
         // not possible at the moment
@@ -126,36 +116,30 @@ class ZoneApi_IT(
 
     @Test
     @DisplayName("GET /homes/{homeId}/zones/{zoneId}/state - HEATING")
-    @EnabledIf(value = "isHeatingZoneAvailable", disabledReason = "no HEATING zone available in tado set-up")
+    @EnabledIf(value = "isHomeAndHeatingZoneConfigured", disabledReason = "no home and/or HEATING zone specified in tado set-up")
     @Order(31)
     fun getZoneState_Heating() {
         val endpoint = "GET /homes/{homeId}/zones/{zoneId}/state"
-        val zoneState = assertNoHttpErrorStatus(HttpStatus.FORBIDDEN) {
-            tadoZoneAPI.getZoneState(homeId, heatingZoneId)
-        }
+        val zoneState = assertCorrectResponse { tadoStrictZoneAPI.getZoneState(tadoConfig.home!!.id, tadoConfig.zone!!.heating!!.id) }
         verifyZoneState(Pair(ZoneType.HEATING, true), zoneState, endpoint)
     }
 
     @Test
     @DisplayName("GET /homes/{homeId}/zones/{zoneId}/state - HOT_WATER")
-    @EnabledIf(value = "isHotWaterZoneAvailable", disabledReason = "no HOT_WATER zone available in tado set-up")
+    @EnabledIf(value = "isHomeAndHotWaterZoneConfigured", disabledReason = "no home and/or HOT_WATER zone specified in tado set-up")
     @Order(32)
     fun getZoneState_HotWater() {
         val endpoint = "GET /homes/{homeId}/zones/{zoneId}/state"
-        val zoneState = assertNoHttpErrorStatus(HttpStatus.FORBIDDEN) {
-            tadoZoneAPI.getZoneState(homeId, hotWaterZoneId)
-        }
-        verifyZoneState(Pair(ZoneType.HOT_WATER, hotWaterZoneCanSetTemperature), zoneState, endpoint)
+        val zoneState = assertCorrectResponse { tadoStrictZoneAPI.getZoneState(tadoConfig.home!!.id, tadoConfig.zone!!.hotWater!!.id) }
+        verifyZoneState(Pair(ZoneType.HOT_WATER, tadoConfig.zone!!.hotWater!!.canSetTemperature), zoneState, endpoint)
     }
 
     @Test
     @DisplayName("GET /homes/{homeId}/zones/{zoneId}/state - 404 (unknown zoneId)")
     @Order(33)
+    @EnabledIf(value = "isHomeConfigured", disabledReason = "no home specified in tado set-up")
     fun getZoneState_404() {
-        val endpoint = "GET /homes/{homeId}/zones/{zoneId}/state"
-        assertHttpErrorStatus(HttpStatus.NOT_FOUND) {
-            tadoZoneAPI.getZoneState(homeId, 99999)
-        }
+        assertHttpErrorStatus(HttpStatus.NOT_FOUND) { tadoStrictZoneAPI.getZoneState(tadoConfig.home!!.id, 99999) }
     }
 
     @Test
@@ -169,33 +153,20 @@ class ZoneApi_IT(
     @Test
     @DisplayName("GET /homes/{homeId}/zoneStates")
     @Order(40)
+    @EnabledIf(value = "isHomeConfigured", disabledReason = "no home specified in tado set-up")
     fun getZoneStates() {
         val endpoint = "GET /homes/{homeId}/zoneStates"
-        val zoneStates = assertNoHttpErrorStatus(HttpStatus.FORBIDDEN) {
-            tadoZoneAPI.getZoneStates(homeId)
-        }
+        val zoneStates = assertCorrectResponse { tadoStrictZoneAPI.getZoneStates(tadoConfig.home!!.id) }
 
-        if (isHeatingZoneAvailable()) {
-            verifyZoneState(Pair(ZoneType.HEATING, true), zoneStates.zoneStates?.get("$heatingZoneId")!!, endpoint)
+        if (isHeatingZoneConfigured()) {
+            verifyZoneState(Pair(ZoneType.HEATING, true), zoneStates.zoneStates?.get(tadoConfig.zone!!.heating!!.id.toString())!!, endpoint)
         }
-        if (isHotWaterZoneAvailable()) {
-            verifyZoneState(Pair(ZoneType.HOT_WATER, hotWaterZoneCanSetTemperature), zoneStates.zoneStates?.get("$hotWaterZoneId")!!, endpoint)
+        if (isHotWaterZoneConfigured()) {
+            verifyZoneState(Pair(ZoneType.HOT_WATER, tadoConfig.zone!!.hotWater!!.canSetTemperature), zoneStates.zoneStates?.get(tadoConfig.zone!!.hotWater!!.id.toString())!!, endpoint)
         }
-        if (isAirConZoneAvailable()) {
-            verifyZoneState(Pair(ZoneType.AIR_CONDITIONING, true), zoneStates.zoneStates?.get("$airConZoneId")!!, endpoint)
+        if (isAirConZoneConfigured()) {
+            verifyZoneState(Pair(ZoneType.AIR_CONDITIONING, true), zoneStates.zoneStates?.get(tadoConfig.zone!!.airCon!!.id.toString())!!, endpoint)
         }
     }
-
-    fun isAirConZoneAvailable() : Boolean {
-        return airConZoneId >= 0
-    }
-
-    fun isHeatingZoneAvailable() : Boolean {
-        return heatingZoneId >= 0
-    }
-
-    fun isHotWaterZoneAvailable() : Boolean {
-        return hotWaterZoneId >= 0
-    }
-
+    
 }

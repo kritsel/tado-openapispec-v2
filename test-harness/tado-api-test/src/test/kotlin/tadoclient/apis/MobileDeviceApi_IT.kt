@@ -1,12 +1,14 @@
 package tadoclient.apis
 
 import org.junit.jupiter.api.*
+import org.junit.jupiter.api.condition.EnabledIf
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.http.HttpStatus
 import org.springframework.web.client.RestClient
 import tadoclient.Application
-import tadoclient.verify.assertNoHttpErrorStatus
+import tadoclient.TadoConfig
+import tadoclient.verify.assertCorrectResponse
 import tadoclient.verify.verifyMobileDevice
 import tadoclient.verify.verifyNested
 import kotlin.test.Test
@@ -21,19 +23,27 @@ import kotlin.test.assertNotNull
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 @DisplayName("tado API - mobile device")
 class MobileDeviceApi_IT(
+    // rest client to use when not testing an API method
     @Qualifier("tadoRestClient")
-    val tadoRestClient: RestClient
-) {
-    val tadoMobileDeviceAPI = MobileDeviceApi(tadoRestClient)
+    val tadoRestClient: RestClient,
+
+    // rest client to use when testing an API method,
+    // this one is strict as it throws an exception when it receives an unknown JSON property
+    @Qualifier("tadoStrictRestClient")
+    val tadoStrictRestClient: RestClient,
+
+    @Autowired
+    tadoConfig: TadoConfig
+) : BaseTest(tadoConfig) {
+    val tadoStrictMobileDeviceAPI = MobileDeviceApi(tadoStrictRestClient)
 
     @Test
     @DisplayName("GET /homes/{homeId}/mobileDevices")
     @Order(10)
+    @EnabledIf(value = "isHomeConfigured", disabledReason = "no home specified in tado set-up")
     fun getMobileDevices() {
         val endpoint = "GET /homes/{homeId}/mobileDevices"
-        val mobileDevices = assertNoHttpErrorStatus(HttpStatus.FORBIDDEN) {
-            tadoMobileDeviceAPI.getMobileDevices(HOME_ID)
-        }
+        val mobileDevices = assertCorrectResponse { tadoStrictMobileDeviceAPI.getMobileDevices(tadoConfig.home!!.id) }
         assertNotNull(mobileDevices)
         assertNotEquals(0, mobileDevices.size)
         verifyMobileDevice(mobileDevices[0], endpoint, "response[0]")
@@ -42,11 +52,10 @@ class MobileDeviceApi_IT(
     @Test
     @DisplayName("GET /homes/{homeId}/mobileDevices/{mobileDeviceId}")
     @Order(20)
+    @EnabledIf(value = "isHomeAndMobileDeviceConfigured", disabledReason = "no home and/or mobile device specified in tado set-up")
     fun getMobileDevice() {
         val endpoint = "GET /homes/{homeId}/mobileDevices/{mobileDeviceId}"
-        val mobileDevice = assertNoHttpErrorStatus(HttpStatus.FORBIDDEN) {
-            tadoMobileDeviceAPI.getMobileDevice(HOME_ID, MOBILE_DEVICE_ID)
-        }
+        val mobileDevice = assertCorrectResponse { tadoStrictMobileDeviceAPI.getMobileDevice(tadoConfig.home!!.id, tadoConfig.mobileDevice!!.id) }
         assertNotNull(mobileDevice)
         verifyMobileDevice(mobileDevice, endpoint)
     }
@@ -62,11 +71,10 @@ class MobileDeviceApi_IT(
     @Test
     @DisplayName("GET /homes/{homeId}/mobileDevices/{mobileDeviceId}/settings")
     @Order(40)
+    @EnabledIf(value = "isHomeAndMobileDeviceConfigured", disabledReason = "no home and/or mobile device specified in tado set-up")
     fun getMobileDeviceSettings() {
         val endpoint = "GET /homes/{homeId}/mobileDevices/{mobileDeviceId}/settings"
-        val settings = assertNoHttpErrorStatus(HttpStatus.FORBIDDEN) {
-            tadoMobileDeviceAPI.getMobileDeviceSettings(HOME_ID, MOBILE_DEVICE_ID)
-        }
+        val settings = assertCorrectResponse { tadoStrictMobileDeviceAPI.getMobileDeviceSettings(tadoConfig.home!!.id, tadoConfig.mobileDevice!!.id) }
         val typeName= "MobileDeviceSettings"
         verifyNested(settings, endpoint, typeName, typeName)
     }

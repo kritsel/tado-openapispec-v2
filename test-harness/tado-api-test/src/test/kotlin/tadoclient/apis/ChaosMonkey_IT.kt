@@ -7,6 +7,7 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.TestMethodOrder
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.context.SpringBootTest
@@ -14,6 +15,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.web.client.RestClient
 import tadoclient.Application
+import tadoclient.TadoConfig
 import kotlin.test.Test
 import kotlin.test.assertTrue
 
@@ -21,6 +23,8 @@ import kotlin.test.assertTrue
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 @DisplayName("Chaos monkey tests")
 class ChaosMonkey_IT (
+    @Autowired
+    tadoConfig: TadoConfig,
 
     // this RestClient inserts a property named 'chaos' to the response JSON before it gets deserialized
     @Qualifier("tadoChaosMonkeyInjectedPropertyClient")
@@ -28,11 +32,8 @@ class ChaosMonkey_IT (
 
     // this RestClient returns the default content '{"presence": "CHAOS"}'
     @Qualifier("tadoChaosMonkeyUnknownEnumValueClient")
-    val tadoChaosMonkeyUnknownEnumValueRestClient: RestClient,
-
-    @Value("\${tado.home.id:-1}")
-    val homeId: Long,
-){
+    val tadoChaosMonkeyUnknownEnumValueRestClient: RestClient
+): BaseTest(tadoConfig) {
     val chaosMonkeyInjectedPropertyClient = HomeControlApi(tadoChaosMonkeyInjectedPropertyRestClient)
 
     val chaosMonkeyUnknownEnumValueClient = HomeControlApi(tadoChaosMonkeyUnknownEnumValueRestClient)
@@ -43,7 +44,7 @@ class ChaosMonkey_IT (
     fun testUnknownProperty() {
         var unknownPropertyExceptionCaught = false
         try {
-            val result = chaosMonkeyInjectedPropertyClient.getHomeState(homeId)
+            val result = chaosMonkeyInjectedPropertyClient.getHomeState(tadoConfig.home!!.id)
             println(result)
         } catch(e:Exception) {
             println("exception")
@@ -63,7 +64,7 @@ class ChaosMonkey_IT (
     fun testInvalidEnumValue() {
         var expectedExceptionCaught = false
         try {
-            val result = chaosMonkeyUnknownEnumValueClient.getHomeState(homeId)
+            val result = chaosMonkeyUnknownEnumValueClient.getHomeState(tadoConfig.home!!.id)
         } catch(e:Exception) {
             if (e.cause != null && e.cause is HttpMessageNotReadableException) {
                 if (e.cause!!.cause != null && e.cause!!.cause is InvalidFormatException) {

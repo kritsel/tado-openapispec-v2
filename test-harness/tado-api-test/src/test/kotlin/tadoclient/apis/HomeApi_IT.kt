@@ -1,12 +1,15 @@
 package tadoclient.apis
 
 import org.junit.jupiter.api.*
+import org.junit.jupiter.api.condition.EnabledIf
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.HttpStatus
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.web.client.RestClient
 import tadoclient.Application
+import tadoclient.TadoConfig
 import tadoclient.models.*
 import tadoclient.verify.*
 import kotlin.test.Test
@@ -17,16 +20,26 @@ import kotlin.test.assertNotEquals
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 @DisplayName("tado API - home")
 class HomeApi_IT(
+    // rest client to use when not testing an API method
     @Qualifier("tadoRestClient")
-    val tadoRestClient: RestClient
-) {
+    val tadoRestClient: RestClient,
+
+    // rest client to use when testing an API method,
+    // this one is strict as it throws an exception when it receives an unknown JSON property
+    @Qualifier("tadoStrictRestClient")
+    val tadoStrictRestClient: RestClient,
+
+    @Autowired
+    tadoConfig: TadoConfig
+): BaseTest(tadoConfig) {
     val tadoHomeAPI = HomeApi(tadoRestClient)
+    val tadoStrictHomeAPI = HomeApi(tadoStrictRestClient)
 
     var heatingSystemBeforeTest: HeatingSystem? = null
 
     @BeforeAll
     fun beforeTest() {
-        heatingSystemBeforeTest = tadoHomeAPI.getHeatingSystem(HOME_ID)
+        heatingSystemBeforeTest = tadoHomeAPI.getHeatingSystem(tadoConfig.home!!.id)
     }
 
     @AfterAll
@@ -37,28 +50,28 @@ class HomeApi_IT(
                 present = heatingSystemBeforeTest!!.boiler!!.present,
                 id = heatingSystemBeforeTest!!.boiler?.id
             )
-            tadoHomeAPI.setBoiler(HOME_ID, boiler)
-            tadoHomeAPI.setUnderfloorHeating(HOME_ID, UnderfloorHeating(present = heatingSystemBeforeTest!!.underfloorHeating!!.present))
+            tadoHomeAPI.setBoiler(tadoConfig.home!!.id, boiler)
+            tadoHomeAPI.setUnderfloorHeating(tadoConfig.home!!.id, UnderfloorHeating(present = heatingSystemBeforeTest!!.underfloorHeating!!.present))
         }
     }
 
     @Test
     @DisplayName("GET /homes/{homeId}")
     @Order(10)
+    @EnabledIf(value = "isHomeConfigured", disabledReason = "no home specified in tado set-up")
     fun getHome() {
         val endpoint = "GET /homes/{homeId}"
-        val home = assertCorrectResponse { tadoHomeAPI.getHome(HOME_ID) }
+        val home = assertCorrectResponse { tadoStrictHomeAPI.getHome(tadoConfig.home!!.id) }
         verifyHome(home, endpoint)
     }
 
     @Test
     @DisplayName("GET /homes/{homeId}/airComfort")
     @Order(20)
+    @EnabledIf(value = "isHomeConfigured", disabledReason = "no home specified in tado set-up")
     fun getAirComfort() {
         val endpoint = "GET /homes/{homeId}/airComfort"
-        val airComfort = assertNoHttpErrorStatus(HttpStatus.FORBIDDEN) {
-            tadoHomeAPI.getAirComfort(HOME_ID)
-        }
+        val airComfort = assertCorrectResponse { tadoStrictHomeAPI.getAirComfort(tadoConfig.home!!.id) }
         verifyAirComfort(airComfort, endpoint)
     }
 
@@ -73,9 +86,10 @@ class HomeApi_IT(
     @Test
     @DisplayName("PUT /homes/{homeId}/details")
     @Order(30)
+    @EnabledIf(value = "isHomeConfigured", disabledReason = "no home specified in tado set-up")
     fun putDetails() {
-        val endpoint = "PUT /homes/{homeId}/details"
-        val home = tadoHomeAPI.getHome(HOME_ID)
+        // first get the current home details
+        val home = tadoHomeAPI.getHome(tadoConfig.home!!.id)
         // either add or remove an 'x' to/from the end of the name of the home
         val newName = home.name?.let{
             if (home.name!!.get(home.name!!.length-1) == 'x') {
@@ -89,75 +103,63 @@ class HomeApi_IT(
             contactDetails = home.contactDetails,
             address = home.address,
             geolocation = home.geolocation)
-        val response = assertNoHttpErrorStatus(HttpStatus.FORBIDDEN) {
-            tadoHomeAPI.setHomeDetails(HOME_ID, homeDetails)
-        }
-        assertEquals(Unit, response)
+        assertCorrectResponse { tadoStrictHomeAPI.setHomeDetails(tadoConfig.home!!.id, homeDetails) }
     }
 
     @Test
     @DisplayName("GET /homes/{homeId}/heatingSystem")
     @Order(50)
+    @EnabledIf(value = "isHomeConfigured", disabledReason = "no home specified in tado set-up")
     fun getHeatingSystem() {
         val endpoint = "GET /homes/{homeId}/heatingSystem"
-        val heatingSystem = assertNoHttpErrorStatus(HttpStatus.FORBIDDEN) {
-            tadoHomeAPI.getHeatingSystem(HOME_ID)
-        }
+        val heatingSystem = assertCorrectResponse { tadoStrictHomeAPI.getHeatingSystem(tadoConfig.home!!.id) }
         verifyHeatingSystem(heatingSystem, endpoint)
     }
 
     @Test
     @DisplayName("PUT /homes/{homeId}/heatingSystem/boiler - not present")
     @Order(60)
+    @EnabledIf(value = "isHomeConfigured", disabledReason = "no home specified in tado set-up")
     fun putBoiler_NotPresent() {
         val boiler = Boiler(present = false)
-        val response = assertNoHttpErrorStatus(HttpStatus.FORBIDDEN) {
-            tadoHomeAPI.setBoiler(HOME_ID, boiler)
-        }
-        assertEquals(Unit, response)
+        assertCorrectResponse { tadoStrictHomeAPI.setBoiler(tadoConfig.home!!.id, boiler) }
     }
 
     @Test
     @DisplayName("PUT /homes/{homeId}/heatingSystem/boiler - present without id")
     @Order(61)
+    @EnabledIf(value = "isHomeConfigured", disabledReason = "no home specified in tado set-up")
     fun putBoiler_PresentWithoutId() {
         val boiler = Boiler(present = true)
-        val response = assertNoHttpErrorStatus(HttpStatus.FORBIDDEN) {
-            tadoHomeAPI.setBoiler(HOME_ID, boiler)
-        }
-        assertEquals(Unit, response)
+        assertCorrectResponse { tadoStrictHomeAPI.setBoiler(tadoConfig.home!!.id, boiler) }
     }
 
     @Test
     @DisplayName("PUT /homes/{homeId}/heatingSystem/boiler - present with id")
     @Order(62)
+    @EnabledIf(value = "isHomeConfigured", disabledReason = "no home specified in tado set-up")
     fun putBoiler_PresentWithId() {
         val boiler = Boiler(present = true, id = 2699)
-        val response = assertNoHttpErrorStatus(HttpStatus.FORBIDDEN) {
-            tadoHomeAPI.setBoiler(HOME_ID, boiler)
-        }
-        assertEquals(Unit, response)
+        assertCorrectResponse { tadoStrictHomeAPI.setBoiler(tadoConfig.home!!.id, boiler) }
     }
 
     @Test
     @DisplayName("PUT /homes/{homeId}/heatingSystem/underfloorHeating")
     @Order(70)
-    fun putUnderflootHeating() {
+    @EnabledIf(value = "isHomeConfigured", disabledReason = "no home specified in tado set-up")
+    fun putUnderfloorHeating() {
         val underfloorHeating = UnderfloorHeating(present = false)
-        val response = assertNoHttpErrorStatus(HttpStatus.FORBIDDEN) {
-            tadoHomeAPI.setUnderfloorHeating(HOME_ID, underfloorHeating)
-        }
+        val response = assertCorrectResponse { tadoStrictHomeAPI.setUnderfloorHeating(tadoConfig.home!!.id, underfloorHeating) }
         assertEquals(Unit, response)
     }
 
     @Test
     @DisplayName("GET /homes/{homeId}/incidentDetection")
     @Order(80)
+    @EnabledIf(value = "isHomeConfigured", disabledReason = "no home specified in tado set-up")
     fun getIncidentDetection() {
         val endpoint = "GET /homes/{homeId}/incidentDetection"
-        val incidentDetection = assertNoHttpErrorStatus(HttpStatus.FORBIDDEN) {
-            tadoHomeAPI.getIncidentDetection(HOME_ID)
-        }
+        val incidentDetection = assertCorrectResponse { tadoStrictHomeAPI.getIncidentDetection(tadoConfig.home!!.id) }
         val typeName = "IncidentDetection"
         verifyNested(incidentDetection, endpoint, typeName, typeName)
     }
@@ -165,12 +167,9 @@ class HomeApi_IT(
     @Test
     @DisplayName("PUT /homes/{homeId}/incidentDetection")
     @Order(90)
+    @EnabledIf(value = "isHomeConfigured", disabledReason = "no home specified in tado set-up")
     fun putIncidentDetection() {
-        val endpoint = "PUT /homes/{homeId}/incidentDetection"
-        val response = assertNoHttpErrorStatus(HttpStatus.FORBIDDEN) {
-            tadoHomeAPI.setIncidentDetection(HOME_ID, IncidentDetectionInput(enabled = true))
-        }
-        assertEquals(Unit, response)
+        assertCorrectResponse { tadoStrictHomeAPI.setIncidentDetection(tadoConfig.home!!.id, IncidentDetectionInput(enabled = true)) }
     }
 
     @Test
@@ -184,11 +183,10 @@ class HomeApi_IT(
     @Test
     @DisplayName("GET /homes/{homeId}/weather")
     @Order(100)
+    @EnabledIf(value = "isHomeConfigured", disabledReason = "no home specified in tado set-up")
     fun getWeather() {
         val endpoint = "GET /homes/{homeId}/weather"
-        val weather = assertNoHttpErrorStatus(HttpStatus.FORBIDDEN) {
-            tadoHomeAPI.getWeather(HOME_ID)
-        }
+        val weather = assertCorrectResponse { tadoStrictHomeAPI.getWeather(tadoConfig.home!!.id) }
         verifyWeather(weather, endpoint)
     }
 

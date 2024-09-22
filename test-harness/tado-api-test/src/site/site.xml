@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project xmlns="http://maven.apache.org/DECORATION/1.8.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/DECORATION/1.8.0 https://maven.apache.org/xsd/decoration-1.8.0.xsd"
+         name="Maven">
+<!--    <bannerLeft>-->
+<!--        <name>Maven</name>-->
+<!--        <src>https://maven.apache.org/images/apache-maven-project.png</src>-->
+<!--        <href>https://maven.apache.org/</href>-->
+<!--    </bannerLeft>-->
+    <bannerLeft>
+        <name>tado</name>
+        <src>images/tado.png</src>
+        <width>100px</width>
+    </bannerLeft>
+<!--    <bannerRight>-->
+<!--        <src>https://maven.apache.org/images/maven-small.gif</src>-->
+<!--    </bannerRight>-->
+    <skin>
+        <groupId>org.apache.maven.skins</groupId>
+        <artifactId>maven-fluido-skin</artifactId>
+<!--        <version>2.0.0-M10</version> throws an exception-->
+        <version>1.12.0</version>
+    </skin>
+
+    <body>
+        <menu name="tado API">
+            <item name="Introduction" href="index.html"/>
+            <item name="Swagger" href="swagger.html"/>
+            <item name="OAuth" href="oauth.html"/>
+            <item name="Automated API test" href="api-test.html"/>
+            <item name="Automated API test report" href="failsafe-report.html"/>
+
+        </menu>
+
+        <menu ref="reports"/>
+
+    </body>
+</project>

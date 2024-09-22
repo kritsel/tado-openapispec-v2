@@ -1,40 +1,39 @@
 package tadoclient.apis
 
 import org.junit.jupiter.api.*
+import org.junit.jupiter.api.condition.EnabledIf
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.HttpStatus
 import org.springframework.web.client.RestClient
 import tadoclient.Application
+import tadoclient.TadoConfig
 import tadoclient.models.*
 import tadoclient.verify.*
-import kotlin.test.*
 import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertNotEquals
+import kotlin.test.assertNotNull
 
 @SpringBootTest(classes = arrayOf( Application::class))
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 @DisplayName("tado API - zone control")
 class ZoneControlApi_IT(
+    // rest client to use when not testing an API method
     @Qualifier("tadoRestClient")
     val tadoRestClient: RestClient,
 
-    @Value("\${tado.home.id:-1}")
-    val homeId: Long,
+    // rest client to use when testing an API method,
+    // this one is strict as it throws an exception when it receives an unknown JSON property
+    @Qualifier("tadoStrictRestClient")
+    val tadoStrictRestClient: RestClient,
 
-    @Value("\${tado.zone.heating.id:-1}")
-    val heatingZoneId: Int,
-
-    @Value("\${tado.zone.hot-water.id:-1}")
-    val hotWaterZoneId: Long,
-
-    @Value("\${tado.zone.air-con.id:-1}")
-    val airConZoneId: Long,
-
-    @Value("\${tado.zone.heating.can-set-temperature:false}")
-    val heatingZoneCanSetTemperature: Boolean
-) {
+    @Autowired
+    tadoConfig: TadoConfig
+) : BaseTest(tadoConfig) {
     val tadoZoneControlAPI = ZoneControlApi(tadoRestClient)
+    val tadoStrictZoneControlAPI = ZoneControlApi(tadoStrictRestClient)
 
 
     private var defaultZoneOverlayBeforeTest: DefaultZoneOverlay? = null
@@ -47,29 +46,31 @@ class ZoneControlApi_IT(
     // https://stackoverflow.com/questions/51612019/kotlin-how-to-manage-beforeclass-static-method-in-springboottest
 
     // capture the overlay status before we start running the tests
+    // TODO: conditionally on presence of set-up
     @BeforeAll
     fun before()  = try {
-        defaultZoneOverlayBeforeTest = tadoZoneControlAPI.getDefaultZoneOverlay(homeId, heatingZoneId)
-        earlyStartBeforeTest = tadoZoneControlAPI.getEarlyStart(homeId, heatingZoneId)
-        zoneOverlayBeforeTest = tadoZoneControlAPI.getZoneOverlay(homeId, heatingZoneId)
-        zoneAwayConfigurationBeforeTest = tadoZoneControlAPI.getAwayConfiguration(homeId, heatingZoneId)
-        activeTimetableTypeBeforeStart = tadoZoneControlAPI.getActiveTimetableType(homeId, heatingZoneId)
+        defaultZoneOverlayBeforeTest = tadoZoneControlAPI.getDefaultZoneOverlay(tadoConfig.home!!.id, tadoConfig.zone!!.heating!!.id)
+        earlyStartBeforeTest = tadoZoneControlAPI.getEarlyStart(tadoConfig.home!!.id, tadoConfig.zone!!.heating!!.id)
+        zoneOverlayBeforeTest = tadoZoneControlAPI.getZoneOverlay(tadoConfig.home!!.id, tadoConfig.zone!!.heating!!.id)
+        zoneAwayConfigurationBeforeTest = tadoZoneControlAPI.getAwayConfiguration(tadoConfig.home!!.id, tadoConfig.zone!!.heating!!.id)
+        activeTimetableTypeBeforeStart = tadoZoneControlAPI.getActiveTimetableType(tadoConfig.home!!.id, tadoConfig.zone!!.heating!!.id)
     } catch (e: Exception) {
         // ignore
     }
 
     // reset the overlay status to the state it had before we started running the tests
+    // TODO: conditionally on presence of set-up
     @AfterAll()
     fun after() {
         // EarlyStart
         earlyStartBeforeTest?.let {
-            tadoZoneControlAPI.setEarlyStart(homeId, heatingZoneId, earlyStartBeforeTest!!)
+            tadoZoneControlAPI.setEarlyStart(tadoConfig.home!!.id, tadoConfig.zone!!.heating!!.id, earlyStartBeforeTest!!)
         }
 
         // ZoneOverlay
         // 1. delete
         try {
-            tadoZoneControlAPI.deleteZoneOverlay(homeId, heatingZoneId)
+            tadoZoneControlAPI.deleteZoneOverlay(tadoConfig.home!!.id, tadoConfig.zone!!.heating!!.id)
         } catch (e: Exception) {
             // ignore
         }
@@ -86,7 +87,7 @@ class ZoneControlApi_IT(
                     durationInSeconds = if (zoneOverlayBeforeTest?.termination?.typeSkillBasedApp == ZoneOverlayTerminationTypeSkillBasedApp.TIMER) zoneOverlayBeforeTest?.termination?.remainingTimeInSeconds else null
                 )
             )
-            tadoZoneControlAPI.setZoneOverlay(HOME_ID, ZONE_ID, newZoneOverlay)
+            tadoZoneControlAPI.setZoneOverlay(tadoConfig.home!!.id, tadoConfig.zone!!.heating!!.id, newZoneOverlay)
         }
 
         // recreate DefaultZoneOverlay
@@ -97,26 +98,27 @@ class ZoneControlApi_IT(
                     durationInSeconds = defaultZoneOverlayBeforeTest?.terminationCondition?.durationInSeconds
                 )
             )
-            tadoZoneControlAPI.setDefaultZoneOverlay(HOME_ID, ZONE_ID, originalDefaultOverlay)
+            tadoZoneControlAPI.setDefaultZoneOverlay(tadoConfig.home!!.id, tadoConfig.zone!!.heating!!.id, originalDefaultOverlay)
         }
 
         // recreate ZoneAwayConfiguration
         zoneAwayConfigurationBeforeTest?.let {
-            tadoZoneControlAPI.setAwayConfiguration(homeId, heatingZoneId, zoneAwayConfigurationBeforeTest!!)
+            tadoZoneControlAPI.setAwayConfiguration(tadoConfig.home!!.id, tadoConfig.zone!!.heating!!.id, zoneAwayConfigurationBeforeTest!!)
         }
 
         // reset active timetable type
         activeTimetableTypeBeforeStart?.let {
-            tadoZoneControlAPI.setActiveTimetableType(homeId, heatingZoneId, activeTimetableTypeBeforeStart!!)
+            tadoZoneControlAPI.setActiveTimetableType(tadoConfig.home!!.id, tadoConfig.zone!!.heating!!.id, activeTimetableTypeBeforeStart!!)
         }
     }
 
     @Test
     @DisplayName("GET /homes/{homeId}/zones/{zoneId}/earlyStart")
     @Order(10)
+    @EnabledIf(value = "isHomeAndHeatingZoneConfigured", disabledReason = "no home and/or HEATING zone specified in tado set-up")
     fun getEarlyStart() {
         val endpoint = "GET /homes/{homeId}/zones/{zoneId}/earlyStart"
-        val earlyStart = tadoZoneControlAPI.getEarlyStart(homeId, heatingZoneId)
+        val earlyStart = assertCorrectResponse { tadoStrictZoneControlAPI.getEarlyStart(tadoConfig.home!!.id, tadoConfig.zone!!.heating!!.id) }
         val typeName = "EarlyStart"
         verifyNested(earlyStart, endpoint, typeName, typeName)
     }
@@ -124,9 +126,12 @@ class ZoneControlApi_IT(
     @Test
     @DisplayName("PUT /homes/{homeId}/zones/{zoneId}/earlyStart")
     @Order(20)
+    @EnabledIf(value = "isHomeAndHeatingZoneConfigured", disabledReason = "no home and/or HEATING zone specified in tado set-up")
     fun putEarlyStart() {
         val endpoint = "PUT /homes/{homeId}/zones/{zoneId}/earlyStart"
-        val earlyStart = tadoZoneControlAPI.setEarlyStart(homeId, heatingZoneId, EarlyStart(enabled = false))
+        val earlyStart = assertCorrectResponse {
+            tadoStrictZoneControlAPI.setEarlyStart(tadoConfig.home!!.id, tadoConfig.zone!!.heating!!.id, EarlyStart(enabled = false))
+        }
         val typeName = "EarlyStart"
         verifyNested(earlyStart, endpoint, typeName, typeName)
     }
@@ -134,9 +139,12 @@ class ZoneControlApi_IT(
     @Test
     @DisplayName("GET /homes/{homeId}/zones/{zoneId}/defaultOverlay")
     @Order(30)
+    @EnabledIf(value = "isHomeAndHeatingZoneConfigured", disabledReason = "no home and/or HEATING zone specified in tado set-up")
     fun getDefaultZoneOverlay() {
         val endpoint = "GET /homes/{homeId}/zones/{zoneId}/defaultOverlay"
-        val defaultZoneOverlay = tadoZoneControlAPI.getDefaultZoneOverlay(homeId, heatingZoneId)
+        val defaultZoneOverlay = assertCorrectResponse {
+            tadoStrictZoneControlAPI.getDefaultZoneOverlay(tadoConfig.home!!.id, tadoConfig.zone!!.heating!!.id)
+        }
         val typeName = "DefaultZoneOverlay"
         verifyNested(defaultZoneOverlay, endpoint, typeName, typeName,
             nullAllowedProperties = listOf("$typeName.terminationCondition.durationInSeconds"))
@@ -145,6 +153,7 @@ class ZoneControlApi_IT(
     @Test
     @DisplayName("PUT /homes/{homeId}/zones/{zoneId}/defaultOverlay")
     @Order(40)
+    @EnabledIf(value = "isHomeAndHeatingZoneConfigured", disabledReason = "no home and/or HEATING zone specified in tado set-up")
     fun putDefaultZoneOverlay() {
         val endpoint = "PUT /homes/{homeId}/zones/{zoneId}/defaultOverlay"
         val newDefaultZoneOverlay = DefaultZoneOverlay(
@@ -152,7 +161,9 @@ class ZoneControlApi_IT(
                 type = ZoneOverlayTerminationType.TADO_MODE
             )
         )
-        val defaultZoneOverlay = tadoZoneControlAPI.setDefaultZoneOverlay(homeId, heatingZoneId, newDefaultZoneOverlay)
+        val defaultZoneOverlay = assertCorrectResponse {
+            tadoStrictZoneControlAPI.setDefaultZoneOverlay(tadoConfig.home!!.id, tadoConfig.zone!!.heating!!.id, newDefaultZoneOverlay)
+        }
         val typeName = "DefaultZoneOverlay"
         verifyNested(defaultZoneOverlay, endpoint, typeName, typeName,
             nullAllowedProperties = listOf("$typeName.terminationCondition.durationInSeconds"))
@@ -161,6 +172,7 @@ class ZoneControlApi_IT(
     @Test
     @DisplayName("GET /homes/{homeId}/zones/{zoneId}/overlay")
     @Order(50)
+    @EnabledIf(value = "isHomeAndHeatingZoneConfigured", disabledReason = "no home and/or HEATING zone specified in tado set-up")
     fun getZoneOverlay() {
         val endpoint = "GET /homes/{homeId}/zones/{zoneId}/overlay"
 
@@ -171,39 +183,36 @@ class ZoneControlApi_IT(
                 power = Power.OFF),
             termination = ZoneOverlayTermination(typeSkillBasedApp = ZoneOverlayTerminationTypeSkillBasedApp.MANUAL)
         )
-        tadoZoneControlAPI.setZoneOverlay(homeId, heatingZoneId, zoneOverlay1)
+        tadoStrictZoneControlAPI.setZoneOverlay(tadoConfig.home!!.id, tadoConfig.zone!!.heating!!.id, zoneOverlay1)
 
         // now we can test
-        val zoneOverlay = tadoZoneControlAPI.getZoneOverlay(homeId, heatingZoneId)
+        val zoneOverlay = assertCorrectResponse { tadoStrictZoneControlAPI.getZoneOverlay(tadoConfig.home!!.id, tadoConfig.zone!!.heating!!.id) }
         verifyZoneOverlay(Pair(ZoneType.HEATING, true), zoneOverlay, endpoint)
     }
 
     @Test
     @DisplayName("GET /homes/{homeId}/zones/{zoneId}/overlay - 404 no overlay set")
     @Order(51)
+    @EnabledIf(value = "isHomeAndHeatingZoneConfigured", disabledReason = "no home and/or HEATING zone specified in tado set-up")
     fun getZoneOverlay_404_noOverlay() {
-        val endpoint = "GET /homes/{homeId}/zones/{zoneId}/overlay"
         // first make sure there is no overlay
-        tadoZoneControlAPI.deleteZoneOverlay(homeId, heatingZoneId)
+        tadoStrictZoneControlAPI.deleteZoneOverlay(tadoConfig.home!!.id, tadoConfig.zone!!.heating!!.id)
 
         // now we can test
         assertHttpErrorStatus(HttpStatus.NOT_FOUND) {
-            tadoZoneControlAPI.getZoneOverlay(homeId, heatingZoneId)
+            tadoStrictZoneControlAPI.getZoneOverlay(tadoConfig.home!!.id, tadoConfig.zone!!.heating!!.id)
         }
     }
 
     @Test
     @DisplayName("GET /homes/{homeId}/zones/{zoneId}/overlay - 404 unknown zone")
     @Order(51)
+    @EnabledIf(value = "isHomeConfigured", disabledReason = "no home specified in tado set-up")
     fun getZoneOverlay_404_unknownZone() {
-        val endpoint = "GET /homes/{homeId}/zones/{zoneId}/overlay"
-        // now we can test
-        assertHttpErrorStatus(HttpStatus.NOT_FOUND) {
-            tadoZoneControlAPI.getZoneOverlay(homeId, 99999)
+        assertHttpErrorStatus(HttpStatus.NOT_FOUND)  {
+            tadoStrictZoneControlAPI.getZoneOverlay(tadoConfig.home!!.id, 99999)
         }
     }
-
-    // TODO: assertNo403 for all test cases
 
     // Result:
     // Overlay(type=MANUAL, setting=ZoneSetting(power=OFF, type=HEATING, temperature=null),
@@ -211,10 +220,11 @@ class ZoneControlApi_IT(
     @Test
     @DisplayName("PUT /homes/{homeId}/zones/{zoneId}/overlay - MANUAL OFF")
     @Order(60)
+    @EnabledIf(value = "isHomeAndHeatingZoneConfigured", disabledReason = "no home and/or HEATING zone specified in tado set-up")
     fun setZoneOverlay_manual_off() {
         val endpoint = "PUT /homes/{homeId}/zones/{zoneId}/overlay"
         // first delete any existing overlay
-        tadoZoneControlAPI.deleteZoneOverlay(homeId, heatingZoneId)
+        tadoStrictZoneControlAPI.deleteZoneOverlay(tadoConfig.home!!.id, tadoConfig.zone!!.heating!!.id)
 
         // set the overlay
         val zoneOverlay = ZoneOverlay(
@@ -223,7 +233,7 @@ class ZoneControlApi_IT(
                 power = Power.OFF),
             termination = ZoneOverlayTermination(typeSkillBasedApp = ZoneOverlayTerminationTypeSkillBasedApp.MANUAL)
         )
-        val result = tadoZoneControlAPI.setZoneOverlay(homeId, heatingZoneId, zoneOverlay)
+        val result = assertCorrectResponse { tadoStrictZoneControlAPI.setZoneOverlay(tadoConfig.home!!.id, tadoConfig.zone!!.heating!!.id, zoneOverlay) }
         verifyZoneOverlay(Pair(ZoneType.HEATING, true), result, endpoint)
     }
 
@@ -234,10 +244,11 @@ class ZoneControlApi_IT(
     @Test
     @DisplayName("PUT /homes/{homeId}/zones/{zoneId}/overlay - MANUAL ON")
     @Order(61)
+    @EnabledIf(value = "isHomeAndHeatingZoneConfigured", disabledReason = "no home and/or HEATING zone specified in tado set-up")
     fun setZoneOverlay_manual_on() {
         val endpoint = "PUT /homes/{homeId}/zones/{zoneId}/overlay"
         // first delete any existing overlay
-        tadoZoneControlAPI.deleteZoneOverlay(homeId, heatingZoneId)
+        tadoStrictZoneControlAPI.deleteZoneOverlay(tadoConfig.home!!.id, tadoConfig.zone!!.heating!!.id)
 
         // set the overlay
         val zoneOverlay = ZoneOverlay(
@@ -248,11 +259,9 @@ class ZoneControlApi_IT(
             ),
             termination = ZoneOverlayTermination(typeSkillBasedApp = ZoneOverlayTerminationTypeSkillBasedApp.MANUAL)
         )
-        val result = tadoZoneControlAPI.setZoneOverlay(homeId, heatingZoneId, zoneOverlay)
+        val result = assertCorrectResponse { tadoStrictZoneControlAPI.setZoneOverlay(tadoConfig.home!!.id, tadoConfig.zone!!.heating!!.id, zoneOverlay) }
         verifyZoneOverlay(Pair(ZoneType.HEATING, true), result, endpoint)
     }
-
-
 
     // Result:
     // ZoneOverlay(type=MANUAL, setting=ZoneSetting(power=ON, type=HEATING, temperature=ZoneSettingTemperature(celsius=18.8, fahrenheit=65.84)),
@@ -281,10 +290,11 @@ class ZoneControlApi_IT(
     @Test
     @DisplayName("PUT /homes/{homeId}/zones/{zoneId}/overlay - TADO_MODE ON")
     @Order(62)
+    @EnabledIf(value = "isHomeAndHeatingZoneConfigured", disabledReason = "no home and/or HEATING zone specified in tado set-up")
     fun setZoneOverlay_tado_mode() {
         val endpoint = "PUT /homes/{homeId}/zones/{zoneId}/overlay"
         // first delete any existing overlay
-        tadoZoneControlAPI.deleteZoneOverlay(homeId, heatingZoneId)
+        tadoStrictZoneControlAPI.deleteZoneOverlay(tadoConfig.home!!.id, tadoConfig.zone!!.heating!!.id)
 
         // set the overlay
         val zoneOverlay = ZoneOverlay(
@@ -295,7 +305,7 @@ class ZoneControlApi_IT(
             ),
             termination = ZoneOverlayTermination(typeSkillBasedApp = ZoneOverlayTerminationTypeSkillBasedApp.TADO_MODE)
         )
-        val result = tadoZoneControlAPI.setZoneOverlay(homeId, heatingZoneId, zoneOverlay)
+        val result = assertCorrectResponse { tadoStrictZoneControlAPI.setZoneOverlay(tadoConfig.home!!.id, tadoConfig.zone!!.heating!!.id, zoneOverlay) }
         verifyZoneOverlay(Pair(ZoneType.HEATING, true), result, endpoint)
     }
 
@@ -306,10 +316,11 @@ class ZoneControlApi_IT(
     @Test
     @DisplayName("PUT /homes/{homeId}/zones/{zoneId}/overlay - NEXT_TIME_BLOCK ON")
     @Order(63)
+    @EnabledIf(value = "isHomeAndHeatingZoneConfigured", disabledReason = "no home and/or HEATING zone specified in tado set-up")
     fun setZoneOverlay_nextTimeBlock() {
         val endpoint = "PUT /homes/{homeId}/zones/{zoneId}/overlay"
         // first delete any existing overlay
-        tadoZoneControlAPI.deleteZoneOverlay(homeId, heatingZoneId)
+        tadoStrictZoneControlAPI.deleteZoneOverlay(tadoConfig.home!!.id, tadoConfig.zone!!.heating!!.id)
 
         // set the overlay
         val zoneOverlay = ZoneOverlay(
@@ -320,7 +331,7 @@ class ZoneControlApi_IT(
             ),
             termination = ZoneOverlayTermination(typeSkillBasedApp = ZoneOverlayTerminationTypeSkillBasedApp.NEXT_TIME_BLOCK)
         )
-        val result = tadoZoneControlAPI.setZoneOverlay(homeId, heatingZoneId, zoneOverlay)
+        val result = assertCorrectResponse { tadoStrictZoneControlAPI.setZoneOverlay(tadoConfig.home!!.id, tadoConfig.zone!!.heating!!.id, zoneOverlay) }
         verifyZoneOverlay(Pair(ZoneType.HEATING, true), result, endpoint)
     }
 
@@ -330,10 +341,11 @@ class ZoneControlApi_IT(
     @Test
     @DisplayName("PUT /homes/{homeId}/zones/{zoneId}/overlay - TIMER ON")
     @Order(64)
+    @EnabledIf(value = "isHomeAndHeatingZoneConfigured", disabledReason = "no home and/or HEATING zone specified in tado set-up")
     fun setZoneOverlay_timer() {
         val endpoint = "PUT /homes/{homeId}/zones/{zoneId}/overlay"
         // first delete any existing overlay
-        tadoZoneControlAPI.deleteZoneOverlay(homeId, heatingZoneId)
+        tadoStrictZoneControlAPI.deleteZoneOverlay(tadoConfig.home!!.id, tadoConfig.zone!!.heating!!.id)
 
         // set the overlay
         val zoneOverlay = ZoneOverlay(
@@ -347,26 +359,26 @@ class ZoneControlApi_IT(
                 durationInSeconds = 1000
             )
         )
-        val result = tadoZoneControlAPI.setZoneOverlay(homeId, heatingZoneId, zoneOverlay)
+        val result = assertCorrectResponse { tadoStrictZoneControlAPI.setZoneOverlay(tadoConfig.home!!.id, tadoConfig.zone!!.heating!!.id, zoneOverlay) }
         verifyZoneOverlay(Pair(ZoneType.HEATING, true), result, endpoint)
     }
 
     @Test
     @DisplayName("DELETE /homes/{homeId}/zones/{zoneId}/overlay")
     @Order(70)
+    @EnabledIf(value = "isHomeAndHeatingZoneConfigured", disabledReason = "no home and/or HEATING zone specified in tado set-up")
     fun deleteZoneOverlay() {
-        val result = tadoZoneControlAPI.deleteZoneOverlay(homeId, heatingZoneId)
+        val result = assertCorrectResponse { tadoStrictZoneControlAPI.deleteZoneOverlay(tadoConfig.home!!.id, tadoConfig.zone!!.heating!!.id) }
         assertEquals(Unit, result)
     }
 
     @Test
     @DisplayName("GET /homes/{homeId}/zones/{zoneId}/schedule/awayConfiguration - HEATING")
     @Order(80)
+    @EnabledIf(value = "isHomeAndHeatingZoneConfigured", disabledReason = "no home and/or HEATING zone specified in tado set-up")
     fun getAwayConfiguration() {
         val endpoint = "GET /homes/{homeId}/zones/{zoneId}/schedule/awayConfiguration"
-        val awayConfiguration = assertNoHttpErrorStatus(HttpStatus.FORBIDDEN) {
-            tadoZoneControlAPI.getAwayConfiguration(homeId, heatingZoneId)
-        }
+        val awayConfiguration = assertCorrectResponse { tadoStrictZoneControlAPI.getAwayConfiguration(tadoConfig.home!!.id, tadoConfig.zone!!.heating!!.id) }
         assertNotNull(awayConfiguration)
         verifyZoneAwayConfiguration(Pair(ZoneType.HEATING, true), awayConfiguration, endpoint)
     }
@@ -374,8 +386,8 @@ class ZoneControlApi_IT(
     @Test
     @DisplayName("PUT /homes/{homeId}/zones/{zoneId}/schedule/awayConfiguration")
     @Order(90)
+    @EnabledIf(value = "isHomeAndHeatingZoneConfigured", disabledReason = "no home and/or HEATING zone specified in tado set-up")
     fun setAwayConfiguration() {
-        val endpoint = "PUT /homes/{homeId}/zones/{zoneId}/schedule/awayConfiguration"
         val input = ZoneAwayConfiguration(
             type = ZoneType.HEATING,
             autoAdjust = false,
@@ -384,30 +396,27 @@ class ZoneControlApi_IT(
                 power = Power.OFF
             )
         )
-        val response = assertNoHttpErrorStatus(HttpStatus.FORBIDDEN) {
-            tadoZoneControlAPI.setAwayConfiguration(homeId, heatingZoneId, input)
-        }
-        assertEquals(Unit, response)
+        assertCorrectResponse { tadoStrictZoneControlAPI.setAwayConfiguration(tadoConfig.home!!.id, tadoConfig.zone!!.heating!!.id, input) }
     }
 
     @Test
     @DisplayName("GET /homes/{homeId}/zones/{zoneId}/schedule/activeTimetable - HEATING")
     @Order(100)
+    @EnabledIf(value = "isHomeAndHeatingZoneConfigured", disabledReason = "no home and/or HEATING zone specified in tado set-up")
     fun getActiveTimetableType() {
         val endpoint = "GET /homes/{homeId}/zones/{zoneId}/schedule/activeTimetable"
-        val timetableType = assertNoHttpErrorStatus(HttpStatus.FORBIDDEN) {
-            tadoZoneControlAPI.getActiveTimetableType(homeId, heatingZoneId)
-        }
+        val timetableType = assertCorrectResponse { tadoStrictZoneControlAPI.getActiveTimetableType(tadoConfig.home!!.id, tadoConfig.zone!!.heating!!.id) }
         verifyTimetableType(timetableType, endpoint)
     }
 
     @Test
     @DisplayName("PUT /homes/{homeId}/zones/{zoneId}/schedule/activeTimetable - HEATING")
     @Order(110)
+    @EnabledIf(value = "isHomeAndHeatingZoneConfigured", disabledReason = "no home and/or HEATING zone specified in tado set-up")
     fun setActiveTimetableType() {
         val endpoint = "PUT /homes/{homeId}/zones/{zoneId}/schedule/activeTimetable"
-        val activeTimeTableType = assertNoHttpErrorStatus(HttpStatus.FORBIDDEN) {
-            tadoZoneControlAPI.setActiveTimetableType(homeId, heatingZoneId, TimetableType(id = TimetableTypeId._1))
+        val activeTimeTableType = assertCorrectResponse {
+            tadoStrictZoneControlAPI.setActiveTimetableType(tadoConfig.home!!.id, tadoConfig.zone!!.heating!!.id, TimetableType(id = TimetableTypeId._1))
         }
         verifyTimetableType(activeTimeTableType, endpoint)
     }
@@ -415,10 +424,11 @@ class ZoneControlApi_IT(
     @Test
     @DisplayName("GET /homes/{homeId}/zones/{zoneId}/schedule/timetables - HEATING")
     @Order(120)
+    @EnabledIf(value = "isHomeAndHeatingZoneConfigured", disabledReason = "no home and/or HEATING zone specified in tado set-up")
     fun getTimetables() {
         val endpoint = "GET /homes/{homeId}/zones/{zoneId}/schedule/timetables"
-        val timetables = assertNoHttpErrorStatus(HttpStatus.FORBIDDEN) {
-            tadoZoneControlAPI.getZoneTimetables(homeId, heatingZoneId)
+        val timetables = assertCorrectResponse {
+            tadoStrictZoneControlAPI.getZoneTimetables(tadoConfig.home!!.id, tadoConfig.zone!!.heating!!.id)
         }
         assertNotEquals(0, timetables.size)
         verifyTimetableType(timetables[0], endpoint)
@@ -427,10 +437,11 @@ class ZoneControlApi_IT(
     @Test
     @DisplayName("GET /homes/{homeId}/zones/{zoneId}/schedule/timetables/{timetableTypeId} - HEATING")
     @Order(130)
+    @EnabledIf(value = "isHomeAndHeatingZoneConfigured", disabledReason = "no home and/or HEATING zone specified in tado set-up")
     fun getTimetable() {
         val endpoint = "GET /homes/{homeId}/zones/{zoneId}/schedule/timetables/{timetableTypeId}"
-        val timetable = assertNoHttpErrorStatus(HttpStatus.FORBIDDEN) {
-            tadoZoneControlAPI.getZoneTimetable(homeId, heatingZoneId, 1)
+        val timetable = assertCorrectResponse {
+            tadoStrictZoneControlAPI.getZoneTimetable(tadoConfig.home!!.id, tadoConfig.zone!!.heating!!.id, 1)
         }
         assertNotNull(timetable)
         verifyTimetableType(timetable, endpoint)
@@ -439,10 +450,11 @@ class ZoneControlApi_IT(
     @Test
     @DisplayName("GET /homes/{homeId}/zones/{zoneId}/schedule/timetables/{timetableTypeId}/blocks - HEATING")
     @Order(140)
+    @EnabledIf(value = "isHomeAndHeatingZoneConfigured", disabledReason = "no home and/or HEATING zone specified in tado set-up")
     fun getTimetableBlocks() {
         val endpoint = "GET /homes/{homeId}/zones/{zoneId}/schedule/timetables/{timetableTypeId}/blocks"
-        val timetableBlocks = assertNoHttpErrorStatus(HttpStatus.FORBIDDEN) {
-            tadoZoneControlAPI.getZoneTimetableBlocks(homeId, heatingZoneId, TimetableTypeId._1)
+        val timetableBlocks = assertCorrectResponse {
+            tadoStrictZoneControlAPI.getZoneTimetableBlocks(tadoConfig.home!!.id, tadoConfig.zone!!.heating!!.id, TimetableTypeId._1)
         }
         assertNotNull(timetableBlocks)
         assertNotEquals(0, timetableBlocks.size)
@@ -452,10 +464,11 @@ class ZoneControlApi_IT(
     @Test
     @DisplayName("GET /homes/{homeId}/zones/{zoneId}/schedule/timetables/{timetableTypeId}/blocks/{dayType} - HEATING")
     @Order(150)
+    @EnabledIf(value = "isHomeAndHeatingZoneConfigured", disabledReason = "no home and/or HEATING zone specified in tado set-up")
     fun getTimetableBlocksByDayType() {
         val endpoint = "GET /homes/{homeId}/zones/{zoneId}/schedule/timetables/{timetableTypeId}/blocks/{dayType}"
-        val timetableBlocks = assertNoHttpErrorStatus(HttpStatus.FORBIDDEN) {
-            tadoZoneControlAPI.getTimetableBlocksByDayType(homeId, heatingZoneId, TimetableTypeId._1, DayType.SATURDAY)
+        val timetableBlocks = assertCorrectResponse {
+            tadoStrictZoneControlAPI.getTimetableBlocksByDayType(tadoConfig.home!!.id, tadoConfig.zone!!.heating!!.id, TimetableTypeId._1, DayType.SATURDAY)
         }
         assertNotNull(timetableBlocks)
         assertNotEquals(0, timetableBlocks.size)
@@ -469,16 +482,15 @@ class ZoneControlApi_IT(
     fun setTimetableBlocksByDayType() {
         val endpoint = "PUT /homes/{homeId}/zones/{zoneId}/schedule/timetables/{timetableTypeId}/blocks/{dayType}"
         // GET the current timetable...
-        val timetableBlocks = tadoZoneControlAPI.getTimetableBlocksByDayType(homeId, heatingZoneId, TimetableTypeId._1, DayType.SATURDAY)
+        val timetableBlocks = tadoStrictZoneControlAPI.getTimetableBlocksByDayType(tadoConfig.home!!.id, tadoConfig.zone!!.heating!!.id, TimetableTypeId._1, DayType.SATURDAY)
 
         // ... and use that as the input for the PUT call
         // returned 500 Internal Server Error: "Please contact customer support"
-        val response = assertNoHttpErrorStatus(HttpStatus.FORBIDDEN) {
-            tadoZoneControlAPI.setTimetableBlocksForDayType(homeId, heatingZoneId, TimetableTypeId._1, DayType.SATURDAY, timetableBlocks)
+        val response = assertCorrectResponse {
+            tadoStrictZoneControlAPI.setTimetableBlocksForDayType(tadoConfig.home!!.id, tadoConfig.zone!!.heating!!.id, TimetableTypeId._1, DayType.SATURDAY, timetableBlocks)
         }
         assertNotNull(timetableBlocks)
         assertNotEquals(0, response.size)
         verifyTimetableBlock(Pair(ZoneType.HEATING, true), response[0], endpoint)
     }
-
 }
