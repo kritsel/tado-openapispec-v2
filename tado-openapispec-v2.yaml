@@ -3359,8 +3359,9 @@ components:
           type: string
           example: PERCENTAGE
         percentage:
-          type: integer
-          example: 51
+          type: number
+          format: float
+          example: 51.0
         timestamp:
           type: string
           format: date-time
