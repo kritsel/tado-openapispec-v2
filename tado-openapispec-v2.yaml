@@ -699,6 +699,30 @@ paths:
           $ref: '#/components/responses/AccessDenied403'
         '422': # verify
           $ref: '#/components/responses/InputError422'
+    delete:
+      summary: Remove the manual home status set.
+      description: >
+        Remove the manual home status, set by SetPresenceLock.
+
+      operationId: deletePresenceLock # hint for client code generators
+      tags:
+        - home control
+      parameters:
+        - in: path
+          name: homeId
+          schema:
+            $ref: '#/components/schemas/HomeId'
+          required: true
+          description: unique ID of a home
+      responses:
+        '204':
+          description: successful empty response
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+        '403':
+          $ref: '#/components/responses/AccessDenied403'
+        '422': # verify
+          $ref: '#/components/responses/InputError422'
 
   /homes/{homeId}/state:
     get:
