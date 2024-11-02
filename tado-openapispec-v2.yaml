@@ -4013,6 +4013,22 @@ components:
       example: 3
       description: ID of a zone (unique only within the home it belongs to)
 
+    ZoneOpenWindow:
+      type: object
+      description: >
+        Open Window is set when Tado detects an open window in the zone. While Open Window is active, heating is switched off.
+      properties:
+        detectedTime:
+          type: string
+          format: date-time
+        durationInSeconds:
+          type: integer
+        expiry:
+          type: string
+          format: date-time
+        remainingTimeInSeconds:
+          type: integer
+
     ZoneOverlay:
       type: object
       description: >
@@ -4166,8 +4182,7 @@ components:
         overlay:
           $ref: '#/components/schemas/ZoneOverlay'
         openWindow:
-          #                type: ???
-          nullable: true
+          $ref: '#/components/schemas/ZoneOpenWindow'
         nextScheduleChange:
           type: object
           nullable: true
