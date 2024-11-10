@@ -2892,9 +2892,6 @@ components:
 
     Error:
       type: object
-      description: >
-        The zoneType is only available for certain 422 errors, 
-        to indicate that a certain zone specific operation is not allowed because of the ZoneType of the zone.
       properties:
         code:
           type: string
@@ -2903,22 +2900,34 @@ components:
           type: string
           description: detailed description of the error in natural language (english)
 
+    Error422:
+      description: >
+        The zoneType is only available for certain 422 errors, 
+        to indicate that a certain zone specific operation is not allowed because of the ZoneType of the zone.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/Error'
+        - properties:
+            zoneType:
+              $ref: '#/components/schemas/ZoneType'
+
     ErrorResponse:
-      type: array
+      type: object
       description: error object returned for non-200 responses
-      items:
-        $ref: '#/components/schemas/Error'
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/Error'
 
     ErrorResponse422:
-      type: array
-      description: error object returned for 422 responses; the 'zoneType' field is an optional field
-      items:
-        type: object
-        allOf:
-          - $ref: '#/components/schemas/Error'
-          - properties:
-              zoneType:
-                $ref: '#/components/schemas/ZoneType'
+      type: object
+      description: error object returned for 422 responses
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/Error422'
 
     # FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
     FanLevel:

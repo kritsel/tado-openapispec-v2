@@ -5,11 +5,13 @@ import org.junit.jupiter.api.condition.EnabledIf
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.http.HttpStatus
 import org.springframework.web.client.RestClient
 import tadoclient.Application
 import tadoclient.TadoConfig
 import tadoclient.models.*
 import tadoclient.verify.assertCorrectResponse
+import tadoclient.verify.assertHttpErrorStatus
 import tadoclient.verify.verifyHomeState
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -140,8 +142,9 @@ class HomeControlApi_IT(
     @Order(31)
     @EnabledIf(value = "isHomeConfigured", disabledReason = "no home specified in tado set-up")
     fun deletePresenceLock() {
-        val result = assertCorrectResponse { tadoStrictHomeControlAPI.deletePresenceLock(tadoConfig.home!!.id ) }
-        assertEquals(Unit, result)
+        // 422 is expected as this endpoint requires an active Auto-Assist subscription which is not the case
+        // for the home we are testing with
+        assertHttpErrorStatus(HttpStatus.UNPROCESSABLE_ENTITY) { assertCorrectResponse { tadoStrictHomeControlAPI.deletePresenceLock(tadoConfig.home!!.id ) } }
     }
 
     @Test
