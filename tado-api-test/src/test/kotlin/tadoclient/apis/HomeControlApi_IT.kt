@@ -136,6 +136,15 @@ class HomeControlApi_IT(
     }
 
     @Test
+    @DisplayName("DEL /homes/{homeId}/presenceLock")
+    @Order(31)
+    @EnabledIf(value = "isHomeConfigured", disabledReason = "no home specified in tado set-up")
+    fun deletePresenceLock() {
+        val result = assertCorrectResponse { tadoStrictHomeControlAPI.deletePresenceLock(tadoConfig.home!!.id ) }
+        assertEquals(Unit, result)
+    }
+
+    @Test
     @DisplayName("GET /homes/{homeId}/state")
     @Order(40)
     @EnabledIf(value = "isHomeConfigured", disabledReason = "no home specified in tado set-up")

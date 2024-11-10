@@ -9,7 +9,7 @@ info:
     
     Github repository where this specification is maintained: 
     [https://github.com/kritsel/tado-openapispec-v2](https://github.com/kritsel/tado-openapispec-v2)
-  version: 2.2024.09.22.0
+  version: 2.2024.11.10.0
 servers:
   - url: https://my.tado.com/api/v2/
     description: Production server
@@ -500,7 +500,7 @@ paths:
         From https://support.tado.com/en/articles/4467468-what-is-care-protect:
         
         
-        If you have Auto-Assist, or if Incident Detection is included in your tado° starter kit, 
+        If you have an Auto-Assist subscription, or if Incident Detection is included in your tado° starter kit, 
         then tado° will constantly monitor your heating system to let you know if something isn’t working properly.
         It considers various factors, including the indoor temperature of each room, your Smart Schedule and open windows.
 
@@ -702,7 +702,7 @@ paths:
     delete:
       summary: Remove the manual home status set.
       description: >
-        Remove the manual home status, set by SetPresenceLock.
+        Remove the manual home status, set by SetPresenceLock. Requires a paid Auto-Assist subscription.
 
       operationId: deletePresenceLock # hint for client code generators
       tags:
@@ -2396,7 +2396,7 @@ components:
         
         * a particular zone specific operation is not supported for the zone's ZoneTYpe
         
-        * a particular operation requires a paid subscription which is not active for the home
+        * a particular operation requires a paid Auto-Assist subscription which is not active for the home
       content:
         application/json:
           schema:
@@ -2404,6 +2404,13 @@ components:
 
   schemas:
     # AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+    ActivityDataPoints:
+      type: object
+      description: Part of ZoneState. Empty for a HOT_WATER zone
+      properties:
+        heatingPower:
+          $ref: '#/components/schemas/PercentageDataPoint'
+
     AirComfort:
       type: object
       description: result of /homes/{homeId}/airComfort
@@ -2904,7 +2911,7 @@ components:
 
     ErrorResponse422:
       type: array
-      description: error object returned for 422 responses
+      description: error object returned for 422 responses; the 'zoneType' field is an optional field
       items:
         type: object
         allOf:
@@ -3451,7 +3458,7 @@ components:
     # SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS
     SensorDataPoints:
       type: object
-      description: empty for a HOT_WATER zone
+      description: Element of ZoneState. Empty for a HOT_WATER zone
       properties:
         insideTemperature:
           $ref: '#/components/schemas/TemperatureDataPoint'
@@ -4213,11 +4220,7 @@ components:
           type: boolean
           example: false
         activityDataPoints:
-          type: object
-          description: empty for a HOT_WATER zone
-          properties:
-            heatingPower:
-              $ref: '#/components/schemas/PercentageDataPoint'
+          $ref: '#/components/schemas/ActivityDataPoints'
         sensorDataPoints:
           $ref: '#/components/schemas/SensorDataPoints'
 

@@ -6,6 +6,7 @@ fun verifyHome(home:Home, context:String, parentName:String = "Home") {
     val typeName = "Home"
     verifyNested(home, context, parentName, typeName,
         nullAllowedProperties = listOf(
+            "$typeName.isBalanceHpEligible",
             "$typeName.partner",
             "$typeName.contactDetails.name",
             "$typeName.contactDetails.email",
