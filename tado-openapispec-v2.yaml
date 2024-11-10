@@ -699,6 +699,30 @@ paths:
           $ref: '#/components/responses/AccessDenied403'
         '422': # verify
           $ref: '#/components/responses/InputError422'
+    delete:
+      summary: Remove the manual home status set.
+      description: >
+        Remove the manual home status, set by SetPresenceLock.
+
+      operationId: deletePresenceLock # hint for client code generators
+      tags:
+        - home control
+      parameters:
+        - in: path
+          name: homeId
+          schema:
+            $ref: '#/components/schemas/HomeId'
+          required: true
+          description: unique ID of a home
+      responses:
+        '204':
+          description: successful empty response
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+        '403':
+          $ref: '#/components/responses/AccessDenied403'
+        '422': # verify
+          $ref: '#/components/responses/InputError422'
 
   /homes/{homeId}/state:
     get:
@@ -3241,32 +3265,7 @@ components:
         settings:
           $ref: '#/components/schemas/MobileDeviceSettings'
         location:
-          type: object
-          description: >
-            This data element is only present for mobile devices which have geofencing switched on
-            in their tado app.
-          properties:
-            stale:
-              type: boolean
-              example: false
-            atHome:
-              type: boolean
-              example: false
-            bearingFromHome:
-              type: object
-              properties:
-                degrees:
-                  type: number
-                  format: float
-                  example: 282.4422946462286
-                radians:
-                  type: number
-                  format: float
-                  example: 4.929547988464642
-            relativeDistanceFromHomeFence:
-              type: number
-              format: float
-              example: 0.4075597114308104
+          $ref: '#/components/schemas/MobileDeviceLocation'
         deviceMetadata:
           type: object
           properties:
@@ -3287,6 +3286,34 @@ components:
       type: integer
       format: int64
       example: 8254700
+
+    MobileDeviceLocation:
+      type: object
+      description: >
+        This data element is only present for mobile devices which have geofencing switched on
+        in their tado app.
+      properties:
+        stale:
+          type: boolean
+          example: false
+        atHome:
+          type: boolean
+          example: false
+        bearingFromHome:
+          type: object
+          properties:
+            degrees:
+              type: number
+              format: float
+              example: 282.4422946462286
+            radians:
+              type: number
+              format: float
+              example: 4.929547988464642
+        relativeDistanceFromHomeFence:
+          type: number
+          format: float
+          example: 0.4075597114308104
 
     MobileDeviceSettings:
       type: object
@@ -3422,6 +3449,15 @@ components:
           $ref: '#/components/schemas/HomePresence'
 
     # SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS
+    SensorDataPoints:
+      type: object
+      description: empty for a HOT_WATER zone
+      properties:
+        insideTemperature:
+          $ref: '#/components/schemas/TemperatureDataPoint'
+        humidity:
+          $ref: '#/components/schemas/PercentageDataPoint'
+
     StripesTimeSeries:
       type: object
       description: Element of DayReport
@@ -3977,6 +4013,22 @@ components:
       example: 3
       description: ID of a zone (unique only within the home it belongs to)
 
+    ZoneOpenWindow:
+      type: object
+      description: >
+        Open Window is set when Tado detects an open window in the zone. While Open Window is active, heating is switched off.
+      properties:
+        detectedTime:
+          type: string
+          format: date-time
+        durationInSeconds:
+          type: integer
+        expiry:
+          type: string
+          format: date-time
+        remainingTimeInSeconds:
+          type: integer
+
     ZoneOverlay:
       type: object
       description: >
@@ -3991,32 +4043,7 @@ components:
         setting:
           $ref: '#/components/schemas/ZoneSetting'
         termination:
-          type: object
-          properties:
-            type:
-              $ref: '#/components/schemas/ZoneOverlayTerminationType'
-            durationInSeconds:
-              type: integer
-              example: 1400
-              description: "applicable when termination.type = TIMER"
-            remainingTimeInSeconds:
-              type: integer
-              example: 1400
-              description: "applicable when termination.type = TIMER"
-            typeSkillBasedApp:
-              $ref: '#/components/schemas/ZoneOverlayTerminationTypeSkillBasedApp'
-            expiry:
-              type: string
-              format: date-time
-              example: "2024-08-14T23:07:13Z"
-              nullable: true
-              description: "applicable when termination.type = TIMER"
-            projectedExpiry:
-              type: string
-              format: date-time
-              example: "2024-08-14T23:07:13Z"
-              nullable: true
-              description: "applicable when termination.type = TIMER"
+          $ref: '#/components/schemas/ZoneOverlayTermination'
 
     ZoneOverlays:
       description: input for POST /homes/{homeId}/overlay
@@ -4031,6 +4058,36 @@ components:
                 $ref: '#/components/schemas/ZoneOverlayType'
               overlay:
                 $ref: '#/components/schemas/ZoneOverlay'
+
+    ZoneOverlayTermination:
+      type: object
+      example: MANUAL
+      description: Defines if/how the overlay terminates.
+      properties:
+        type:
+          $ref: '#/components/schemas/ZoneOverlayTerminationType'
+        durationInSeconds:
+          type: integer
+          example: 1400
+          description: "applicable when termination.type = TIMER"
+        remainingTimeInSeconds:
+          type: integer
+          example: 1400
+          description: "applicable when termination.type = TIMER"
+        typeSkillBasedApp:
+          $ref: '#/components/schemas/ZoneOverlayTerminationTypeSkillBasedApp'
+        expiry:
+          type: string
+          format: date-time
+          example: "2024-08-14T23:07:13Z"
+          nullable: true
+          description: "applicable when termination.type = TIMER"
+        projectedExpiry:
+          type: string
+          format: date-time
+          example: "2024-08-14T23:07:13Z"
+          nullable: true
+          description: "applicable when termination.type = TIMER"
 
     ZoneOverlayTerminationType:
       type: string
@@ -4125,8 +4182,7 @@ components:
         overlay:
           $ref: '#/components/schemas/ZoneOverlay'
         openWindow:
-          #                type: ???
-          nullable: true
+          $ref: '#/components/schemas/ZoneOpenWindow'
         nextScheduleChange:
           type: object
           nullable: true
@@ -4163,13 +4219,7 @@ components:
             heatingPower:
               $ref: '#/components/schemas/PercentageDataPoint'
         sensorDataPoints:
-          type: object
-          description: empty for a HOT_WATER zone
-          properties:
-            insideTemperature:
-              $ref: '#/components/schemas/TemperatureDataPoint'
-            humidity:
-              $ref: '#/components/schemas/PercentageDataPoint'
+          $ref: '#/components/schemas/SensorDataPoints'
 
     ZoneStates:
       type: object
