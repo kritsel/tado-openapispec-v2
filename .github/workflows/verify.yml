@@ -49,7 +49,7 @@ jobs:
         # Optional plain body:
         body: ${{ github.job }} job in workflow ${{ github.workflow }} of repo ${{ github.repository }} has ${{ job.status }}
         # Optional attachments:
-        attachments: target/site/failsafe-report.html
+        attachments: ./target/site/failsafe-report.html
 
     # Optional: Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive
     #- name: Update dependency graph
