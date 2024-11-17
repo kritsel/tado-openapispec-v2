@@ -23,17 +23,43 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+
     - name: Set up JDK 21
       uses: actions/setup-java@v4
       with:
         java-version: '21'
         distribution: 'temurin'
         cache: maven
-    - name: Build with Maven
+
+    - name: Run API test-suite
       env:
         TADO_USERNAME: ${{ secrets.TADO_USERNAME }}
         TADO_PASSWORD: ${{ secrets.TADO_PASSWORD }}
-      run: mvn --batch-mode --update-snapshots verify -P local-api-spec --file pom.xml
+      run: mvn --batch-mode --update-snapshots clean verify site -P local-api-spec --file pom.xml
+
+    - name: Send mail
+      uses: dawidd6/action-send-mail@v3
+      with:
+        # Required mail server address if not connection_url:
+        server_address: smtp.gmail.com
+        # Server port, default 25:
+        server_port: 465
+        # Optional whether this connection use TLS (default is true if server_port is 465)
+        secure: true
+        # Optional (recommended) mail server username:
+        username: ${{secrets.MAIL_USERNAME}}
+        # Optional (recommended) mail server password:
+        password: ${{secrets.MAIL_APP_PASSWORD}}
+        # Required mail subject:
+        subject: [GitHub] ${{github.repository}} build job has ${{job.status}}
+        # Required recipients' addresses:
+        to: 123kristel@gmail.com
+        # Required sender full name (address can be skipped):
+        from: GitHub workflow
+        # Optional plain body:
+        body: ${{ github.job }} job in workflow ${{ github.workflow }} of repo ${{ github.repository }} has ${{ job.status }}
+        # Optional attachments:
+        attachments: target/site/failsafe-report.html
 
     # Optional: Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive
     #- name: Update dependency graph
