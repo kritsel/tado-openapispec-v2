@@ -30,7 +30,7 @@ jobs:
         distribution: 'temurin'
         cache: maven
     - name: Build with Maven
-      run: mvn --batch-mode --update-snapshots verify --file pom.xml
+      run: mvn --batch-mode --update-snapshots verify -P local-api-spec --file pom.xml
 
     # Optional: Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive
     #- name: Update dependency graph
