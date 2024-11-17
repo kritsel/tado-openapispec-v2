@@ -32,6 +32,8 @@ jobs:
     - name: Send mail
       uses: dawidd6/action-send-mail@v3
       with:
+        # Required mail server address if not connection_url
+        server_address: smtp.gmail.com
         # Server port, default 25:
         server_port: 465
         # Optional whether this connection use TLS (default is true if server_port is 465)
@@ -48,8 +50,6 @@ jobs:
         from: GitHub workflow
         # Optional plain body:
         body: ${{ github.job }} job in workflow ${{ github.workflow }} of repo ${{ github.repository }} has ${{ job.status }}
-        # Optional attachments:
-        attachments: target/site/failsafe-report.html
 
     # Optional: Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive
     #- name: Update dependency graph
