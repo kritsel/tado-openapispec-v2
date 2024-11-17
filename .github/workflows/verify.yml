@@ -1,12 +1,4 @@
-# This workflow will build a Java project with Maven, and cache/restore any dependencies to improve the workflow execution time
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-java-with-maven
-
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
-
-name: Java CI with Maven
+name: Run tado API tests with Maven
 
 on:
   push:
@@ -40,6 +32,7 @@ jobs:
     - name: Send mail
       uses: dawidd6/action-send-mail@v3
       with:
+        # Required mail server address if not connection_url:
         server_address: smtp.gmail.com
         # Server port, default 25:
         server_port: 465
