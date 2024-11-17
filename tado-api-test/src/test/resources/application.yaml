@@ -22,8 +22,8 @@ spring:
 
 tado:
   # use environment variable values as application property values
-  username: ${tado.username}
-  password: ${tado.password}
+  username: ${TADO_USERNAME}
+  password: ${TADO_PASSWORD}
 
   home:
     id: 1118186
