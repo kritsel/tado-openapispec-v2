@@ -18,7 +18,7 @@ open class OAuthRequestInterceptor(
     // from the OAuthClientConfiguration class
     val authorizedClientServiceAndManager: AuthorizedClientServiceOAuth2AuthorizedClientManager,
 
-    @Value("\${system.trust-store}")
+    @Value("\${system.trust-store:none}")
     private val trustStore:String?,
     ) : ClientHttpRequestInterceptor {
 
