@@ -34,6 +34,12 @@ jobs:
       with:
         # Required mail server address if not connection_url
         server_address: smtp.gmail.com
+        # Server port, default 25:
+        server_port: 465
+        # Optional (recommended) mail server username:
+        username: ${{secrets.MAIL_USERNAME}}
+        # Optional (recommended) mail server password:
+        password: ${{secrets.MAIL_APP_PASSWORD}}
 
     # Optional: Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive
     #- name: Update dependency graph
