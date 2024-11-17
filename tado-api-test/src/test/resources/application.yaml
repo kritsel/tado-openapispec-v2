@@ -21,6 +21,10 @@ spring:
 #      FAIL_ON_UNKNOWN_PROPERTIES: true
 
 tado:
+  # use environment variable values as application property values
+  username: ${tado.username}
+  password: ${tado.password}
+
   home:
     id: 1118186
   zone:
