@@ -6,7 +6,9 @@ on:
     tags: [ 'v*' ]  
   pull_request:
     branches: [ "main" ]
-     
+  schedule:
+    # run every Monday at 10.00 UTC
+    - cron: "0 10 * * 1"
 
 jobs:
   api-test:
