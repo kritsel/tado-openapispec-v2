@@ -4,7 +4,7 @@
 ![open api version](https://img.shields.io/badge/open_api_version-3.0.0-blue)
 [![release](https://img.shields.io/github/v/release/kritsel/tado-openapispec-v2)](https://github.com/kritsel/tado-openapispec-v2/releases)
 [![last commit](https://img.shields.io/github/last-commit/kritsel/tado-openapispec-v2)](https://github.com/kritsel/tado-openapispec-v2/commits/main/)
-![repo stars](https://img.shields.io/github/stars/kritsel/tado-openapispec-v2?style=plastic)
+[![repo stars](https://img.shields.io/github/stars/kritsel/tado-openapispec-v2?style=plastic)](https://github.com/kritsel/tado-openapispec-v2/stargazers)
 ![open for contributors](https://img.shields.io/badge/open_for_contributors-yes-blue)
 [![contributors](https://img.shields.io/github/contributors/kritsel/tado-openapispec-v2)](https://github.com/kritsel/tado-openapispec-v2/graphs/contributors)
 
