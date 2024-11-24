@@ -3807,7 +3807,7 @@ components:
 
     WeatherState:
       type: string
-      enum: [SUN, FOGGY, CLOUDY, CLOUDY_PARTLY, CLOUDY_MOSTLY, RAIN, SCATTERED_RAIN, NIGHT_CLEAR, NIGHT_CLOUDY]
+      enum: [SUN, FOGGY, CLOUDY, CLOUDY_PARTLY, CLOUDY_MOSTLY, RAIN, SCATTERED_RAIN, SNOW, NIGHT_CLEAR, NIGHT_CLOUDY]
       example: CLOUDY_PARTLY
       description: Used in DayReport and Weather
 
