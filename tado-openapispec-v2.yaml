@@ -3372,6 +3372,12 @@ components:
             energyIqReminder:
               type: boolean
               example: false
+            tariffHighPriceAlert:
+              type: boolean
+              example: true
+            tariffLowPriceAlert:
+              type: boolean
+              example: true
 
     # OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
     OpenWindowDetectionInput:
