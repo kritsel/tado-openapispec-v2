@@ -7,8 +7,9 @@ While on dev branch:
 6. git tag -a `<version number>` -m "release version <version number>"
 7. git tag -af latest -m "release version latest=`<version number>`"
 8. git push --force origin --tags
-9. git checkout main
-10. git merge dev
-11. git push
-12. git checkout dev (to return to dev branch for future changes)
-13. create release notes
+9. check if github job succeeds (executes integration test on the API)
+10. git checkout main
+11. git merge dev
+12. git push
+13. git checkout dev (to return to dev branch for future changes)
+14. create release notes

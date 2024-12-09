@@ -26,9 +26,9 @@ fun verifyAirComfort(airComfort: AirComfort, context:String, parentName:String =
         //  Properties below are not present when there is (temporarily) no connection with the measuring device in the room
         //  (e.g because of an empty device battery).
         nullAllowedProperties = listOf(
-            "$typeName.temperatureLevel",
-            "$typeName.humidityLevel",
-            "$typeName.coordinate"))
+            "$typeName.comfort[i].temperatureLevel",
+            "$typeName.comfort[i].humidityLevel",
+            "$typeName.comfort[i].coordinate"))
 }
 
 fun verifyHeatingSystem(heatingSystem: HeatingSystem, context:String, parentName:String = "HeatingSystem") {
