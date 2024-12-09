@@ -2413,7 +2413,10 @@ components:
 
     AirComfort:
       type: object
-      description: result of /homes/{homeId}/airComfort
+      description: >
+        Result of /homes/{homeId}/airComfort. 
+        Comfort properties (except roomId) are not present when there is no connection with the measuring device in the room
+        (e.g because of an empty device battery).
       properties:
         freshness:
           type: object

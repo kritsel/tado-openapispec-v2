@@ -22,7 +22,13 @@ fun verifyHome(home:Home, context:String, parentName:String = "Home") {
 
 fun verifyAirComfort(airComfort: AirComfort, context:String, parentName:String = "AirComfort") {
     val typeName = "AirComfort"
-    verifyNested(airComfort, context, parentName, typeName)
+    verifyNested(airComfort, context, parentName, typeName,
+        //  Properties below are not present when there is (temporarily) no connection with the measuring device in the room
+        //  (e.g because of an empty device battery).
+        nullAllowedProperties = listOf(
+            "$typeName.temperatureLevel",
+            "$typeName.humidityLevel",
+            "$typeName.coordinate"))
 }
 
 fun verifyHeatingSystem(heatingSystem: HeatingSystem, context:String, parentName:String = "HeatingSystem") {
