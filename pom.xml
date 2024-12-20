@@ -18,7 +18,6 @@
 
     <modules>
         <module>tado-api-test</module>
-        <module>tado-api-test-executor</module>
     </modules>
 
     <properties>

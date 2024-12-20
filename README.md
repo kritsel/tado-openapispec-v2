@@ -19,16 +19,18 @@ tado&ordm; sells hardware and subscription based add-on services.
 These can be controlled via a mobile app or an on-line app on their website.
 
 ## tado API
-The tado&ordm; website and mobile apps use the tado API which is available at
+The tado&ordm; website and mobile apps use a tado API which is available at
 https://my.tado.com/api/v2.
 
-tado&ordm; allows third-party developers to use their API as well, 
-but they do not provide any kind of support or documentation. 
+tado&ordm; allows users to tinker with their API, but they do not treat it as an official API
+and do not provide any kind of support or documentation.
+(this is expressed by tado&ordm in a reaction to this tado community post
+https://community.tado.com/en-gb/discussion/23573/tado-x-breaking-api-changes)
 
 ## tado OpenAPI specification
 
 This repository contains a community managed OpenAPI specification for the
-**tado API v2**.
+**tado API v2** which is hosted on https://my.tado.com/api.
 It is based on the experience of software developers who are experimenting
 with the API to create their own solutions. 
 
@@ -75,11 +77,37 @@ developer tools, you can see other tado APIs scrolling by as well.
 * https://acme.tado.com : additional air comfort information (display texts, visuals to use, outdoor air quality)
 * https://auth.tado.com/: manage your account information like name, email and password
 * https://energy-insights.tado.com: functionality behind Energy IQ
+* https://hops.tado.com: seems to support tado's X line of products
 * https://ivar.tado.com/graphql: retrieve brand and boiler model information to help the user select their boiler type
 * https://nibbler.tado.com/graphql: registering new devices
 * https://minder.tado.com: get incidents information
 * https://susi.tado.com: get skill information (related to paid Auto-Assist subscription)
 * https://tariff-experience.tado.com
+
+## tado&ordm; X
+
+In 2024 tado&ordm; released their new product line named X. The API specification maintained in this repo
+has been largely developed based on experiences from tado users with tado hardware from product lines which pre-date X.
+
+Based on conversations in tado's community forum about the tado API and X,
+it looks like tado uses a combination of the https://my.tado.com/api and
+https://hops.tado.com apis to support a tado X set-up. As the specification as maintained in this repo only covers
+https://my.tado.com/api, this specification might not be complete for tado X users.
+
+Tado X users who have knowledge of https://my.tado.com/api endpoints not working for them
+are very much welcome to create an issue (or submit a PR) with documentation improvement suggestions.
+
+## Automated tests
+
+An automated test is executed on a weekly basis to verify if this API specification is still in line with
+the actual API. Any observed discrepancies are solved by updating the specification a.s.a.p.
+
+The test covers almost all endpoints as described in the specification. 
+Endpoints that have a destructive nature that are not easy (or impossible) to undo programmatically
+are not covered (e.g. removing a device). 
+Also, some endpoints only work in a specific tado set-up (e.g. tado X hardware, a home with an Auto-Assist subscription, 
+or a room which includes air conditioning). The tado enabled home used to run the automated tests does not cover all of these
+situations, which means that the automated tests don't either.
 
 # OAuth 2.0 authentication
 The only authentication mechanism supported by the tado API is OAuth 2.0.
@@ -151,3 +179,7 @@ Additionally, the following github repositories have been a great help:
 # Contribute
 Feel free to submit a PR or create an issue if you want to contribute to this
 OpenAPI specification.
+
+Special request for owners of the new tado X hardware: if you have knowledge about any https://my.tado.com/ endpoints
+described in this specification which do not work as described, please create an issue (or submit a PR) with
+documentation improvement suggestions.
