@@ -38,7 +38,8 @@ fun verifyZoneState(zoneInfo: Pair<ZoneType, Boolean>, zoneState: ZoneState, con
         "$typeName.overlay",
         "$typeName.overlayType",
         "$typeName.nextScheduleChange",
-        "$typeName.openWindow")
+        "$typeName.openWindow",
+        "$typeName.link.reason")
 
     // properties which should not be inspected by verifyNested for any zoneType
     val basicStopAtProperties = listOf(

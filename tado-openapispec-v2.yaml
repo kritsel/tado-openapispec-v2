@@ -4248,6 +4248,16 @@ components:
                 known values: 
                 
                 * ONLINE
+                * OFFLINE
+            reason: # present when link.state is OFFLINE
+              type: object
+              properties:
+                code:
+                  type: string
+                  example: disconnectedDevice
+                title:
+                  type: string
+                  example: "There is a disconnected device."
         runningOfflineSchedule:
           type: boolean
           example: false
