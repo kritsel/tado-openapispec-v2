@@ -15,7 +15,7 @@ jobs:
   # verify whether the tado api spec matches the actual API by
   # - generating API client code based on the spec
   # - executing integration tests which uses the generated API client to call API methods
-  verify:
+  verify-api-spec:
     runs-on: ubuntu-latest
 
     steps:
@@ -43,7 +43,7 @@ jobs:
         path: tado-api-test/target/site
 
   # Deploy the mvn site to github pages (https://github.com/actions/deploy-pages)
-  deploy:
+  deploy-site:
     # run deploy job regardless the result of the verification job
     # --> https://stackoverflow.com/questions/58858429/how-to-run-a-github-actions-step-even-if-the-previous-step-fails-while-still-f
     # run deploy job only on changes to the main branch
@@ -51,7 +51,7 @@ jobs:
     if: (success() || failure()) && github.ref == 'refs/heads/main'
 
     # Run after the verify job (that job uploads the github build artifact that we're publishing in this job)
-    needs: verify
+    needs: verify-api-spec
 
     # Grant GITHUB_TOKEN the permissions required to make a Pages deployment
     permissions:
@@ -70,15 +70,14 @@ jobs:
         id: pages_deployment
         uses: actions/deploy-pages@v4 # or specific "vX.X.X" version tag for this action
 
-  mail:
+  status-mail:
     runs-on: ubuntu-latest
-    needs: [verify, deploy]
-    # only execute when workflow is triggered by a schedule, regardless of the result
-#    if: (success() || failure()) && github.event_name == 'schedule'
-    if: (success() || failure())
+    needs: [verify-api-spec, deploy-site]
+    # only execute when workflow is triggered by a schedule, regardless of the result of the workflow
+    if: (success() || failure()) && github.event_name == 'schedule'
 
     steps:
-      - name: Send mail
+      - name: Send status mail
         uses: dawidd6/action-send-mail@v3
         with:
           # Required mail server address if not connection_url
@@ -90,14 +89,14 @@ jobs:
           # Optional (recommended) mail server password:
           password: ${{secrets.MAIL_APP_PASSWORD}}
           # Required mail subject:
-          subject: '[GitHub | ${{ github.repository }}] Tado API verification job has finished with status ${{ needs.verify.result }}'
+          subject: '[GitHub | ${{ github.repository }}] Tado API verification job has finished with status ${{ needs.verify-api-spec.result }}'
           # Required recipients' addresses:
           to: 123kristel@gmail.com
           # Required sender full name (address can be skipped):
           from: GitHub workflow
           # Optional plain body:
           body: >
-            Tado API verification job has finished with status ${{ needs.verify.result }}
+            Tado API verification job has finished with status ${{ needs.verify-api-spec.result }}
             
             
             Details:
@@ -108,7 +107,7 @@ jobs:
             
             * github.event_name: ${{ github.event_name }}
             
-            * github.ref: ${{ github.ref }}
+            * github.ref: ${{ github.ref }} 
             
             * github.ref_name: ${{ github.ref_name }}
             
@@ -116,5 +115,3 @@ jobs:
             
             
             See https://kritsel.github.io/tado-openapispec-v2/failsafe-report.html for details.
-          # Optional attachments:
-          attachments: ./tado-api-test/target/site/failsafe-report.html
