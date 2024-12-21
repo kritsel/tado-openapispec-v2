@@ -177,7 +177,6 @@ Additionally, the following GitHub members and repositories have been a great he
  * [**mattdavis90** Matt Davis](https://github.com/mattdavis90): https://github.com/mattdavis90/node-tado-client
  * [**clambin** Christophe Lambin](https://github.com/clambin)
 
-
 # Contribute
 Feel free to submit a PR or create an issue if you want to contribute to this
 OpenAPI specification.
