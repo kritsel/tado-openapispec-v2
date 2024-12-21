@@ -69,7 +69,7 @@ the Swagger UI is basically a javascript application hosted by github.io,
 and it is not allowed to make calls to the tado.com host.
 
 ## Limitations
-Not all functionality in tado's webapp or mobile apps is supported via this tado API.
+Not all functionality in tado's webapp or mobile apps is supported via the tado https://my.tado.com/ API.
 
 When you use the webapp while keeping an eye on Network traffic via your browser's
 developer tools, you can see other tado APIs scrolling by as well.

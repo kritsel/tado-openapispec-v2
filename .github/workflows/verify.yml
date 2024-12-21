@@ -11,14 +11,18 @@ on:
     - cron: "0 10 * * 1"
 
 jobs:
-  api-test:
 
+  # verify whether the tado api spec matches the actual API by
+  # - generating API client code based on the spec
+  # - executing integration tests which uses the generated API client to call API methods
+  verify:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout
+      uses: actions/checkout@v4
 
-    - name: Set up JDK 21
+    - name: Set up Java 21
       uses: actions/setup-java@v4
       with:
         java-version: '21'
@@ -31,27 +35,62 @@ jobs:
         TADO_PASSWORD: ${{ secrets.TADO_PASSWORD }}
       run: mvn --batch-mode --update-snapshots clean verify site -P local-api-spec --file pom.xml
 
-    - name: Send mail
-      uses: dawidd6/action-send-mail@v3
+    # https://github.com/actions/upload-pages-artifact
+    - name: Upload static maven site as github build artifact
+      id: upload-github-artifact
+      uses: actions/upload-pages-artifact@v3 # or specific "vX.X.X" version tag for this action
       with:
-        # Required mail server address if not connection_url
-        server_address: smtp.gmail.com
-        # Server port, default 25:
-        server_port: 465
-        # Optional (recommended) mail server username:
-        username: ${{secrets.MAIL_USERNAME}}
-        # Optional (recommended) mail server password:
-        password: ${{secrets.MAIL_APP_PASSWORD}}
-        # Required mail subject:
-        subject: (GitHub) ${{github.repository}} API test job has ${{job.status}}
-        # Required recipients' addresses:
-        to: 123kristel@gmail.com
-        # Required sender full name (address can be skipped):
-        from: GitHub workflow
-        # Optional plain body:
-        body: ${{ github.job }} job in workflow ${{ github.workflow }} of repo ${{ github.repository }} has ${{ job.status }}
-        # Optional attachments:
-        attachments: ./target/site/failsafe-report.html
+        path: tado-api-test/target/site
+
+  # Deploy the mvn site to github pages (https://github.com/actions/deploy-pages)
+  deploy:
+    # run deploy job regardless the result of the verification job
+    # --> https://stackoverflow.com/questions/58858429/how-to-run-a-github-actions-step-even-if-the-previous-step-fails-while-still-f
+    # run deploy job only on changes to the main branch
+    # --> https://stackoverflow.com/questions/58139406/only-run-job-on-specific-branch-with-github-actions
+    if: (success() || failure()) && github.ref == 'refs/heads/master'
+
+    # Run after the verify job (that job uploads the github build artifact that we're publishing in this job)
+    needs: verify
+
+    # Grant GITHUB_TOKEN the permissions required to make a Pages deployment
+    permissions:
+      pages: write      # to deploy to Pages
+      id-token: write   # to verify the deployment originates from an appropriate source
+
+    # Deploy to the github-pages environment
+    environment:
+      name: github-pages
+      url: ${{ steps.pages_deployment.outputs.page_url }}
+
+    # Specify runner + deployment step
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to GitHub Pages
+        id: pages_deployment
+        uses: actions/deploy-pages@v4 # or specific "vX.X.X" version tag for this action
+
+#    - name: Send mail
+#      uses: dawidd6/action-send-mail@v3
+#      with:
+#        # Required mail server address if not connection_url
+#        server_address: smtp.gmail.com
+#        # Server port, default 25:
+#        server_port: 465
+#        # Optional (recommended) mail server username:
+#        username: ${{secrets.MAIL_USERNAME}}
+#        # Optional (recommended) mail server password:
+#        password: ${{secrets.MAIL_APP_PASSWORD}}
+#        # Required mail subject:
+#        subject: (GitHub) ${{github.repository}} API test job has ${{job.status}}
+#        # Required recipients' addresses:
+#        to: 123kristel@gmail.com
+#        # Required sender full name (address can be skipped):
+#        from: GitHub workflow
+#        # Optional plain body:
+#        body: ${{ github.job }} job in workflow ${{ github.workflow }} of repo ${{ github.repository }} has ${{ job.status }}
+#        # Optional attachments:
+#        attachments: ./target/site/failsafe-report.html
 
     # Optional: Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive
     #- name: Update dependency graph
