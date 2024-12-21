@@ -70,28 +70,40 @@ jobs:
         id: pages_deployment
         uses: actions/deploy-pages@v4 # or specific "vX.X.X" version tag for this action
 
-#    - name: Send mail
-#      uses: dawidd6/action-send-mail@v3
-#      with:
-#        # Required mail server address if not connection_url
-#        server_address: smtp.gmail.com
-#        # Server port, default 25:
-#        server_port: 465
-#        # Optional (recommended) mail server username:
-#        username: ${{secrets.MAIL_USERNAME}}
-#        # Optional (recommended) mail server password:
-#        password: ${{secrets.MAIL_APP_PASSWORD}}
-#        # Required mail subject:
-#        subject: (GitHub) ${{github.repository}} API test job has ${{job.status}}
-#        # Required recipients' addresses:
-#        to: 123kristel@gmail.com
-#        # Required sender full name (address can be skipped):
-#        from: GitHub workflow
-#        # Optional plain body:
-#        body: ${{ github.job }} job in workflow ${{ github.workflow }} of repo ${{ github.repository }} has ${{ job.status }}
-#        # Optional attachments:
-#        attachments: ./target/site/failsafe-report.html
+  mail:
+    runs-on: ubuntu-latest
+    needs: [verify, deploy]
+    # only execute when workflow is triggered by a schedule, regardless of the result
+#    if: (success() || failure()) && github.event_name == 'schedule'
+    if: (success() || failure())
 
-    # Optional: Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive
-    #- name: Update dependency graph
-    #  uses: advanced-security/maven-dependency-submission-action@571e99aab1055c2e71a1e2309b9691de18d6b7d6
+    steps:
+      - name: Send mail
+        uses: dawidd6/action-send-mail@v3
+        with:
+          # Required mail server address if not connection_url
+          server_address: smtp.gmail.com
+          # Server port, default 25:
+          server_port: 465
+          # Optional (recommended) mail server username:
+          username: ${{secrets.MAIL_USERNAME}}
+          # Optional (recommended) mail server password:
+          password: ${{secrets.MAIL_APP_PASSWORD}}
+          # Required mail subject:
+          subject: (GitHub) Tado API verification job has finished with status ${{ needs.verify.status }}
+          # Required recipients' addresses:
+          to: 123kristel@gmail.com
+          # Required sender full name (address can be skipped):
+          from: GitHub workflow
+          # Optional plain body:
+          body: >
+            Tado API verification job has finished with status ${{ needs.verify.status }}
+            
+            * workflow: ${{ github.workflow }}
+            
+            * repo: ${{ github.repository }}
+            
+            
+            See https://github.com/kritsel/tado-openapispec-v2/failsafe-report.html for details.
+          # Optional attachments:
+          attachments: ./tado-api-test/target/site/failsafe-report.html
