@@ -90,7 +90,7 @@ jobs:
           # Optional (recommended) mail server password:
           password: ${{secrets.MAIL_APP_PASSWORD}}
           # Required mail subject:
-          subject: '[GitHub] Tado API verification job has finished with status ${{ needs.verify.result }}'
+          subject: '[GitHub | ${{ github.repository }}] Tado API verification job has finished with status ${{ needs.verify.result }}'
           # Required recipients' addresses:
           to: 123kristel@gmail.com
           # Required sender full name (address can be skipped):
@@ -98,6 +98,9 @@ jobs:
           # Optional plain body:
           body: >
             Tado API verification job has finished with status ${{ needs.verify.result }}
+            
+            
+            Details:
             
             * repo: ${{ github.repository }}
             
