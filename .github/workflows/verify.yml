@@ -48,7 +48,7 @@ jobs:
     # --> https://stackoverflow.com/questions/58858429/how-to-run-a-github-actions-step-even-if-the-previous-step-fails-while-still-f
     # run deploy job only on changes to the main branch
     # --> https://stackoverflow.com/questions/58139406/only-run-job-on-specific-branch-with-github-actions
-    if: (success() || failure()) && github.ref == 'refs/heads/master'
+    if: (success() || failure()) && github.ref == 'refs/heads/main'
 
     # Run after the verify job (that job uploads the github build artifact that we're publishing in this job)
     needs: verify
