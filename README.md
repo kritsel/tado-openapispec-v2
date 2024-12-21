@@ -173,8 +173,9 @@ and **Terence Eden** (https://shkspr.mobi/blog/2019/02/tado-api-guide-updated-fo
 I would have never started experimenting with the tado API,
 and this tado OpenAPI specification would have never seen the light of day.
 
-Additionally, the following github repositories have been a great help:
- * https://github.com/mattdavis90/node-tado-client
+Additionally, the following GitHub members and repositories have been a great help:
+ * [**mattdavis90** Matt Davis](https://github.com/mattdavis90): https://github.com/mattdavis90/node-tado-client
+ * [**clambin** Christophe Lambin](https://github.com/clambin)
 
 # Contribute
 Feel free to submit a PR or create an issue if you want to contribute to this
