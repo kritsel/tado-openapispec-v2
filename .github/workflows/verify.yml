@@ -90,20 +90,28 @@ jobs:
           # Optional (recommended) mail server password:
           password: ${{secrets.MAIL_APP_PASSWORD}}
           # Required mail subject:
-          subject: (GitHub) Tado API verification job has finished with status ${{ needs.verify.status }}
+          subject: '[GitHub] Tado API verification job has finished with status ${{ needs.verify.result }}'
           # Required recipients' addresses:
           to: 123kristel@gmail.com
           # Required sender full name (address can be skipped):
           from: GitHub workflow
           # Optional plain body:
           body: >
-            Tado API verification job has finished with status ${{ needs.verify.status }}
-            
-            * workflow: ${{ github.workflow }}
+            Tado API verification job has finished with status ${{ needs.verify.result }}
             
             * repo: ${{ github.repository }}
             
+            * workflow: ${{ github.workflow }}
             
-            See https://github.com/kritsel/tado-openapispec-v2/failsafe-report.html for details.
+            * github.event_name: ${{ github.event_name }}
+            
+            * github.ref: ${{ github.ref }}
+            
+            * github.ref_name: ${{ github.ref_name }}
+            
+            * github.ref_type: ${{ github.ref_type }}
+            
+            
+            See https://kritsel.github.io/tado-openapispec-v2/failsafe-report.html for details.
           # Optional attachments:
           attachments: ./tado-api-test/target/site/failsafe-report.html
