@@ -33,14 +33,14 @@ jobs:
       env:
         TADO_USERNAME: ${{ secrets.TADO_USERNAME }}
         TADO_PASSWORD: ${{ secrets.TADO_PASSWORD }}
-      run: mvn --batch-mode --update-snapshots clean verify site -P local-api-spec --file pom.xml
+      run: mvn --batch-mode --update-snapshots clean verify site site:stage-P local-api-spec --file pom.xml
 
     # https://github.com/actions/upload-pages-artifact
     - name: Upload static maven site as github build artifact
       id: upload-github-artifact
       uses: actions/upload-pages-artifact@v3 # or specific "vX.X.X" version tag for this action
       with:
-        path: target/site
+        path: target/staging
 
   # Deploy the mvn site to github pages (https://github.com/actions/deploy-pages)
   deploy-site:
