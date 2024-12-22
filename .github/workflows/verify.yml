@@ -40,7 +40,7 @@ jobs:
       id: upload-github-artifact
       uses: actions/upload-pages-artifact@v3 # or specific "vX.X.X" version tag for this action
       with:
-        path: tado-api-test/target/site
+        path: target/site
 
   # Deploy the mvn site to github pages (https://github.com/actions/deploy-pages)
   deploy-site:

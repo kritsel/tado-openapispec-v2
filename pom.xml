@@ -119,6 +119,7 @@
                         <inherited>false</inherited>
                         <configuration>
                             <aggregate>true</aggregate>
+                            <customBundle>${basedir}/src/site/custom/failsafe-report.properties</customBundle>
                         </configuration>
                     </reportSet>
                 </reportSets>

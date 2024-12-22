@@ -2,6 +2,9 @@
 <project xmlns="http://maven.apache.org/SITE/2.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/SITE/2.0.0 https://maven.apache.org/xsd/site-2.0.0.xsd"
          name="Maven">
+    <version position="none"/>
+    <poweredBy></poweredBy>
+
     <bannerLeft>
         <name>tado</name>
         <src>images/tado.png</src>
@@ -15,7 +18,7 @@
 <!--    </skin>-->
 
     <body>
-        <menu name="tado API">
+        <menu name="tado&ordm; API spec">
             <item name="Introduction" href="index.html"/>
             <item name="Swagger UI (opens in new tab)" href="swagger.html" target="_blank"/>
             <item name="OAuth" href="oauth.html"/>

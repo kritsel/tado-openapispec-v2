@@ -1,0 +1,2 @@
+/* do not display the 'Built by maven' logo */
+.poweredBy { display: none; }
