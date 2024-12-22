@@ -35,6 +35,9 @@ jobs:
         TADO_PASSWORD: ${{ secrets.TADO_PASSWORD }}
       run: mvn --batch-mode --update-snapshots clean verify site site:stage -P local-api-spec --file pom.xml
 
+    - name: ls target/staging directory
+      run: ls -l target/staging
+
     # https://github.com/actions/upload-pages-artifact
     - name: Upload static maven site as github build artifact
       id: upload-github-artifact
