@@ -1,1 +1,1 @@
-mvn clean verify site site:stage -P local-api-spec --file ../pom.xml
+mvn clean verify site -P local-api-spec --file pom.xml
