@@ -35,6 +35,9 @@ jobs:
         TADO_PASSWORD: ${{ secrets.TADO_PASSWORD }}
       run: mvn --batch-mode --update-snapshots clean verify -P local-api-spec --file pom.xml
 
+    - name: Build site
+      run: mvn --batch-mode --update-snapshots -Dmaven.test.skip=true site -P local-api-spec --file pom.xml
+
     - name: ls target/site
       run: ls -l target/site
 
@@ -46,12 +49,6 @@ jobs:
 
     - name: env
       run: env
-
-    - name: Build site
-      run: mvn --batch-mode --update-snapshots -DskipTests site -P local-api-spec --file pom.xml
-
-    - name: ls target/site (2)
-      run: ls -l target/site
 
     - name: mvn version
       run: mvn -v
