@@ -7,5 +7,7 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
-### misc
-releasenotes.txt
+### secrets
+scripts/set-secrets.sh
+
+

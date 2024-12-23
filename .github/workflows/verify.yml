@@ -33,16 +33,19 @@ jobs:
       env:
         TADO_USERNAME: ${{ secrets.TADO_USERNAME }}
         TADO_PASSWORD: ${{ secrets.TADO_PASSWORD }}
-      run: mvn --batch-mode --update-snapshots clean verify site site:stage -P local-api-spec --file pom.xml
+      run: mvn --batch-mode --update-snapshots clean verify site -P local-api-spec --file pom.xml
 
-    - name: ls target/site directory
+    - name: ls target/site
       run: ls -l target/site
 
-    - name: ls target/staging directory
-      run: ls -l target/staging
+    - name: ls tado-api-test/target/site
+      run: ls -l tado-api-test/target/site
 
-    - name: ls target/staging/tado-api-test directory
-      run: ls -l target/staging/tado-api-test
+    - name: ls tado-api-test/target/failsafe-reports
+      run: ls -l tado-api-test/target/failsafe-reports
+
+    - name: env
+      run: env
 
     # https://github.com/actions/upload-pages-artifact
     - name: Upload static maven site as github build artifact
