@@ -2,8 +2,8 @@
 <html>
 <head>
     <!-- Load the latest Swagger UI code and style from npm using unpkg.com -->
-    <script src="https://unpkg.com/swagger-ui-dist@3/swagger-ui-bundle.js"></script>
-    <link rel="stylesheet" type="text/css" href="https://unpkg.com/swagger-ui-dist@3/swagger-ui.css"/>
+    <script src="https://unpkg.com/swagger-ui-dist@5.11.0/swagger-ui-bundle.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://unpkg.com/swagger-ui-dist@5.11.0/swagger-ui.css"/>
     <title>tado&ordm; API v2 - community managed</title>
 </head>
 <body>
@@ -12,8 +12,11 @@
     window.onload = function () {
         // Begin Swagger UI call region
         const ui = SwaggerUIBundle({
-            url: "https://raw.githubusercontent.com/kritsel/tado-openapispec-v2/latest/tado-openapispec-v2.yaml", //Location of Open API spec
+            // Location of tado API definition
+            url: "https://raw.githubusercontent.com/kritsel/tado-openapispec-v2/latest/tado-openapispec-v2.yaml",
             dom_id: '#swagger-ui',
+            // Hide 'try it out' feature (won't work because of CORS)
+            supportedSubmitMethods:[],
             deepLinking: true,
             presets: [
                 SwaggerUIBundle.presets.apis,

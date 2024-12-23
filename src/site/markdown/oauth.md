@@ -1,4 +1,6 @@
 # OAuth 2.0 authentication
+
+## Basics
 The only authentication mechanism supported by the tado API is OAuth 2.0.
 
 tado&ordm; only supports OAuth 2.0 authentication via their own authentication server;

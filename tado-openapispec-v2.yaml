@@ -2,17 +2,21 @@ openapi: 3.0.0
 info:
   title: tado API v2
   description: |
-    Community managed API specification for the tado smart thermostat solution 
-    (this specification is not officially supported or published by tado).
+    Community managed API definition for the tado API hosted on https://my.tado.com/api/v2/. 
+    This definition is not officially supported or published by tado&ordm;.
     
     Start with `[user] GET /me`. This will give you the id of your home and you can take it further from there.
     
-    Github repository where this specification is maintained: 
+    Links:
+    
+    * Github repository where this API definition is maintained: 
     [https://github.com/kritsel/tado-openapispec-v2](https://github.com/kritsel/tado-openapispec-v2)
+    
+    * Accompanying website with additional information:
+    [https://kritsel.github.io/tado-openapispec-v2/](https://kritsel.github.io/tado-openapispec-v2/)
   version: 2.2024.12.21.0
 servers:
   - url: https://my.tado.com/api/v2/
-    description: Production server
 security:
   - oauth2: [] # no scopes
 
@@ -419,7 +423,7 @@ paths:
         
         
         The app assists the user in finding the boiler by brand and model. 
-        This is supported by tado's graphql API, and not via the API described in this specification.
+        This is supported by tado's graphql API, and not via the API described in this definition.
       operationId: setBoiler # hint for client code generators
       tags:
         - home
@@ -2769,6 +2773,8 @@ components:
                 known values: 
                 
                 * CALIBRATED
+                
+                * CALIBRATING
             timestamp:
               type: string
               format: date-time

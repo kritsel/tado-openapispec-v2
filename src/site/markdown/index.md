@@ -1,93 +1,49 @@
-# About tado&ordm;, the tado API and this OpenAPI specification
+# tado&ordm;, tado API and the tado API definition
 
-## tado&ordm;
+## tado&ordm; and the tado API
 
-https://www.tado.com/
+tado&ordm; (https://www.tado.com/) is a german based company which offers a smart thermostat solution
+to control heating and air-conditioning in your home. 
+They sell hardware and subscription based add-on services.
+These can be controlled via a mobile app or a webapp on their website.
 
-tado&ordm; is a german based company which offers a smart thermostat solution
-to control heating and air-conditioning in your home.
-
-tado&ordm; sells hardware and subscription based add-on services.
-These can be controlled via a mobile app or an on-line app on their website.
-
-## tado API
-The tado&ordm; website and mobile apps use the tado API which is available at
-https://my.tado.com/api/v2.
-
-tado&ordm; allows third-party developers to use their API as well,
+The apps use a tado API which is available at https://my.tado.com/api/v2.
+tado&ordm; allows third-party developers to use this API for their own projects,
 but they do not provide any kind of support or documentation.
 
-## tado OpenAPI specification
+## tado API definition - community managed
 
-This repository contains a community managed OpenAPI specification for the
-**tado API v2**.
+This website is the documentation companion for GitHub repository https://github.com/kritsel/tado-openapispec-v2.
+That repo is used to maintain a community managed API definition (based on the OpenAPI specification, a.k.a. Swagger)
+for the **tado API v2** as exposed via https://my.tado.com/api/v2.
+
 It is based on the experience of software developers who are experimenting
 with the API to create their own solutions.
 
-This API specification is not maintained or officially published by the tado&ordm; company.
-The contents of this API specification is a best-effort product.
-There are no guarantees that this API specification is a complete and
-correct representation of the actual API as operated by tado&ordm;.
+This API definition is not maintained or officially published by the tado&ordm; company.
+The contents of this API definition is a best-effort product.
+There are no guarantees that this API definition is a complete and
+correct representation of the actual API as exposed via https://my.tado.com/api/v2.
 
-# Specification characteristics
+As the owner of the repo I also do not have any ties to the tado&ordm; company. 
+I simply like to create a space where knowledge about the tado API can be centralized in a standardized form,
+so it becomes easier for software developers interested in home automation to use the API.
 
-## Versioning
-As this is a community managed OpenAPI specification for an API which is
-actually controlled by another company (being tado&ordm;),
-the specification grows and matures gradually based on the discoveries made by
-software developers who are reverse-engineering the API.
+# Acknowledgments
+Without the groundwork done by **Stephen C. Phillips**
+(https://blog.scphillips.com/posts/2017/01/the-tado-api-v2/)
+and **Terence Eden** (https://shkspr.mobi/blog/2019/02/tado-api-guide-updated-for-2019/)
+I would have never started experimenting with the tado API,
+and this API definition would have never seen the light of day.
 
-The changes and releases of this *specification* do not represent the changes
-in the API itself.
-They merely represent the changes in our understanding of the API.
+Additionally, the following GitHub members and repositories have been a great help:
+* [**mattdavis90** Matt Davis](https://github.com/mattdavis90): https://github.com/mattdavis90/node-tado-client
+* [**clambin** Christophe Lambin](https://github.com/clambin)
 
-Because of this, a versioning scheme is adopted which expresses the date
-on which the *specification* was modified.
+# Contribute
+Feel free to submit a PR or create an issue if you want to contribute to this
+API definition.
 
-The version format is `v2.<year>.<month>.<day>.<daily release number>`.
-
-(the daily release number is basically always `0`, unless we are releasing
-multiple versions on the same day)
-
-## Conventions
-
-The following conventions are used to document the tado API:
-
-1. Object identifiers
-   1. All object identifiers have their own explicitly identified type (e.g. HomeId, ZoneId)  
-      to ensure consistency wherever they are used
-   2. Numerical object identifiers which seem to be globally unique are defined as `format: int64`
-      to prevent potential future surprises when tado would decide to use such high values. 
-   3. Numerical object identifiers which are only unique within the scope of a single home
-      have no format defined, meaning they are `int32` by default.
-2. Schema modelling
-   1. Schema elements are modelled in a way that maximizes element re-use.
-   2. When the input for a PUT operation on a resource differs from the response of the associated GET operation
-      (e.g. not all fields of the response object are expected in the input object), 
-      a specific `<some object>Input` schema element is defined. 
-3. Enums
-   1. When a property's type appears to be an enum and we're quite confident that we know all possible values, 
-      the field's type is defined as an enum.
-   2. When we're not sure that we know all possible values of a property type which is expected to be en enum
-      it is defined as a `string` field
-4. Responses
-   1. All operations specify the 401 (unauthorized, meaning no valid oauth access token) and 
-      403 (forbidden, meaning your access token is OK but you're not allowed to call the operation) response codes
-   2. Where a 404 is known to be able to occur it is specified, but there is no guarantee that the
-      specification is complete on this aspect. 
-
-## Limitations
-Not all functionality in tado's webapp or mobile apps is supported via this tado API.
-
-When you use the webapp while keeping an eye on Network traffic via your browser's
-developer tools, you can see other tado APIs scrolling by as well.
-
-* https://acme.tado.com : additional air comfort information (display texts, visuals to use, outdoor air quality)
-* https://auth.tado.com/: manage your account information like name, email and password
-* https://energy-insights.tado.com: functionality behind Energy IQ
-* https://ivar.tado.com/graphql: retrieve brand and boiler model information to help the user select their boiler type
-* https://nibbler.tado.com/graphql: registering new devices
-* https://minder.tado.com: get incidents information
-* https://susi.tado.com: get skill information (related to paid Auto-Assist subscription)
-* https://tariff-experience.tado.com
-
+Special request for owners of the new tado X hardware: if you have knowledge about any https://my.tado.com/ endpoints
+described in this definition which do not work as described, please create an issue (or submit a PR) with
+documentation improvement suggestions.
