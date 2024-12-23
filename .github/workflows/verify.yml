@@ -47,6 +47,9 @@ jobs:
     - name: env
       run: env
 
+    - name: mvn version
+      run: mvn -v
+
     # https://github.com/actions/upload-pages-artifact
     - name: Upload static maven site as github build artifact
       id: upload-github-artifact
