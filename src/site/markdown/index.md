@@ -29,7 +29,7 @@ As the owner of the repo I also do not have any ties to the tado&ordm; company.
 I simply like to create a space where knowledge about the tado API can be centralized in a standardized form,
 so it becomes easier for software developers interested in home automation to use the API.
 
-# Acknowledgments
+## Acknowledgments
 Without the groundwork done by **Stephen C. Phillips**
 (https://blog.scphillips.com/posts/2017/01/the-tado-api-v2/)
 and **Terence Eden** (https://shkspr.mobi/blog/2019/02/tado-api-guide-updated-for-2019/)
@@ -40,7 +40,7 @@ Additionally, the following GitHub members and repositories have been a great he
 * [**mattdavis90** Matt Davis](https://github.com/mattdavis90): https://github.com/mattdavis90/node-tado-client
 * [**clambin** Christophe Lambin](https://github.com/clambin)
 
-# Contribute
+## Contribute
 Feel free to submit a PR or create an issue if you want to contribute to this
 API definition.
 
