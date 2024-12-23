@@ -35,26 +35,13 @@ jobs:
         TADO_PASSWORD: ${{ secrets.TADO_PASSWORD }}
       run: mvn --batch-mode --update-snapshots clean verify -P local-api-spec --file pom.xml
 
-    - name: Build site
+    # Building the site must be a separate step, otherwise no aggregated reports are available
+    # https://www.prient.co.uk/2017/03/aggregating-reports-in-multi-module.html
+    - name: Build maven site
       run: mvn --batch-mode --update-snapshots -Dmaven.test.skip=true site -P local-api-spec --file pom.xml
 
-    - name: ls target/site
-      run: ls -l target/site
-
-    - name: ls tado-api-test/target/site
-      run: ls -l tado-api-test/target/site
-
-    - name: ls tado-api-test/target/failsafe-reports
-      run: ls -l tado-api-test/target/failsafe-reports
-
-    - name: env
-      run: env
-
-    - name: mvn version
-      run: mvn -v
-
     # https://github.com/actions/upload-pages-artifact
-    - name: Upload static maven site as github build artifact
+    - name: Upload maven site as github build artifact
       id: upload-github-artifact
       uses: actions/upload-pages-artifact@v3 # or specific "vX.X.X" version tag for this action
       with:
@@ -84,7 +71,7 @@ jobs:
     # Specify runner + deployment step
     runs-on: ubuntu-latest
     steps:
-      - name: Deploy to GitHub Pages
+      - name: Deploy maven site to GitHub Pages
         id: pages_deployment
         uses: actions/deploy-pages@v4 # or specific "vX.X.X" version tag for this action
 
@@ -95,7 +82,7 @@ jobs:
     if: (success() || failure()) && github.event_name == 'schedule'
 
     steps:
-      - name: Send status mail
+      - name: Send workflow run status mail
         uses: dawidd6/action-send-mail@v3
         with:
           # Required mail server address if not connection_url
@@ -113,6 +100,8 @@ jobs:
           # Required sender full name (address can be skipped):
           from: GitHub workflow
           # Optional plain body:
+          # (see https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/accessing-contextual-information-about-workflow-runs
+          #  for available context values)
           body: >
             Tado API verification job has finished with status ${{ needs.verify-api-spec.result }}
             
@@ -123,13 +112,13 @@ jobs:
             
             * workflow: ${{ github.workflow }}
             
-            * github.event_name: ${{ github.event_name }}
+            * workflow trigger: ${{ github.event_name }}
             
-            * github.ref: ${{ github.ref }} 
-            
-            * github.ref_name: ${{ github.ref_name }}
-            
-            * github.ref_type: ${{ github.ref_type }}
+            * github reference: ${{ github.ref_type }} ${{ github.ref_name }} (${{ github.ref }})
             
             
-            See https://kritsel.github.io/tado-openapispec-v2/failsafe-report.html for details.
+            Relevant links:
+            
+            * GitHub workflow run: https://github.com/kritsel/tado-openapispec-v2/actions/runs/${{github.run_id}}
+            
+            * API test results: https://kritsel.github.io/tado-openapispec-v2/failsafe-report.html
