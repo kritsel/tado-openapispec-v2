@@ -40,7 +40,7 @@ so it becomes easier for software developers interested in home automation to us
 
 
 Links to the API definition in various formats:
- * **file in this GitHub repo**: [blob/main/tado-openapispec-v2.yaml](blob/main/tado-openapispec-v2.yaml)
+ * **file in this GitHub repo**: [tado-openapispec-v2.yaml](tado-openapispec-v2.yaml)
  * **raw content**: https://raw.githubusercontent.com/kritsel/tado-openapispec-v2/latest/tado-openapispec-v2.yaml
  * **Swagger UI**: https://kritsel.github.io/tado-openapispec-v2/swagger.html
 
