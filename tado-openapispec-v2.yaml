@@ -2782,7 +2782,14 @@ components:
         mountingStateWithError:
           type: string
           example: CALIBRATED
-          description: "property known to be present for DeviceType VA02; known values: CALIBRATED"
+          description: >
+            property known to be present for DeviceType VA02; 
+            
+            known values: 
+            
+            * CALIBRATED
+            
+            * CALIBRATING
         batteryState:
           $ref: '#/components/schemas/BatteryState'
         orientation:
