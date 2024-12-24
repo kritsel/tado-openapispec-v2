@@ -3064,6 +3064,8 @@ components:
                 known values:
                 
                 * PRE_LINE_X
+                
+                * LINE_X
             zonesCount:
               type: integer
               example: 5
