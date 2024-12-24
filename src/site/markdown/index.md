@@ -13,12 +13,14 @@ but they do not provide any kind of support or documentation.
 
 ## tado API definition - community managed
 
-This website is the documentation companion for GitHub repository https://github.com/kritsel/tado-openapispec-v2.
-That repo is used to maintain a community managed API definition (based on the OpenAPI specification, a.k.a. Swagger)
+GitHub repository https://github.com/kritsel/tado-openapispec-v2 is used to maintain a community managed API definition
+(based on the OpenAPI specification, a.k.a. Swagger)
 for the **tado API v2** as exposed via https://my.tado.com/api/v2.
 
-It is based on the experience of software developers who are experimenting
-with the API to create their own solutions.
+(This website is the documentation companion for that repo)
+
+
+The API definition is based on the experience of software developers who use the API to create their own solutions.
 
 This API definition is not maintained or officially published by the tado&ordm; company.
 The contents of this API definition is a best-effort product.
@@ -41,9 +43,9 @@ Additionally, the following GitHub members and repositories have been a great he
 * [**clambin** Christophe Lambin](https://github.com/clambin)
 
 ## Contribute
-Feel free to submit a PR or create an issue if you want to contribute to this
-API definition.
+Feel free to submit a PR or create an issue via the GitHub repo (https://github.com/kritsel/tado-openapispec-v2)
+if you want to contribute to this API definition.
 
-Special request for owners of the new tado X hardware: if you have knowledge about any https://my.tado.com/ endpoints
+Special request for owners of the new tado&ordm; X devices: if you have knowledge about any https://my.tado.com/ endpoints
 described in this definition which do not work as described, please create an issue (or submit a PR) with
 documentation improvement suggestions.

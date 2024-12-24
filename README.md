@@ -6,10 +6,8 @@
 ![open for contributors](https://img.shields.io/badge/open_for_contributors-yes-blue)
 [![contributors](https://img.shields.io/github/contributors/kritsel/tado-openapispec-v2)](https://github.com/kritsel/tado-openapispec-v2/graphs/contributors)
 
-# Full documentation
-
-Full documentation is available at https://kritsel.github.io/tado-openapispec-v2/.
-This README is a summary.
+*Full documentation is available at https://kritsel.github.io/tado-openapispec-v2/.
+This README is a summary.*
 
 # About tado&ordm;, tado API and the tado API definition
 
@@ -40,6 +38,12 @@ As the owner of the repo I also do not have any ties to the tado&ordm; company.
 I simply like to create a space where knowledge about the tado API can be centralized in a standardized form,
 so it becomes easier for software developers interested in home automation to use the API.
 
+# API support for tado&ordm; X
+
+The tado API hosted on https://my.tado.com/api has limited support for tado&ordm; X devices.
+Tado&ordm; hosts a separate API geared towards tado&ordm; X.
+
+More info is available at https://kritsel.github.io/tado-openapispec-v2/tado-x.html
 
 # Acknowledgments
 Without the groundwork done by **Stephen C. Phillips** 
