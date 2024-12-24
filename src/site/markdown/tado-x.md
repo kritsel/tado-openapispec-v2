@@ -19,7 +19,8 @@ More info on tado API support for tado&ordm; X can be found here:
 
 * https://community.tado.com/en-gb/discussion/25101/tado-x-api
 * https://github.com/gedhi/tadox-postman-collection
-* https://github.com/aweddell/PyTadoX/tree/TadoX-Support
+* https://github.com/aweddell/PyTadoX/tree/TadoX-Support (fork of https://github.com/chrism0dwk/PyTado)
+* https://github.com/svobop/PyTado/tree/master/PyTado (also a fork of https://github.com/chrism0dwk/PyTado)
 
 ## Why can't you create an API definition for https://hops.tado.com as well?
 
