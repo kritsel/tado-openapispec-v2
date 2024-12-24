@@ -14,7 +14,7 @@ info:
     
     * Accompanying website with additional information:
     [https://kritsel.github.io/tado-openapispec-v2/](https://kritsel.github.io/tado-openapispec-v2/)
-  version: 2.2024.12.23.0
+  version: 2.2024.12.24.0
 servers:
   - url: https://my.tado.com/api/v2/
 security:
