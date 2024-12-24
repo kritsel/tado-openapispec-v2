@@ -22,7 +22,7 @@ The apps use a tado API which is available at https://my.tado.com/api/v2.
 tado&ordm; allows third-party developers to use this API for their own projects,
 but they do not provide any kind of support or documentation.
 
-## tado API definitiom
+## tado API definition
 
 This repository contains a community managed API definition for the
 **tado API v2** which is hosted on https://my.tado.com/api. It uses OpenAPI v3.0.0 as its specification language.
@@ -37,6 +37,12 @@ correct representation of the actual API as exposed via https://my.tado.com/api/
 As the owner of the repo I also do not have any ties to the tado&ordm; company.
 I simply like to create a space where knowledge about the tado API can be centralized in a standardized form,
 so it becomes easier for software developers interested in home automation to use the API.
+
+
+Links to the API definition in various formats:
+ * file in GitHub repo: [tado-openapispec-v2.yaml] (blob/main/tado-openapispec-v2.yaml)
+ * raw content: https://raw.githubusercontent.com/kritsel/tado-openapispec-v2/latest/tado-openapispec-v2.yaml
+ * Swagger UI: https://kritsel.github.io/tado-openapispec-v2/swagger.html
 
 # API support for tado&ordm; X
 

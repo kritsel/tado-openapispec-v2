@@ -11,7 +11,7 @@ The apps use a tado API which is available at https://my.tado.com/api/v2.
 tado&ordm; allows third-party developers to use this API for their own projects,
 but they do not provide any kind of support or documentation.
 
-## tado API definition - community managed
+## community managed tado API definition
 
 GitHub repository https://github.com/kritsel/tado-openapispec-v2 is used to maintain a community managed API definition
 (based on the OpenAPI specification, a.k.a. Swagger)
