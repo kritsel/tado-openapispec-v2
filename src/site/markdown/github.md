@@ -1,0 +1,1 @@
+This website is generated from https://github.com/kritsel/tado-openapispec-v2.

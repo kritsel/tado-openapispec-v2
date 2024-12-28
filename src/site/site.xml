@@ -21,6 +21,7 @@
         <menu name="tado&ordm; API definition">
             <item name="Swagger UI (opens in new tab)" href="swagger.html" target="_blank"/>
             <item name="API test report" href="failsafe-report.html"/>
+            <item name="GitHub" href="github.html"/>
         </menu>
     </body>
 </project>
