@@ -7,13 +7,26 @@ info:
     
     Start with `[user] GET /me`. This will give you the id of your home and you can take it further from there.
     
-    Links:
+    # tado&ordm; X support
     
-    * Github repository where this API definition is maintained: 
+    This API is primarily meant to support homes equipped with tado&ordm; V3 (and earlier generation) devices.
+    It provides limited support for tado&ordm; X enabled homes.
+    
+    API operation groups (and sometimes individual API operations) are labelled to indicated whether they support tado&ordm; X:
+    
+    * **[&check; tado X]** (or [+ tado X]: operation group (or single operation) supports tado&ordm; X
+    * **[&cross; tado X]** (or [NO tado X]: operation group (or single operation) does not support tado&ordm; X
+    * **[&quest; tado X]** (or [? tado X]: unknown whether the operation group (or single operation) supports tado&ordm; X
+    
+    More info: [https://github.com/kritsel/tado-openapispec-v2/wiki/tado-X](https://github.com/kritsel/tado-openapispec-v2/wiki/tado-X)
+    
+    # Additional resources
+    
+    * Github repo where this API definition is maintained: 
     [https://github.com/kritsel/tado-openapispec-v2](https://github.com/kritsel/tado-openapispec-v2)
     
-    * Accompanying website with additional information:
-    [https://kritsel.github.io/tado-openapispec-v2/](https://kritsel.github.io/tado-openapispec-v2/)
+    * Wiki for this GitHub repo with additional information:
+    [https://github.com/kritsel/tado-openapispec-v2/wiki](https://github.com/kritsel/tado-openapispec-v2/wiki/)
   version: 2.2024.12.24.1
 servers:
   - url: https://my.tado.com/api/v2/
@@ -26,7 +39,7 @@ paths:
 
   /me:
     get:
-      summary: Returns information about the authenticated user, (summary) information of their home(s) and mobile devices.
+      summary: Returns information about the authenticated user, (summary) information of their home(s) and mobile devices. [+ tado X]
       operationId: getMe # hint for client code generators
       tags:
         - user
@@ -246,7 +259,7 @@ paths:
   # home paths
   /homes/{homeId}:
     get:
-      summary: Get full details of a single home.
+      summary: Get full details of a single home. [+ tado X]
       description: Use `GET /me` to determine the `homeId` of your home
       operationId: getHome # hint for client code generators
       tags:
@@ -579,7 +592,7 @@ paths:
 
   /homes/{homeId}/weather:
     get:
-      summary: Get the current weather for the given home
+      summary: Get the current weather for the given home. [+ tado X]
       operationId: getWeather # hint for client code generators
       tags:
         - home
@@ -605,69 +618,9 @@ paths:
   ####################################################################################################################
   # home control paths
 
-  /homes/{homeId}/overlay:
-    post:
-      summary: Configure the zone overlay (manual override of the configured schedule) of multiple rooms (a.k.a. zones) with a single API method
-      description: >
-        Used in app feature: Home page > Turn OFF All Rooms
-      operationId: setZoneOverlays # hint for client code generators
-      tags:
-        - home control
-      parameters:
-        - in: path
-          name: homeId
-          schema:
-            $ref: '#/components/schemas/HomeId'
-          required: true
-          description: unique ID of a home
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ZoneOverlays'
-      responses:
-        '204':
-          description: successful empty response
-        '401':
-          $ref: '#/components/responses/Unauthorized401'
-        '403':
-          $ref: '#/components/responses/AccessDenied403'
-        '422':
-          $ref: '#/components/responses/InputError422'
-    delete:
-      summary: Remove the zone overlay (manual override of the configured schedule) of multiple rooms (a.k.a. zones) with a single API method
-      description: >
-        Used in app feature: Home page > Resume Schedule All Rooms
-      operationId: deleteZoneOverlays # hint for client code generators
-      tags:
-        - home control
-      parameters:
-        - in: path
-          name: homeId
-          schema:
-            $ref: '#/components/schemas/HomeId'
-          required: true
-          description: unique ID of a home
-        - in: query
-          name: rooms
-          schema:
-            type: array
-            items:
-              $ref: '#/components/schemas/ZoneId'
-          required: true
-          description: list of zone IDs whose overlay should be removed (do not include a HOT_WATER zone ID)
-      responses:
-        '204':
-          description: successful empty response
-        '401':
-          $ref: '#/components/responses/Unauthorized401'
-        '403':
-          $ref: '#/components/responses/AccessDenied403'
-
   /homes/{homeId}/presenceLock:
     put:
-      summary: Specify whether someone at home or not.
+      summary: Specify whether someone at home or not. [+ tado X]
       description: >
         When the state is 'AWAY' the AwayConfiguration of each zone will control
         the (temperature) settings for that zone.
@@ -704,7 +657,7 @@ paths:
         '422': # verify
           $ref: '#/components/responses/InputError422'
     delete:
-      summary: Remove the manual home status set.
+      summary: Remove the manual home status set. [+ tado X]
       description: >
         Remove the manual home status, set by SetPresenceLock. Requires a paid Auto-Assist subscription.
 
@@ -730,7 +683,7 @@ paths:
 
   /homes/{homeId}/state:
     get:
-      summary: Get information about the presence state of the home.
+      summary: Get information about the presence state of the home. [+ tado X]
       description: >
         The presence state is either automatically controlled via geofencing (requires a paid tado subscription),
         or it can be set via PUT /homes/{homeId}/presenceLock
@@ -765,7 +718,7 @@ paths:
   # zone  paths
   /homes/{homeId}/zones:
     get:
-      summary: Get all zones (a.k.a. rooms) associated with the provided homeId.
+      summary: Get all zones (a.k.a. rooms) associated with the provided homeId. [NO tado X]
       description: >
         Delivers information about each zone in the given home, including the tado devices present in each zone.
         
@@ -852,7 +805,7 @@ paths:
 
   /homes/{homeId}/zones/{zoneId}/capabilities:
     get:
-      summary: Get the temperature setting capabilities of this zone
+      summary: Get the temperature setting capabilities of this zone. [NO tado X]
       description: This includes current temperature, humidity and heating power information.
       operationId: getZoneCapabilities # hint for client code generators
       tags:
@@ -1073,6 +1026,66 @@ paths:
 
   ####################################################################################################################
   # zone control paths
+
+  /homes/{homeId}/overlay:
+    post:
+      summary: Configure the zone overlay (manual override of the configured schedule) of multiple rooms (a.k.a. zones) with a single API method
+      description: >
+        Used in app feature: Home page > Turn OFF All Rooms
+      operationId: setZoneOverlays # hint for client code generators
+      tags:
+        - zone control
+      parameters:
+        - in: path
+          name: homeId
+          schema:
+            $ref: '#/components/schemas/HomeId'
+          required: true
+          description: unique ID of a home
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ZoneOverlays'
+      responses:
+        '204':
+          description: successful empty response
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+        '403':
+          $ref: '#/components/responses/AccessDenied403'
+        '422':
+          $ref: '#/components/responses/InputError422'
+    delete:
+      summary: Remove the zone overlay (manual override of the configured schedule) of multiple rooms (a.k.a. zones) with a single API method
+      description: >
+        Used in app feature: Home page > Resume Schedule All Rooms
+      operationId: deleteZoneOverlays # hint for client code generators
+      tags:
+        - zone control
+      parameters:
+        - in: path
+          name: homeId
+          schema:
+            $ref: '#/components/schemas/HomeId'
+          required: true
+          description: unique ID of a home
+        - in: query
+          name: rooms
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/ZoneId'
+          required: true
+          description: list of zone IDs whose overlay should be removed (do not include a HOT_WATER zone ID)
+      responses:
+        '204':
+          description: successful empty response
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+        '403':
+          $ref: '#/components/responses/AccessDenied403'
 
   /homes/{homeId}/zones/{zoneId}/defaultOverlay:
     get:
@@ -2015,7 +2028,7 @@ paths:
 
   /homes/{homeId}/deviceList:
     get:
-      summary: Get all tado devices associated with the provided homeId, together with the zone (a.k.a. room) they are in.
+      summary: Get all tado devices associated with the provided homeId, together with the zone (a.k.a. room) they are in. [NO tado API X]
       description: >
         There are multiple ways to list the tado devices in a home or zone:
         
@@ -2319,7 +2332,7 @@ paths:
 
   /homes/{homeId}/zones/{zoneId}/dayReport:
     get:
-      summary: Get historic information for a particular day for a particular zone (a.k.a. room)
+      summary: Get historic information for a particular day for a particular zone (a.k.a. room). [+ tado X]
       description: Not supported for zones of ZoneType HOT_WATER
       operationId: getZoneDayReport # hint for client code generators
       tags:
@@ -4298,34 +4311,30 @@ components:
 tags:
   - name: home
     description: >
-      List and configure information about a home (a house or appartment) controlled by tado.
+      List and configure information about a home (a house or appartment) controlled by tado. **[&quest; tado X]**
   - name: home control
     description: >
-      All operations directly associated with temperature control in a home.
+      All operations directly associated with temperature control in a home. **[&check; tado X]**
   - name: heating circuit
     description: >
-      A physical heating system in a home consists of one or more physical heating circuits 
-      (the piping system that carries hot water from the boiler to your rooms, and back to the boiler).
-      
-      
-      These operations allow you to determine the heating circuits in your tado home
-      and control how zones (a.k.a. rooms) are associated with heating circuits.
+      Operations to determine the heating circuits in your tado home
+      and control how zones (a.k.a. rooms) are associated with heating circuits. **[&quest; tado X]**
   - name: zone
     description: >
-      Retrieve and configure information about a zone (a.k.a. room).
+      Retrieve and configure information about a zone (a.k.a. room). **[&quest; tado X]**
   - name: zone control
     description: >
-      All operations directly associated with temperature control in a zone.
+      All operations directly associated with temperature control in a zone. **[&quest; tado X]**
   - name: device
     description: >
-      Determine and configure the tado devices in a home or zone.
+      Determine and configure the tado devices in a home or zone. **[&quest; tado X]**
   - name: user
     description: >
-      Retrieve information about the authenticated user, or other users who have access to a home(s).
+      Retrieve information about the authenticated user, or other users who have access to a home(s). **[&quest; tado X]**
   - name: mobile device
     description: >
       Retrieve information about and set settings for mobile devices linked to users 
-      which have the tado app installed to control a home.
+      which have the tado app installed to control a home. **[&quest; tado X]**
   - name: report
     description:
-      Data reports.
+      Data reports. **[&check; tado X]**

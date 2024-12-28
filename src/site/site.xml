@@ -19,16 +19,7 @@
 
     <body>
         <menu name="tado&ordm; API definition">
-            <item name="Introduction" href="index.html"/>
             <item name="Swagger UI (opens in new tab)" href="swagger.html" target="_blank"/>
-            <item name="API definition features" href="api-definition-features.html"/>
-            <item name="Tado X" href="tado-x.html"/>
-            <item name="How to use" href="use.html"/>
-            <item name="OAuth" href="oauth.html"/>
-            <item name="GitHub" href="github.html"/>
-        </menu>
-        <menu name="Automated API test">
-            <item name="API test set-up" href="api-test.html"/>
             <item name="API test report" href="failsafe-report.html"/>
         </menu>
     </body>

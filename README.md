@@ -6,7 +6,7 @@
 ![open for contributors](https://img.shields.io/badge/open_for_contributors-yes-blue)
 [![contributors](https://img.shields.io/github/contributors/kritsel/tado-openapispec-v2)](https://github.com/kritsel/tado-openapispec-v2/graphs/contributors)
 
-*Full documentation is available at https://kritsel.github.io/tado-openapispec-v2/.
+*Full documentation is available in [this repo's Wiki](https://github.com/kritsel/tado-openapispec-v2/wiki).
 This README is a summary.*
 
 # About tado&ordm;, tado API and the tado API definition

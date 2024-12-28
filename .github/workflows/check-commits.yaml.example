@@ -1,0 +1,34 @@
+name: Conditional Step Based on Commit Messages
+
+on:
+  push:
+
+jobs:
+  check_commit_messages:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v2
+
+      - name: Get Commit Messages
+        id: get_commit_messages
+        run: |
+          COMMITS=$(git log --format=%B -n $(git rev-list --count ${GITHUB_SHA} ^${GITHUB_EVENT_BEFORE}))
+          echo "COMMIT_MESSAGES=$COMMITS" >> $GITHUB_ENV
+
+      - name: Check Commit Messages Prefix
+        id: check_commit_messages_prefix
+        run: |
+          if [[ $(echo "$COMMIT_MESSAGES" | grep -cv "^notest") -eq 0 ]]; then
+            echo "All commit messages start with 'notest'."
+            echo "::set-output name=all_notest::true"
+          else
+            echo "Not all commit messages start with 'notest'."
+            echo "::set-output name=all_notest::false"
+          fi
+
+      - name: Conditional Step
+        if: steps.check_commit_messages_prefix.outputs.all_notest == 'true'
+        run: |
+          echo "Executing step because all commit messages start with 'notest'."
+          # Add your custom step logic here
