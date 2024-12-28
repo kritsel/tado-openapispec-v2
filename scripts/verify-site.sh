@@ -1,1 +1,0 @@
-mvn verify site site:stage -P local-api-spec --file ../pom.xml
