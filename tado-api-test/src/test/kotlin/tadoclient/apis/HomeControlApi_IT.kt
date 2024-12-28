@@ -98,37 +98,6 @@ class HomeControlApi_IT(
     }
 
     @Test
-    @DisplayName("POST /homes/{homeId}/overlay")
-    @Order(10)
-    @EnabledIf(value = "isHomeConfigured", disabledReason = "no home specified in tado set-up")
-    fun setZoneOverlays() {
-        val newZoneOverlay = ZoneOverlay(
-            setting = ZoneSetting(
-                type = ZoneType.HEATING,
-                power = Power.ON,
-                temperature = Temperature(celsius = 16f)
-            ),
-            termination = ZoneOverlayTermination(
-                typeSkillBasedApp = ZoneOverlayTerminationTypeSkillBasedApp.TIMER,
-                durationInSeconds = 120
-            )
-        )
-        val result = assertCorrectResponse {
-            tadoStrictHomeControlAPI.setZoneOverlays(tadoConfig.home!!.id, ZoneOverlays(listOf(ZoneOverlaysOverlaysInner(tadoConfig.zone!!.heating!!.id.toString(), newZoneOverlay))) )
-        }
-        assertEquals(Unit, result)
-    }
-
-    @Test
-    @DisplayName("DELETE /homes/{homeId}/overlay")
-    @Order(20)
-    @EnabledIf(value = "isHomeConfigured", disabledReason = "no home specified in tado set-up")
-    fun deleteZoneOverlays() {
-        val result = assertCorrectResponse { tadoStrictHomeControlAPI.deleteZoneOverlays(tadoConfig.home!!.id, rooms = listOf(tadoConfig.zone!!.heating!!.id) ) }
-        assertEquals(Unit, result)
-    }
-
-    @Test
     @DisplayName("PUT /homes/{homeId}/presenceLock")
     @Order(30)
     @EnabledIf(value = "isHomeConfigured", disabledReason = "no home specified in tado set-up")

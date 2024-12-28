@@ -113,6 +113,40 @@ class ZoneControlApi_IT(
     }
 
     @Test
+    @DisplayName("POST /homes/{homeId}/overlay")
+    @Order(4)
+//    @EnabledIf(value = "isHomeConfigured", disabledReason = "no home specified in tado set-up")
+    @Disabled("needs additional test set-up to revert back to the pre-test situation")
+    fun setZoneOverlays() {
+        val newZoneOverlay = ZoneOverlay(
+            setting = ZoneSetting(
+                type = ZoneType.HEATING,
+                power = Power.ON,
+                temperature = Temperature(celsius = 16f)
+            ),
+            termination = ZoneOverlayTermination(
+                typeSkillBasedApp = ZoneOverlayTerminationTypeSkillBasedApp.TIMER,
+                durationInSeconds = 120
+            )
+        )
+        val result = assertCorrectResponse {
+            tadoStrictZoneControlAPI.setZoneOverlays(tadoConfig.home!!.id, ZoneOverlays(listOf(ZoneOverlaysOverlaysInner(tadoConfig.zone!!.heating!!.id.toString(), newZoneOverlay))) )
+        }
+        assertEquals(Unit, result)
+    }
+
+    @Test
+    @DisplayName("DELETE /homes/{homeId}/overlay")
+    @Order(7)
+//    @EnabledIf(value = "isHomeConfigured", disabledReason = "no home specified in tado set-up")
+    @Disabled("needs additional test set-up to revert back to the pre-test situation")
+    fun deleteZoneOverlays() {
+        val result = assertCorrectResponse { tadoStrictZoneControlAPI.deleteZoneOverlays(tadoConfig.home!!.id, rooms = listOf(tadoConfig.zone!!.heating!!.id) ) }
+        assertEquals(Unit, result)
+    }
+
+
+    @Test
     @DisplayName("GET /homes/{homeId}/zones/{zoneId}/earlyStart")
     @Order(10)
     @EnabledIf(value = "isHomeAndHeatingZoneConfigured", disabledReason = "no home and/or HEATING zone specified in tado set-up")

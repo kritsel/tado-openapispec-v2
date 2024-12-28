@@ -1,1 +1,5 @@
-mvn verify site site:stage -P local-api-spec --file pom.xml
+source ./scripts/set-secrets.sh
+
+mvn verify -P local-api-spec --file pom.xml
+
+mvn site --file pom.xml
