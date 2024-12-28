@@ -49,7 +49,7 @@ Links to the API definition in various formats:
 The tado API hosted on https://my.tado.com/api has limited support for tado&ordm; X devices.
 Tado&ordm; hosts a separate API geared towards tado&ordm; X.
 
-More info is available at https://kritsel.github.io/tado-openapispec-v2/tado-x.html
+More info is available at https://github.com/kritsel/tado-openapispec-v2/wiki/tado-X
 
 # Acknowledgments
 Without the groundwork done by **Stephen C. Phillips** 
