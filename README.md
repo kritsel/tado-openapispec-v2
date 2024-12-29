@@ -1,6 +1,6 @@
 ![content](https://img.shields.io/badge/content-tado_API_definition-blue)
+![API definition language](https://img.shields.io/badge/API_definition_language-OpenAPI_3.0.0-blue)
 [![release](https://img.shields.io/github/v/release/kritsel/tado-openapispec-v2)](https://github.com/kritsel/tado-openapispec-v2/releases)
-![OAS version](https://img.shields.io/badge/open_api_version-3.0.0-blue)
 [![repo stars](https://img.shields.io/github/stars/kritsel/tado-openapispec-v2?style=plastic)](https://github.com/kritsel/tado-openapispec-v2/stargazers)
 [![last commit](https://img.shields.io/github/last-commit/kritsel/tado-openapispec-v2)](https://github.com/kritsel/tado-openapispec-v2/commits/main/)
 ![open for contributors](https://img.shields.io/badge/open_for_contributors-yes-blue)
@@ -9,7 +9,7 @@
 *Full documentation is available in [this repo's Wiki](https://github.com/kritsel/tado-openapispec-v2/wiki).
 This README is a summary.*
 
-# About tado&ordm;, tado API and the tado API definition
+# About tado&ordm;, tado API and this tado API definition
 
 ## tado&ordm; and the tado API
 
@@ -21,7 +21,7 @@ These can be controlled via a mobile app or a webapp on their website.
 The apps use a tado API which is available at https://my.tado.com/api/v2.
 tado&ordm; allows third-party developers to use this API for their own projects,
 (see [here](https://community.tado.com/en-gb/discussion/23573/tado-x-breaking-api-changes))
-but they do not provide any kind of support or documentation.
+but they do not provide any kind of support or publish documentation.
 
 ## tado API definition
 
@@ -35,8 +35,8 @@ The contents of this API definition is a best-effort product.
 There are no guarantees that this API definition is a complete and
 correct representation of the actual API as exposed via https://my.tado.com/api/v2.
 
-As the owner of the repo I also do not have any ties to the tado&ordm; company.
-I simply like to create a space where knowledge about the tado API can be centralized in a standardized form,
+As the owner of the repo I do not have any ties to the tado&ordm; company.
+I simply like to create a space where knowledge about the tado API can be centralized and shared in a standardized form,
 so it becomes easier for software developers interested in home automation to use the API.
 
 
