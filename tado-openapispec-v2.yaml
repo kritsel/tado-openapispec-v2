@@ -31,7 +31,7 @@ info:
     [https://github.com/kritsel/tado-openapispec-v2](https://github.com/kritsel/tado-openapispec-v2)
     * Wiki for this GitHub repo with additional information:
     [https://github.com/kritsel/tado-openapispec-v2/wiki](https://github.com/kritsel/tado-openapispec-v2/wiki/)
-  version: 2.2024.12.29.1
+  version: 2.2024.12.29.2
 servers:
   - url: https://my.tado.com/api/v2/
 security:
@@ -734,7 +734,7 @@ paths:
         - home by bridge
       parameters:
         - in: path
-          name: bridgeDeviceId
+          name: bridgeId
           schema:
             $ref: '#/components/schemas/BridgeId'
           required: true
@@ -764,7 +764,7 @@ paths:
         - home by bridge
       parameters:
         - in: path
-          name: bridgeDeviceId
+          name: bridgeId
           schema:
             $ref: '#/components/schemas/BridgeId'
           required: true
@@ -799,7 +799,7 @@ paths:
         - home by bridge
       parameters:
         - in: path
-          name: bridgeDeviceId
+          name: bridgeId
           schema:
             $ref: '#/components/schemas/BridgeId'
           required: true
@@ -2694,9 +2694,9 @@ components:
       description: todo
       properties:
         boilerMaxOutputTemperatureInCelsius:
-          # todo: determine integer or float
           type: number
-          example: 55
+          format: float
+          example: 55.0
 
     BooleanDataInterval:
       type: object
