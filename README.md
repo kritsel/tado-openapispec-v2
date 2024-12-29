@@ -20,6 +20,7 @@ These can be controlled via a mobile app or a webapp on their website.
 
 The apps use a tado API which is available at https://my.tado.com/api/v2.
 tado&ordm; allows third-party developers to use this API for their own projects,
+(see [here](https://community.tado.com/en-gb/discussion/23573/tado-x-breaking-api-changes))
 but they do not provide any kind of support or documentation.
 
 ## tado API definition

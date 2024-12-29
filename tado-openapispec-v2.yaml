@@ -7,24 +7,28 @@ info:
     
     Start with `[user] GET /me`. This will give you the id of your home and you can take it further from there.
     
-    # tado&ordm; X support
+    ## tado&ordm; X support
     
     This API is primarily meant to support homes equipped with tado&ordm; V3 (and earlier generation) devices.
     It provides limited support for tado&ordm; X enabled homes.
     
-    API operation groups (and sometimes individual API operations) are labelled to indicated whether they support tado&ordm; X:
+    API operation groups (and sometimes individual API operations) are labelled to indicate whether they support tado&ordm; X:
     
-    * **[&check; tado X]** (or [+ tado X]: operation group (or single operation) supports tado&ordm; X
-    * **[&cross; tado X]** (or [NO tado X]: operation group (or single operation) does not support tado&ordm; X
-    * **[&quest; tado X]** (or [? tado X]: unknown whether the operation group (or single operation) supports tado&ordm; X
+    | group label            | operation label | explanation                               |
+    |------------------------|-----------------|-------------------------------------------| 
+    | **[ &check; tado X]**  | [ + tado X]     |  operation group (or single operation) supports tado&ordm; X |
+    | **[ &cross; tado X]**  | [ NO tado X]    |  operation group (or single operation) does not support tado&ordm; X |     
+    | **[ &quest; tado X]**  | [ ? tado X]     |  unknown whether the operation group (or single operation) supports tado&ordm; X |      
+    
+    Note: when a group is labelled with **[ &quest; tado X]**, 
+    individual operations in that group can be labelled as [ + tado X] or [ NO tado X]
     
     More info: [https://github.com/kritsel/tado-openapispec-v2/wiki/tado-X](https://github.com/kritsel/tado-openapispec-v2/wiki/tado-X)
     
-    # Additional resources
+    ## Additional resources
     
     * Github repo where this API definition is maintained: 
     [https://github.com/kritsel/tado-openapispec-v2](https://github.com/kritsel/tado-openapispec-v2)
-    
     * Wiki for this GitHub repo with additional information:
     [https://github.com/kritsel/tado-openapispec-v2/wiki](https://github.com/kritsel/tado-openapispec-v2/wiki/)
   version: 2.2024.12.28.0
@@ -39,7 +43,7 @@ paths:
 
   /me:
     get:
-      summary: Returns information about the authenticated user, (summary) information of their home(s) and mobile devices. [+ tado X]
+      summary: Returns information about the authenticated user, (summary) information of their home(s) and mobile devices.
       operationId: getMe # hint for client code generators
       tags:
         - user
@@ -259,7 +263,7 @@ paths:
   # home paths
   /homes/{homeId}:
     get:
-      summary: Get full details of a single home. [+ tado X]
+      summary: Get full details of a single home.
       description: Use `GET /me` to determine the `homeId` of your home
       operationId: getHome # hint for client code generators
       tags:
@@ -311,10 +315,10 @@ paths:
 
   /homes/{homeId}/awayRadiusInMeters:
     put:
-      summary: Set the geofencing distance.
+      summary: Set the geo-tracking distance.
       description: >
         When the distance between home location and the location of a mobile device which can control this home
-        is greater than this distance, tado considers the mobile device to not be at home.
+        is greater than this distance, tado considers the mobile device to be outside of home.
       operationId: setAwayRadiusInMeters # hint for client code generators
       tags:
         - home
@@ -375,7 +379,7 @@ paths:
 
   /homes/{homeId}/heatingCircuits:
     get:
-      summary: Get information about the heating circuits of this home
+      summary: Get information about the heating circuits of this home. [ + tado X]
       operationId: getHeatingCircuits # hint for client code generators
       tags:
         - heating circuit
@@ -513,20 +517,16 @@ paths:
   /homes/{homeId}/incidentDetection:
     get:
       summary: Get the value of the incidentDetection setting for this home.
-      description: >
+      description: |
         From https://support.tado.com/en/articles/4467468-what-is-care-protect:
-        
-        
+              
         If you have an Auto-Assist subscription, or if Incident Detection is included in your tado° starter kit, 
         then tado° will constantly monitor your heating system to let you know if something isn’t working properly.
         It considers various factors, including the indoor temperature of each room, your Smart Schedule and open windows.
 
-
         If there are any unexpected changes, you’ll receive a notification and be given the option 
         to try to identify and resolve the issue or call in a professional to do so for you. 
         This means you can address boiler problems as they arise, and in some cases even avoid costly repairs. 
-
-
 
         Incident Detection works with all boiler types and interfaces, however it might not detect every incident. 
         For instance, the tado° app won’t show bus interface errors of digitally connected boilers (e.g. regarding a broken pump).
@@ -592,7 +592,7 @@ paths:
 
   /homes/{homeId}/weather:
     get:
-      summary: Get the current weather for the given home. [+ tado X]
+      summary: Get the current weather for the given home.
       operationId: getWeather # hint for client code generators
       tags:
         - home
@@ -620,10 +620,15 @@ paths:
 
   /homes/{homeId}/presenceLock:
     put:
-      summary: Specify whether someone at home or not. [+ tado X]
-      description: >
-        When the state is 'AWAY' the AwayConfiguration of each zone will control
+      summary: Manually specify whether someone at home or not.
+      description: |
+        This operation sets a home's `homePresence` property. 
+        When this property's value is `AWAY`, the AwayConfiguration of each zone will control
         the (temperature) settings for that zone.
+        
+        `homePresence` can also be automatically controlled via geo-tracking (requires a paid Auto-Assist subscription).
+        When geo-tracking is enabled, this operation overrides the `homePresence` value determined by
+        geo-tracking.
       operationId: setPresenceLock # hint for client code generators
       tags:
         - home control
@@ -657,10 +662,13 @@ paths:
         '422': # verify
           $ref: '#/components/responses/InputError422'
     delete:
-      summary: Remove the manual home status set. [+ tado X]
-      description: >
-        Remove the manual home status, set by SetPresenceLock. Requires a paid Auto-Assist subscription.
-
+      summary: Remove the manually set home status.
+      description: |
+        Remove the manually set `homePresence` value as set by `PUT /homes/{homeId}/presenceLock`, 
+        handing back control of the `homePresence` value to the geo-tracking capability 
+        enabled on the mobile devices used to control this home.
+        
+        Requires a paid Auto-Assist subscription.
       operationId: deletePresenceLock # hint for client code generators
       tags:
         - home control
@@ -683,13 +691,15 @@ paths:
 
   /homes/{homeId}/state:
     get:
-      summary: Get information about the presence state of the home. [+ tado X]
-      description: >
-        The presence state is either automatically controlled via geofencing (requires a paid tado subscription),
-        or it can be set via PUT /homes/{homeId}/presenceLock
-        
-        
-        When the state is 'AWAY' the AwayConfiguration of each zone will control 
+      summary: Get information about the presence state of the home.
+      description: |
+        `homePresence` can be automatically controlled by enabling geo-tracking on the mobile devices used
+        to control the home 
+        (see `PUT /homes/{homeId}/mobileDevices/{mobileDeviceId}/settings`,
+        requires a paid Auto-Assist subscription).
+        Or it can be set via `PUT /homes/{homeId}/presenceLock`
+             
+        When its value is `AWAY`, the AwayConfiguration of each zone will control 
         the (temperature) settings for that zone.
       
       operationId: getHomeState # hint for client code generators
@@ -715,10 +725,10 @@ paths:
           $ref: '#/components/responses/AccessDenied403'
 
   ####################################################################################################################
-  # zone  paths
+  # zone paths
   /homes/{homeId}/zones:
     get:
-      summary: Get all zones (a.k.a. rooms) associated with the provided homeId. [NO tado X]
+      summary: Get all zones (a.k.a. rooms) associated with the provided homeId. [ + tado X]
       description: >
         Delivers information about each zone in the given home, including the tado devices present in each zone.
         
@@ -805,7 +815,7 @@ paths:
 
   /homes/{homeId}/zones/{zoneId}/capabilities:
     get:
-      summary: Get the temperature setting capabilities of this zone. [NO tado X]
+      summary: Get the temperature setting capabilities of this zone. [ NO tado X]
       description: This includes current temperature, humidity and heating power information.
       operationId: getZoneCapabilities # hint for client code generators
       tags:
@@ -993,7 +1003,7 @@ paths:
 
   /homes/{homeId}/zoneStates:
     get:
-      summary: Get zone state details of every zone (a.k.a. room) in the specified home
+      summary: Get zone state details of every zone (a.k.a. room) in the specified home. [ + tado X]
       # double empty lines are intentional
       description: >
         This includes current temperature, humidity and heating power information.
@@ -1862,7 +1872,7 @@ paths:
   # device paths
   /devices/{deviceId}:
     get:
-      summary: Get a single tado device
+      summary: Get a single tado device. [ NO tado X]
       operationId: getDevice # hint for client code generators
       tags:
         - device
@@ -1981,7 +1991,7 @@ paths:
 
   /homes/{homeId}/devices:
     get:
-      summary: Get all tado devices associated with the provided homeId.
+      summary: Get all tado devices associated with the provided homeId. [ + tado X]
       description: >
         There are multiple ways to list the tado devices in a home or zone:
         
@@ -2028,7 +2038,7 @@ paths:
 
   /homes/{homeId}/deviceList:
     get:
-      summary: Get all tado devices associated with the provided homeId, together with the zone (a.k.a. room) they are in. [NO tado API X]
+      summary: Get all tado devices associated with the provided homeId, together with the zone (a.k.a. room) they are in. [ NO tado API X]
       description: >
         There are multiple ways to list the tado devices in a home or zone:
         
@@ -2104,7 +2114,7 @@ paths:
     get:
       summary: >
         Returns the heating circuit the zone (a.k.a. room) belongs to, and the tado devices within the zone 
-        grouped by their duty.
+        grouped by their duty. [ ? tado X]
       description: >
         There are multiple ways to list the tado devices in a home or zone:
 
@@ -2158,7 +2168,7 @@ paths:
 
   /homes/{homeId}/zones/{zoneId}/control/heatingCircuit:
     put:
-      summary: Assign the zone to a specific heating circuit or make it independent of a heating circuit
+      summary: Assign the zone to a specific heating circuit or make it independent of a heating circuit. [ ? tado X]
       description: >
         See /homes/{homeId}/heatingCircuits to get a list of heating circuits in a home.
         
@@ -2332,7 +2342,7 @@ paths:
 
   /homes/{homeId}/zones/{zoneId}/dayReport:
     get:
-      summary: Get historic information for a particular day for a particular zone (a.k.a. room). [+ tado X]
+      summary: Get historic information for a particular day for a particular zone (a.k.a. room).
       description: Not supported for zones of ZoneType HOT_WATER
       operationId: getZoneDayReport # hint for client code generators
       tags:
@@ -3234,10 +3244,10 @@ components:
 
     HomeState:
       type: object
-      description: >
+      description: |
         Indicates if tado acts as if there are people present in the home or not. Result of /homes/{homeId}/state.
         
-        Presence can be auto-determined by tado based on geofencing of the mobile devices linked to the home
+        Presence can be auto-determined by tado based on geo-tracking of the mobile devices linked to the home
         (requires a paid Auto-Assist subscription), or can be manually set by a user.
       properties:
         presence:
@@ -3248,8 +3258,8 @@ components:
         showHomePresenceSwitchButton:
           type: boolean
           example: true
-          description: >
-            This property is present when all mobile devices linked to this home which have geofencing enabled 
+          description: |
+            This property is present when all mobile devices linked to this home which have geo-tracking enabled 
             are no longer in (or near) the home.
             
             It is a hint to the user to manually set the home presence to AWAY. 
@@ -3337,7 +3347,7 @@ components:
     MobileDeviceLocation:
       type: object
       description: >
-        This data element is only present for mobile devices which have geofencing switched on
+        This data element is only present for mobile devices which have geo-tracking switched on
         in their tado app.
       properties:
         stale:
@@ -4311,30 +4321,31 @@ components:
 tags:
   - name: home
     description: >
-      List and configure information about a home (a house or appartment) controlled by tado. **[&quest; tado X]**
+      List and configure information about a home (a house or apartment) controlled by tado. **[ &check; tado X]**
   - name: home control
     description: >
-      All operations directly associated with temperature control in a home. **[&check; tado X]**
+      Operations related to determining whether someone is at home or not 
+      (which impacts a home's temperature control). **[ &check; tado X]**
   - name: heating circuit
     description: >
       Operations to determine the heating circuits in your tado home
-      and control how zones (a.k.a. rooms) are associated with heating circuits. **[&quest; tado X]**
+      and control how zones (a.k.a. rooms) are associated with heating circuits. **[ &quest; tado X]**
   - name: zone
     description: >
-      Retrieve and configure information about a zone (a.k.a. room). **[&quest; tado X]**
+      Retrieve and configure information about a zone (a.k.a. room). **[ &quest; tado X]**
   - name: zone control
     description: >
-      All operations directly associated with temperature control in a zone. **[&quest; tado X]**
+      All operations directly associated with temperature control in a zone. **[ &quest; tado X]**
   - name: device
     description: >
-      Determine and configure the tado devices in a home or zone. **[&quest; tado X]**
+      Determine and configure the tado devices in a home or zone. **[ &quest; tado X]**
   - name: user
     description: >
-      Retrieve information about the authenticated user, or other users who have access to a home(s). **[&quest; tado X]**
+      Retrieve information about the authenticated user, or other users who have access to a home(s). **[ &check; tado X]**
   - name: mobile device
     description: >
       Retrieve information about and set settings for mobile devices linked to users 
-      which have the tado app installed to control a home. **[&quest; tado X]**
+      which have the tado app installed to control a home. **[ &check; tado X]**
   - name: report
     description:
-      Data reports. **[&check; tado X]**
+      Data reports. **[ &check; tado X]**
