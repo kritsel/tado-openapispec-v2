@@ -518,7 +518,7 @@ paths:
     get:
       summary: Get the value of the incidentDetection setting for this home.
       description: |
-        From https://support.tado.com/en/articles/4467468-what-is-care-protect:
+        From [https://support.tado.com/en/articles/4467468-what-is-care-protect](https://support.tado.com/en/articles/4467468-what-is-care-protect):
               
         If you have an Auto-Assist subscription, or if Incident Detection is included in your tado° starter kit, 
         then tado° will constantly monitor your heating system to let you know if something isn’t working properly.
@@ -719,6 +719,106 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HomeState'
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+        '403':
+          $ref: '#/components/responses/AccessDenied403'
+
+  ####################################################################################################################
+  # home by bridge paths
+  /homeByBridge/{bridgeId}/boilerMaxOutputTemperature:
+    get:
+      summary: Retrieve the boilers maximum output temperature.
+      operationId: getBoilerMaxOutputTemperature # hint for client code generators
+      tags:
+        - home by bridge
+      parameters:
+        - in: path
+          name: bridgeDeviceId
+          schema:
+            $ref: '#/components/schemas/BridgeId'
+          required: true
+          description: unique ID of your tado Internet Bridge
+        - in: query
+          name: authKey
+          schema:
+            type: string
+            example: 1234
+          required: true
+          description: printed on your tado Internet Bridge
+      responses:
+        '200':
+          description: successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BoilerMaxOutputTemperature'
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+        '403':
+          $ref: '#/components/responses/AccessDenied403'
+    put:
+      summary: Set the boilers maximum output temperature.
+      operationId: setBoilerMaxOutputTemperature # hint for client code generators
+      tags:
+        - home by bridge
+      parameters:
+        - in: path
+          name: bridgeDeviceId
+          schema:
+            $ref: '#/components/schemas/BridgeId'
+          required: true
+          description: unique ID of your tado Internet Bridge
+        - in: query
+          name: authKey
+          schema:
+            type: string
+            example: 1234
+          required: true
+          description: printed on your tado Internet Bridge
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BoilerMaxOutputTemperature'
+      responses:
+        # TODO: verify 204 response code
+        '204':
+          description: successful response
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+        '403':
+          $ref: '#/components/responses/AccessDenied403'
+
+  /homeByBridge/{bridgeId}/boilerWiringInstallationState:
+    get:
+      summary: todo
+      operationId: getBoilerWiringInstallationState # hint for client code generators
+      tags:
+        - home by bridge
+      parameters:
+        - in: path
+          name: bridgeDeviceId
+          schema:
+            $ref: '#/components/schemas/BridgeId'
+          required: true
+          description: unique ID of your tado Internet Bridge
+        - in: query
+          name: authKey
+          schema:
+            type: string
+            example: 1234
+          required: true
+          description: printed on your tado Internet Bridge
+      responses:
+        '200':
+          description: successful response
+          content:
+            application/json:
+              schema:
+                # todo: determine output
+                type: object
         '401':
           $ref: '#/components/responses/Unauthorized401'
         '403':
@@ -1894,6 +1994,26 @@ paths:
         '403':
           $ref: '#/components/responses/AccessDenied403'
 
+  /devices/{deviceId}/childLock:
+    put:
+      summary: Enable or disable the child lock for this device.
+      operationId: setChildLock # hint for client code generators
+      tags:
+        - device
+      parameters:
+        - in: path
+          name: deviceId
+          schema:
+            $ref: '#/components/schemas/DeviceId'
+          required: true
+      responses:
+        '204':
+          description: successful response
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+        '403':
+          $ref: '#/components/responses/AccessDenied403'
+
   /devices/{deviceId}/identify:
     post:
       summary: Instruct the device to say 'hi' on its display.
@@ -2569,6 +2689,15 @@ components:
           type: boolean
           example: true
 
+    BoilerMaxOutputTemperature:
+      type: object
+      description: todo
+      properties:
+        boilerMaxOutputTemperatureInCelsius:
+          # todo: determine integer or float
+          type: number
+          example: 55
+
     BooleanDataInterval:
       type: object
       description:
@@ -2599,6 +2728,11 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/BooleanDataInterval'
+
+    BridgeId:
+      type: string
+      example: IB1234567890
+      description: the serialNo of a tado Internet bridge
 
     # CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
     CallForHeatTimeSeries:
@@ -4319,6 +4453,9 @@ components:
       example: HEATING
 
 tags:
+  - name: user
+    description: >
+      Retrieve information about the authenticated user, or other users who have access to a home(s). **[ &check; tado X]**
   - name: home
     description: >
       List and configure information about a home (a house or apartment) controlled by tado. **[ &check; tado X]**
@@ -4330,6 +4467,9 @@ tags:
     description: >
       Operations to determine the heating circuits in your tado home
       and control how zones (a.k.a. rooms) are associated with heating circuits. **[ &quest; tado X]**
+  - name: home by bridge
+    description: >
+      Configuration of your boiler. **[ &cross; tado X]**
   - name: zone
     description: >
       Retrieve and configure information about a zone (a.k.a. room). **[ &quest; tado X]**
@@ -4339,9 +4479,6 @@ tags:
   - name: device
     description: >
       Determine and configure the tado devices in a home or zone. **[ &quest; tado X]**
-  - name: user
-    description: >
-      Retrieve information about the authenticated user, or other users who have access to a home(s). **[ &check; tado X]**
   - name: mobile device
     description: >
       Retrieve information about and set settings for mobile devices linked to users 
