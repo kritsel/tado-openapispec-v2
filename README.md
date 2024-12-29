@@ -62,6 +62,7 @@ and this API definition would have never seen the light of day.
 Additionally, the following GitHub members and repositories have been a great help:
  * [**mattdavis90** Matt Davis](https://github.com/mattdavis90): https://github.com/mattdavis90/node-tado-client
  * [**clambin** Christophe Lambin](https://github.com/clambin)
+ * [**wmalgadey** Wolfgang Malgadey](https://github.com/wmalgadey): sharing information about tado&ordm; X support
 
 
 # Contribute
