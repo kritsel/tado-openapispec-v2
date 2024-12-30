@@ -13,7 +13,8 @@ fun verifyZoneSetting(zoneInfo: Pair<ZoneType, Boolean>, zoneSetting: ZoneSettin
                 "$typeName.verticalSwing",
                 "$typeName.horizontalSwing",
                 "$typeName.light",
-                "$typeName.mode"
+                "$typeName.mode",
+                "$typeName.isBoost"
             )
             // when the zone is OFF, there will not be a temperature value either
             if (zoneSetting.power == Power.OFF) {
@@ -30,7 +31,8 @@ fun verifyZoneSetting(zoneInfo: Pair<ZoneType, Boolean>, zoneSetting: ZoneSettin
                 "$typeName.horizontalSwing",
                 "$typeName.light",
                 "$typeName.mode",
-                "$typeName.temperature"
+                "$typeName.temperature",
+                "$typeName.isBoost"
             ))
         }
 
