@@ -2223,7 +2223,7 @@ paths:
         '403':
           $ref: '#/components/responses/AccessDenied403'
     put:
-      summary: Set the temperature offset for the given device (there is not DELETE for this resource).
+      summary: Set the temperature offset for the given device (there is no DELETE for this resource).
       description: >
         Depending on how close the tado measuring device in a room is to the heating/cooling source,
         the measured temperature might be off.
@@ -2892,6 +2892,11 @@ components:
             thermInterfaceType:
               type: string
               example: UBA_BUS
+              description: |
+                known values:
+                
+                * OPENTHERM
+                * UBA_BUS
             connected:
               type: boolean
               example: true
@@ -4506,7 +4511,7 @@ components:
             type: object
             properties:
               room:
-                $ref: '#/components/schemas/ZoneOverlayType'
+                $ref: '#/components/schemas/ZoneId'
               overlay:
                 $ref: '#/components/schemas/ZoneOverlay'
 
@@ -4609,6 +4614,9 @@ components:
               $ref: '#/components/schemas/Temperature'
             mode:
               $ref: '#/components/schemas/AirConditioningMode'
+            isBoost:
+              type: boolean
+              example: true
 
     ZoneState:
       type: object
