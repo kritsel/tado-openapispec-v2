@@ -12,16 +12,16 @@ info:
     This API is primarily meant to support homes equipped with tado&ordm; V3 (and earlier generation) devices.
     It provides limited support for tado&ordm; X enabled homes.
     
-    API operation groups (and sometimes individual API operations) are labelled to indicate whether they support tado&ordm; X:
+    API operation groups (and sometimes individual API operations) are labelled to indicate whether they support tado&ordm; X or not:
     
     | group label            | operation label | explanation                               |
     |------------------------|-----------------|-------------------------------------------| 
     | **[ &check; tado X]**  | [ + tado X]     |  operation group (or single operation) supports tado&ordm; X |
     | **[ &cross; tado X]**  | [ NO tado X]    |  operation group (or single operation) does not support tado&ordm; X |     
-    | **[ &quest; tado X]**  | [ ? tado X]     |  unknown whether the operation group (or single operation) supports tado&ordm; X |      
+    | **[ ~ tado X]**        |                 |  some operations do supports tado&ordm; X, others don't |      
     
-    Note: when a group is labelled with **[ &quest; tado X]**, 
-    individual operations in that group can be labelled as [ + tado X] or [ NO tado X]
+    Note: when a group is labelled with **[ ~ tado X]**, 
+    individual operations in that group are be labelled as [ + tado X] or [ NO tado X]
     
     More info: [https://github.com/kritsel/tado-openapispec-v2/wiki/tado-X](https://github.com/kritsel/tado-openapispec-v2/wiki/tado-X)
     
@@ -31,7 +31,7 @@ info:
     [https://github.com/kritsel/tado-openapispec-v2](https://github.com/kritsel/tado-openapispec-v2)
     * Wiki for this GitHub repo with additional information:
     [https://github.com/kritsel/tado-openapispec-v2/wiki](https://github.com/kritsel/tado-openapispec-v2/wiki/)
-  version: 2.2024.12.29.2
+  version: 2.2024.12.30.0
 servers:
   - url: https://my.tado.com/api/v2/
 security:
@@ -69,7 +69,7 @@ paths:
           schema:
             $ref: '#/components/schemas/HomeId'
           required: true
-          description: unique ID of a home
+          description: unique ID of a home the authenticated user has access to
       responses:
         '200':
           description: successful response
@@ -98,7 +98,7 @@ paths:
           schema:
             $ref: '#/components/schemas/HomeId'
           required: true
-          description: unique ID of a home
+          description: unique ID of a home the authenticated user has access to
       responses:
         '200':
           description: successful response
@@ -125,7 +125,7 @@ paths:
           schema:
             $ref: '#/components/schemas/HomeId'
           required: true
-          description: unique ID of a home
+          description: unique ID of a home the authenticated user has access to
         - in: path
           name: mobileDeviceId
           schema:
@@ -164,7 +164,7 @@ paths:
           schema:
             $ref: '#/components/schemas/HomeId'
           required: true
-          description: unique ID of a home
+          description: unique ID of a home the authenticated user has access to
         - in: path
           name: mobileDeviceId
           schema:
@@ -194,7 +194,7 @@ paths:
           schema:
             $ref: '#/components/schemas/HomeId'
           required: true
-          description: unique ID of a home
+          description: unique ID of a home the authenticated user has access to
         - in: path
           name: mobileDeviceId
           schema:
@@ -222,7 +222,7 @@ paths:
           schema:
             $ref: '#/components/schemas/HomeId'
           required: true
-          description: unique ID of a home
+          description: unique ID of a home the authenticated user has access to
         - in: path
           name: mobileDeviceId
           schema:
@@ -274,7 +274,7 @@ paths:
           schema:
             $ref: '#/components/schemas/HomeId'
           required: true
-          description: unique ID of a home
+          description: unique ID of a home the authenticated user has access to
       responses:
         '200':
           description: successful response
@@ -300,7 +300,7 @@ paths:
           schema:
             $ref: '#/components/schemas/HomeId'
           required: true
-          description: unique ID of a home
+          description: unique ID of a home the authenticated user has access to
       responses:
         '200':
           description: successful response
@@ -328,7 +328,7 @@ paths:
           schema:
             $ref: '#/components/schemas/HomeId'
           required: true
-          description: unique ID of a home
+          description: unique ID of a home the authenticated user has access to
       requestBody:
         required: true
         content:
@@ -360,7 +360,7 @@ paths:
           schema:
             $ref: '#/components/schemas/HomeId'
           required: true
-          description: unique ID of a home
+          description: unique ID of a home the authenticated user has access to
       requestBody:
         required: true
         content:
@@ -389,7 +389,7 @@ paths:
           schema:
             $ref: '#/components/schemas/HomeId'
           required: true
-          description: unique ID of a home
+          description: unique ID of a home the authenticated user has access to
       responses:
         '200':
           description: successful response
@@ -416,7 +416,7 @@ paths:
           schema:
             $ref: '#/components/schemas/HomeId'
           required: true
-          description: unique ID of a home
+          description: unique ID of a home the authenticated user has access to
       responses:
         '200':
           description: successful response
@@ -450,13 +450,13 @@ paths:
           schema:
             $ref: '#/components/schemas/HomeId'
           required: true
-          description: unique ID of a home
+          description: unique ID of a home the authenticated user has access to
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Boiler'
+              $ref: '#/components/schemas/Boiler1'
             examples:
               not-present:
                 value:
@@ -490,7 +490,7 @@ paths:
           schema:
             $ref: '#/components/schemas/HomeId'
           required: true
-          description: unique ID of a home
+          description: unique ID of a home the authenticated user has access to
       requestBody:
         required: true
         content:
@@ -539,7 +539,7 @@ paths:
           schema:
             $ref: '#/components/schemas/HomeId'
           required: true
-          description: unique ID of a home
+          description: unique ID of a home the authenticated user has access to
       responses:
         '200':
           description: successful response
@@ -566,7 +566,7 @@ paths:
           schema:
             $ref: '#/components/schemas/HomeId'
           required: true
-          description: unique ID of a home
+          description: unique ID of a home the authenticated user has access to
       requestBody:
         required: true
         content:
@@ -602,7 +602,7 @@ paths:
           schema:
             $ref: '#/components/schemas/HomeId'
           required: true
-          description: unique ID of a home
+          description: unique ID of a home the authenticated user has access to
       responses:
         '200':
           description: successful response
@@ -638,7 +638,7 @@ paths:
           schema:
             $ref: '#/components/schemas/HomeId'
           required: true
-          description: unique ID of a home
+          description: unique ID of a home the authenticated user has access to
       requestBody:
         required: true
         content:
@@ -678,7 +678,7 @@ paths:
           schema:
             $ref: '#/components/schemas/HomeId'
           required: true
-          description: unique ID of a home
+          description: unique ID of a home the authenticated user has access to
       responses:
         '204':
           description: successful empty response
@@ -711,7 +711,7 @@ paths:
           schema:
             $ref: '#/components/schemas/HomeId'
           required: true
-          description: unique ID of a home
+          description: unique ID of a home the authenticated user has access to
       responses:
         '200':
           description: successful response
@@ -725,13 +725,17 @@ paths:
           $ref: '#/components/responses/AccessDenied403'
 
   ####################################################################################################################
-  # home by bridge paths
-  /homeByBridge/{bridgeId}/boilerMaxOutputTemperature:
+  # bridge paths
+  /bridges/{bridgeId}:
     get:
-      summary: Retrieve the boilers maximum output temperature.
-      operationId: getBoilerMaxOutputTemperature # hint for client code generators
+      summary: Retrieve Internet Bridge details.
+      description: >
+        This operation is used in the https://model-selector.tado.com/ webapp 
+        and the 'tado&ordm; for Installers' mobile app.
+      operationId: getBridge # hint for client code generators
       tags:
-        - home by bridge
+        - bridge
+      security: [ ] # No security
       parameters:
         - in: path
           name: bridgeId
@@ -739,6 +743,82 @@ paths:
             $ref: '#/components/schemas/BridgeId'
           required: true
           description: unique ID of your tado Internet Bridge
+        - in: query
+          name: authKey
+          schema:
+            type: string
+            example: 1234
+          required: true
+          description: printed on your tado Internet Bridge
+      responses:
+        '200':
+          description: successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bridge'
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+        '403':
+          $ref: '#/components/responses/AccessDenied403'
+
+  ####################################################################################################################
+  # boiler paths
+  /homeByBridge/{bridgeId}/boilerInfo:
+    get:
+      summary: Retrieve information about this home's boiler.
+      description: >
+        This operation is used in the https://model-selector.tado.com/ webapp 
+        and the 'tado&ordm; for Installers' mobile app.
+      operationId: getBoilerInfo # hint for client code generators
+      tags:
+        - boiler
+      security: [] # No security
+      parameters:
+        - in: path
+          name: bridgeId
+          schema:
+            $ref: '#/components/schemas/BridgeId'
+          required: true
+          description: serialNo of your tado Internet Bridge
+        - in: query
+          name: authKey
+          schema:
+            type: string
+            example: 1234
+          required: true
+          description: printed on your tado Internet Bridge
+      responses:
+        '200':
+          description: successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Boiler2'
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+        '403':
+          $ref: '#/components/responses/AccessDenied403'
+        '404':
+          $ref: '#/components/responses/NotFound404'
+
+  /homeByBridge/{bridgeId}/boilerMaxOutputTemperature:
+    get:
+      summary: Retrieve the boiler's maximum output temperature.
+      description: >
+        This operation is used in the https://model-selector.tado.com/ webapp 
+        and the 'tado&ordm; for Installers' mobile app.
+      operationId: getBoilerMaxOutputTemperature # hint for client code generators
+      tags:
+        - boiler
+      security: [] # No security
+      parameters:
+        - in: path
+          name: bridgeId
+          schema:
+            $ref: '#/components/schemas/BridgeId'
+          required: true
+          description: serialNo of your tado Internet Bridge
         - in: query
           name: authKey
           schema:
@@ -757,18 +837,28 @@ paths:
           $ref: '#/components/responses/Unauthorized401'
         '403':
           $ref: '#/components/responses/AccessDenied403'
+        '404':
+          $ref: '#/components/responses/NotFound404'
     put:
-      summary: Set the boilers maximum output temperature.
+      summary: Set the boiler's maximum output temperature.
+      description: |
+        Whether this information is actually transmitted to your boiler or not
+        depends on the communication capabilities of your boiler and any connector solution
+        used between your boiler and your tado hardware.
+        
+        This operation is used in the https://model-selector.tado.com/ webapp 
+        and the 'tado&ordm; for Installers' mobile app.
       operationId: setBoilerMaxOutputTemperature # hint for client code generators
       tags:
-        - home by bridge
+        - boiler
+      security: [] # No security
       parameters:
         - in: path
           name: bridgeId
           schema:
             $ref: '#/components/schemas/BridgeId'
           required: true
-          description: unique ID of your tado Internet Bridge
+          description: serialNo of your tado Internet Bridge
         - in: query
           name: authKey
           schema:
@@ -783,27 +873,36 @@ paths:
             schema:
               $ref: '#/components/schemas/BoilerMaxOutputTemperature'
       responses:
-        # TODO: verify 204 response code
         '204':
           description: successful response
         '401':
           $ref: '#/components/responses/Unauthorized401'
         '403':
           $ref: '#/components/responses/AccessDenied403'
+        '404':
+          $ref: '#/components/responses/NotFound404'
+        '422':
+          $ref: '#/components/responses/InputError422'
 
   /homeByBridge/{bridgeId}/boilerWiringInstallationState:
     get:
-      summary: todo
+      summary: >
+        Retrieves information about the connection between your boiler 
+        and the wired tado device which controls your boiler.
+      description: >
+        This operation is used in the https://model-selector.tado.com/ webapp 
+        and the 'tado&ordm; for Installers' mobile app.
       operationId: getBoilerWiringInstallationState # hint for client code generators
       tags:
-        - home by bridge
+        - boiler
+      security: [] # No security
       parameters:
         - in: path
           name: bridgeId
           schema:
             $ref: '#/components/schemas/BridgeId'
           required: true
-          description: unique ID of your tado Internet Bridge
+          description: serialNo of your tado Internet Bridge
         - in: query
           name: authKey
           schema:
@@ -817,18 +916,19 @@ paths:
           content:
             application/json:
               schema:
-                # todo: determine output
-                type: object
+                $ref: '#/components/schemas/BoilerWiringInstallationState'
         '401':
           $ref: '#/components/responses/Unauthorized401'
         '403':
           $ref: '#/components/responses/AccessDenied403'
+        '404':
+          $ref: '#/components/responses/NotFound404'
 
   ####################################################################################################################
   # zone paths
   /homes/{homeId}/zones:
     get:
-      summary: Get all zones (a.k.a. rooms) associated with the provided homeId. [ + tado X]
+      summary: Get all zones (a.k.a. rooms) associated with the provided homeId.
       description: >
         Delivers information about each zone in the given home, including the tado devices present in each zone.
         
@@ -863,7 +963,7 @@ paths:
           schema:
             $ref: '#/components/schemas/HomeId'
           required: true
-          description: unique ID of a home
+          description: unique ID of a home the authenticated user has access to
       responses:
         '200':
           description: successful response
@@ -888,7 +988,7 @@ paths:
           schema:
             $ref: '#/components/schemas/HomeId'
           required: true
-          description: unique ID of a home
+          description: unique ID of a home the authenticated user has access to
         - in: query
           name: force
           schema:
@@ -915,7 +1015,7 @@ paths:
 
   /homes/{homeId}/zones/{zoneId}/capabilities:
     get:
-      summary: Get the temperature setting capabilities of this zone. [ NO tado X]
+      summary: Get the temperature setting capabilities of this zone.
       description: This includes current temperature, humidity and heating power information.
       operationId: getZoneCapabilities # hint for client code generators
       tags:
@@ -926,7 +1026,7 @@ paths:
           schema:
             $ref: '#/components/schemas/HomeId'
           required: true
-          description: unique ID of a home
+          description: unique ID of a home the authenticated user has access to
         - in: path
           name: zoneId
           schema:
@@ -961,7 +1061,7 @@ paths:
           schema:
             $ref: '#/components/schemas/HomeId'
           required: true
-          description: unique ID of a home
+          description: unique ID of a home the authenticated user has access to
         - in: path
           name: zoneId
           schema:
@@ -998,7 +1098,7 @@ paths:
           schema:
             $ref: '#/components/schemas/HomeId'
           required: true
-          description: unique ID of a home
+          description: unique ID of a home the authenticated user has access to
         - in: path
           name: zoneId
           schema:
@@ -1039,7 +1139,7 @@ paths:
           schema:
             $ref: '#/components/schemas/HomeId'
           required: true
-          description: unique ID of a home
+          description: unique ID of a home the authenticated user has access to
         - in: path
           name: zoneId
           schema:
@@ -1064,6 +1164,64 @@ paths:
         '422':
           $ref: '#/components/responses/InputError422'
 
+  /homes/{homeId}/zones/{zoneId}/state/openWindow/activate:
+    post:
+      summary: To be determined what this operation exactly does.
+      operationId: activateOpenWindowState # hint for client code generators
+      tags:
+        - zone
+      parameters:
+        - in: path
+          name: homeId
+          schema:
+            $ref: '#/components/schemas/HomeId'
+          required: true
+          description: unique ID of a home the authenticated user has access to
+        - in: path
+          name: zoneId
+          schema:
+            $ref: '#/components/schemas/ZoneId'
+          required: true
+          description: ID of a zone (unique within a home)
+      responses:
+        '204':
+          description: successful response
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+        '403':
+          $ref: '#/components/responses/AccessDenied403'
+        '404':
+          $ref: '#/components/responses/NotFound404'
+
+  /homes/{homeId}/zones/{zoneId}/state/openWindow:
+    delete:
+      summary: To be determined what this operation exactly does.
+      operationId: deactivateOpenWindowState # hint for client code generators
+      tags:
+        - zone
+      parameters:
+        - in: path
+          name: homeId
+          schema:
+            $ref: '#/components/schemas/HomeId'
+          required: true
+          description: unique ID of a home the authenticated user has access to
+        - in: path
+          name: zoneId
+          schema:
+            $ref: '#/components/schemas/ZoneId'
+          required: true
+          description: ID of a zone (unique within a home)
+      responses:
+        '204':
+          description: successful response
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+        '403':
+          $ref: '#/components/responses/AccessDenied403'
+        '404':
+          $ref: '#/components/responses/NotFound404'
+
   /homes/{homeId}/zones/{zoneId}/state:
     get:
       summary: Get the current state details of a zone (a.k.a. room).
@@ -1080,7 +1238,7 @@ paths:
           schema:
             $ref: '#/components/schemas/HomeId'
           required: true
-          description: unique ID of a home
+          description: unique ID of a home the authenticated user has access to
         - in: path
           name: zoneId
           schema:
@@ -1103,7 +1261,7 @@ paths:
 
   /homes/{homeId}/zoneStates:
     get:
-      summary: Get zone state details of every zone (a.k.a. room) in the specified home. [ + tado X]
+      summary: Get zone state details of every zone (a.k.a. room) in the specified home.
       # double empty lines are intentional
       description: >
         This includes current temperature, humidity and heating power information.
@@ -1119,7 +1277,7 @@ paths:
           schema:
             $ref: '#/components/schemas/HomeId'
           required: true
-          description: unique ID of a home
+          description: unique ID of a home the authenticated user has access to
       responses:
         '200':
           description: successful response
@@ -1151,7 +1309,7 @@ paths:
           schema:
             $ref: '#/components/schemas/HomeId'
           required: true
-          description: unique ID of a home
+          description: unique ID of a home the authenticated user has access to
       requestBody:
         required: true
         content:
@@ -1180,7 +1338,7 @@ paths:
           schema:
             $ref: '#/components/schemas/HomeId'
           required: true
-          description: unique ID of a home
+          description: unique ID of a home the authenticated user has access to
         - in: query
           name: rooms
           schema:
@@ -1212,7 +1370,7 @@ paths:
           schema:
             $ref: '#/components/schemas/HomeId'
           required: true
-          description: unique ID of a home
+          description: unique ID of a home the authenticated user has access to
         - in: path
           name: zoneId
           schema:
@@ -1246,7 +1404,7 @@ paths:
           schema:
             $ref: '#/components/schemas/HomeId'
           required: true
-          description: unique ID of a home
+          description: unique ID of a home the authenticated user has access to
         - in: path
           name: zoneId
           schema:
@@ -1301,7 +1459,7 @@ paths:
           schema:
             $ref: '#/components/schemas/HomeId'
           required: true
-          description: unique ID of a home
+          description: unique ID of a home the authenticated user has access to
         - in: path
           name: zoneId
           schema:
@@ -1334,7 +1492,7 @@ paths:
           schema:
             $ref: '#/components/schemas/HomeId'
           required: true
-          description: unique ID of a home
+          description: unique ID of a home the authenticated user has access to
         - in: path
           name: zoneId
           schema:
@@ -1382,7 +1540,7 @@ paths:
           schema:
             $ref: '#/components/schemas/HomeId'
           required: true
-          description: unique ID of a home
+          description: unique ID of a home the authenticated user has access to
         - in: path
           name: zoneId
           schema:
@@ -1413,7 +1571,7 @@ paths:
           schema:
             $ref: '#/components/schemas/HomeId'
           required: true
-          description: unique ID of a home
+          description: unique ID of a home the authenticated user has access to
         - in: path
           name: zoneId
           schema:
@@ -1495,7 +1653,7 @@ paths:
           schema:
             $ref: '#/components/schemas/HomeId'
           required: true
-          description: unique ID of a home
+          description: unique ID of a home the authenticated user has access to
         - in: path
           name: zoneId
           schema:
@@ -1522,7 +1680,7 @@ paths:
           schema:
             $ref: '#/components/schemas/HomeId'
           required: true
-          description: unique ID of a home
+          description: unique ID of a home the authenticated user has access to
         - in: path
           name: zoneId
           schema:
@@ -1551,7 +1709,7 @@ paths:
           schema:
             $ref: '#/components/schemas/HomeId'
           required: true
-          description: unique ID of a home
+          description: unique ID of a home the authenticated user has access to
         - in: path
           name: zoneId
           schema:
@@ -1603,7 +1761,7 @@ paths:
           schema:
             $ref: '#/components/schemas/HomeId'
           required: true
-          description: unique ID of a home
+          description: unique ID of a home the authenticated user has access to
         - in: path
           name: zoneId
           schema:
@@ -1634,7 +1792,7 @@ paths:
           schema:
             $ref: '#/components/schemas/HomeId'
           required: true
-          description: unique ID of a home
+          description: unique ID of a home the authenticated user has access to
         - in: path
           name: zoneId
           schema:
@@ -1683,7 +1841,7 @@ paths:
           schema:
             $ref: '#/components/schemas/HomeId'
           required: true
-          description: unique ID of a home
+          description: unique ID of a home the authenticated user has access to
         - in: path
           name: zoneId
           schema:
@@ -1717,7 +1875,7 @@ paths:
           schema:
             $ref: '#/components/schemas/HomeId'
           required: true
-          description: unique ID of a home
+          description: unique ID of a home the authenticated user has access to
         - in: path
           name: zoneId
           schema:
@@ -1775,7 +1933,7 @@ paths:
           schema:
             $ref: '#/components/schemas/HomeId'
           required: true
-          description: unique ID of a home
+          description: unique ID of a home the authenticated user has access to
         - in: path
           name: zoneId
           schema:
@@ -1835,7 +1993,7 @@ paths:
           schema:
             $ref: '#/components/schemas/HomeId'
           required: true
-          description: unique ID of a home
+          description: unique ID of a home the authenticated user has access to
         - in: path
           name: zoneId
           schema:
@@ -1882,7 +2040,7 @@ paths:
           schema:
             $ref: '#/components/schemas/HomeId'
           required: true
-          description: unique ID of a home
+          description: unique ID of a home the authenticated user has access to
         - in: path
           name: zoneId
           schema:
@@ -1972,7 +2130,7 @@ paths:
   # device paths
   /devices/{deviceId}:
     get:
-      summary: Get a single tado device. [ NO tado X]
+      summary: Get a single tado device.
       operationId: getDevice # hint for client code generators
       tags:
         - device
@@ -2111,7 +2269,7 @@ paths:
 
   /homes/{homeId}/devices:
     get:
-      summary: Get all tado devices associated with the provided homeId. [ + tado X]
+      summary: Get all tado devices associated with the provided homeId.
       description: >
         There are multiple ways to list the tado devices in a home or zone:
         
@@ -2141,7 +2299,7 @@ paths:
           schema:
             $ref: '#/components/schemas/HomeId'
           required: true
-          description: unique ID of a home
+          description: unique ID of a home the authenticated user has access to
       responses:
         '200':
           description: successful response
@@ -2158,7 +2316,7 @@ paths:
 
   /homes/{homeId}/deviceList:
     get:
-      summary: Get all tado devices associated with the provided homeId, together with the zone (a.k.a. room) they are in. [ NO tado API X]
+      summary: Get all tado devices associated with the provided homeId, together with the zone (a.k.a. room) they are in.
       description: >
         There are multiple ways to list the tado devices in a home or zone:
         
@@ -2188,7 +2346,7 @@ paths:
           schema:
             $ref: '#/components/schemas/HomeId'
           required: true
-          description: unique ID of a home
+          description: unique ID of a home the authenticated user has access to
       responses:
         '200':
           description: successful response
@@ -2214,7 +2372,7 @@ paths:
           schema:
             $ref: '#/components/schemas/HomeId'
           required: true
-          description: unique ID of a home
+          description: unique ID of a home the authenticated user has access to
       responses:
         '200':
           description: successful response
@@ -2234,7 +2392,7 @@ paths:
     get:
       summary: >
         Returns the heating circuit the zone (a.k.a. room) belongs to, and the tado devices within the zone 
-        grouped by their duty. [ ? tado X]
+        grouped by their duty. [ NO tado X]
       description: >
         There are multiple ways to list the tado devices in a home or zone:
 
@@ -2265,7 +2423,7 @@ paths:
           schema:
             $ref: '#/components/schemas/HomeId'
           required: true
-          description: unique ID of a home
+          description: unique ID of a home the authenticated user has access to
         - in: path
           name: zoneId
           schema:
@@ -2288,7 +2446,7 @@ paths:
 
   /homes/{homeId}/zones/{zoneId}/control/heatingCircuit:
     put:
-      summary: Assign the zone to a specific heating circuit or make it independent of a heating circuit. [ ? tado X]
+      summary: Assign the zone to a specific heating circuit or make it independent of a heating circuit. [ NO tado X]
       description: >
         See /homes/{homeId}/heatingCircuits to get a list of heating circuits in a home.
         
@@ -2308,7 +2466,7 @@ paths:
           schema:
             $ref: '#/components/schemas/HomeId'
           required: true
-          description: unique ID of a home
+          description: unique ID of a home the authenticated user has access to
         - in: path
           name: zoneId
           schema:
@@ -2351,7 +2509,7 @@ paths:
           schema:
             $ref: '#/components/schemas/HomeId'
           required: true
-          description: unique ID of a home
+          description: unique ID of a home the authenticated user has access to
         - in: path
           name: zoneId
           schema:
@@ -2397,7 +2555,7 @@ paths:
           schema:
             $ref: '#/components/schemas/HomeId'
           required: true
-          description: unique ID of a home
+          description: unique ID of a home the authenticated user has access to
         - in: path
           name: zoneId
           schema:
@@ -2429,7 +2587,7 @@ paths:
           schema:
             $ref: '#/components/schemas/HomeId'
           required: true
-          description: unique ID of a home
+          description: unique ID of a home the authenticated user has access to
         - in: path
           name: zoneId
           schema:
@@ -2473,7 +2631,7 @@ paths:
           schema:
             $ref: '#/components/schemas/HomeId'
           required: true
-          description: unique ID of a home
+          description: unique ID of a home the authenticated user has access to
         - in: path
           name: zoneId
           schema:
@@ -2674,7 +2832,7 @@ components:
       example: NORMAL
       description: device property known to be present for DeviceType SU02, VA02
 
-    Boiler:
+    Boiler1:
       type: object
       description: element of HeatingSystem
       properties:
@@ -2689,14 +2847,78 @@ components:
           type: boolean
           example: true
 
+    Boiler2:
+      type: object
+      description: Response of GET /homeByBridge/{bridgeId}/boilerInfo
+      properties:
+        boilerPresent:
+          type: boolean
+          example: true
+        boilerId:
+          type: integer
+          example: 2699
+          description: >
+            Tado specific id of the type of boiler you have, it gets set when you select a boiler via the app     
+
     BoilerMaxOutputTemperature:
       type: object
-      description: todo
+      description: Used in GET/POST /homeByBridge/{bridgeId}/boilerMaxOutputTemperature
       properties:
         boilerMaxOutputTemperatureInCelsius:
           type: number
           format: float
           example: 55.0
+
+    BoilerWiringInstallationState:
+      type: object
+      description: response of GET /homeByBridge/{bridgeId}/boilerWiringInstallationState
+      properties:
+        state:
+          type: string
+          example: INSTALLATION_COMPLETED
+        deviceWiredToBoiler:
+          type: object
+          properties:
+            type:
+              # not using schema type #/components/schemas/DeviceType here on purpose
+              # because it would not allow us to define a description and example specific for its use here
+              type: string
+              example: BR02
+            serialNo:
+              # not using schema type #/components/schemas/DeviceId here on purpose
+              # because it would not allow us to define a description and example specific for its use here
+              type: string
+              example: BR123456789
+            thermInterfaceType:
+              type: string
+              example: UBA_BUS
+            connected:
+              type: boolean
+              example: true
+            lastRequestTimestamp:
+              type: string
+              format: date-time
+              example: "2024-12-30T11:10:24.433Z"
+        bridgeConnected:
+          type: boolean
+          example: true
+        hotWaterZonePresent:
+          type: boolean
+          example: true
+        boiler:
+          type: object
+          properties:
+            outputTemperature:
+              type: object
+              properties:
+                celsius:
+                  type: number
+                  format: float
+                  example: "56.0"
+                timestamp:
+                  type: string
+                  format: date-time
+                  example: "2024-12-30T10:58:44.000Z"
 
     BooleanDataInterval:
       type: object
@@ -2728,6 +2950,15 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/BooleanDataInterval'
+
+    Bridge:
+      type: object
+      description: tado Internet Bridge
+      properties:
+        partner:
+          description: meaning and type of this property is unknown
+        homeId:
+          $ref: '#/components/schemas/HomeId'
 
     BridgeId:
       type: string
@@ -3036,22 +3267,31 @@ components:
         
         
         known values: 
+        * GW01 (Gateway V1)
+
+        * GW02 (Bridge V2)
+
+        * IB01 (Internet Bridge V3+)
         
-        * BR02 (Wireless Receiver)
+        * BX02 (Box V1)
         
-        * BU01 (Boiler controller?)
+        * BU01 (Extension Kit UK)
         
-        * GW02 (Internet Gateway?)
+        * EK01 (Extension Kit UK)
         
-        * IB01 (Internet Bridge)
+        * BR02 (Wireless Receiver V3+)
         
-        * RU01 (Remote Thermostat)
+        * BP02 (Wireless Receiver UK V3+)
         
+        * RU01 (Smart Thermostat V3)
+      
         * RU02 (Wired Smart Thermostat V3+)
         
-        * SU02 (Wireless Smart Thermostat V3+)
+        * TS02 (Temp Sensor V1)
         
-        * VA01
+        * SU02 (Wireless Temperature Sensor V3+)
+        
+        * VA01 (Smart Radiator Thermostat V3)
         
         * VA02 (Smart Radiator Thermostat V3+)
 
@@ -3180,7 +3420,7 @@ components:
       description: result of /homes/{homeId}/heatingSystem
       properties:
         boiler:
-          $ref: '#/components/schemas/Boiler'
+          $ref: '#/components/schemas/Boiler1'
         underfloorHeating:
           $ref: '#/components/schemas/UnderfloorHeating'
 
@@ -3201,7 +3441,7 @@ components:
               enum: [CELSIUS, FAHRENHEIT]
               example: CELSIUS
             partner:
-              #          type: ???
+              description: meaning and type of this property is unknown
               nullable: true
             simpleSmartScheduleEnabled:
               type: boolean
@@ -3514,7 +3754,7 @@ components:
           type: boolean
           example: false
           description: >
-            When geotracking is enabled for a MobileDevice, 
+            When geo-tracking is enabled for a MobileDevice, 
             and the tado app installed on the device has location permissions on the device, 
             the MobileDevice object will also contain location details.
         specialOffersEnabled:
@@ -4466,19 +4706,22 @@ tags:
   - name: heating circuit
     description: >
       Operations to determine the heating circuits in your tado home
-      and control how zones (a.k.a. rooms) are associated with heating circuits. **[ &quest; tado X]**
-  - name: home by bridge
+      and control how zones (a.k.a. rooms) are associated with heating circuits. **[ ~ tado X]**
+  - name: boiler
     description: >
-      Configuration of your boiler. **[ &cross; tado X]**
+      Configuration of your boiler. These operations do not require OAuth authentication. **[ &cross; tado X]**
+  - name: bridge
+    description: >
+      Information about your Internet Bridge. These operations do not require OAuth authentication. **[ &cross; tado X]**
   - name: zone
     description: >
-      Retrieve and configure information about a zone (a.k.a. room). **[ &quest; tado X]**
+      Retrieve and configure information about a zone (a.k.a. room). **[ &cross; tado X]**
   - name: zone control
     description: >
-      All operations directly associated with temperature control in a zone. **[ &quest; tado X]**
+      All operations directly associated with temperature control in a zone. **[ &cross; tado X]**
   - name: device
     description: >
-      Determine and configure the tado devices in a home or zone. **[ &quest; tado X]**
+      Determine and configure the tado devices in a home or zone. **[ &cross; tado X]**
   - name: mobile device
     description: >
       Retrieve information about and set settings for mobile devices linked to users 
