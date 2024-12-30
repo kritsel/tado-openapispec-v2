@@ -130,7 +130,7 @@ class ZoneControlApi_IT(
             )
         )
         val result = assertCorrectResponse {
-            tadoStrictZoneControlAPI.setZoneOverlays(tadoConfig.home!!.id, ZoneOverlays(listOf(ZoneOverlaysOverlaysInner(tadoConfig.zone!!.heating!!.id.toString(), newZoneOverlay))) )
+            tadoStrictZoneControlAPI.setZoneOverlays(tadoConfig.home!!.id, ZoneOverlays(listOf(ZoneOverlaysOverlaysInner(tadoConfig.zone!!.heating!!.id, newZoneOverlay))) )
         }
         assertEquals(Unit, result)
     }
