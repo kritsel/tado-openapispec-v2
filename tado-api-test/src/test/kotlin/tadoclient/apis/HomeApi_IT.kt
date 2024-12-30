@@ -43,7 +43,7 @@ class HomeApi_IT(
     fun afterTests() {
         // boiler and underfloorHeating
         heatingSystemBeforeTest?.let{
-            val boiler = Boiler(
+            val boiler = Boiler1(
                 present = heatingSystemBeforeTest!!.boiler!!.present,
                 id = heatingSystemBeforeTest!!.boiler?.id
             )
@@ -118,7 +118,7 @@ class HomeApi_IT(
     @Order(60)
     @EnabledIf(value = "isHomeConfigured", disabledReason = "no home specified in tado set-up")
     fun putBoiler_NotPresent() {
-        val boiler = Boiler(present = false)
+        val boiler = Boiler1(present = false)
         assertCorrectResponse { tadoStrictHomeAPI.setBoiler(tadoConfig.home!!.id, boiler) }
     }
 
@@ -127,7 +127,7 @@ class HomeApi_IT(
     @Order(61)
     @EnabledIf(value = "isHomeConfigured", disabledReason = "no home specified in tado set-up")
     fun putBoiler_PresentWithoutId() {
-        val boiler = Boiler(present = true)
+        val boiler = Boiler1(present = true)
         assertCorrectResponse { tadoStrictHomeAPI.setBoiler(tadoConfig.home!!.id, boiler) }
     }
 
@@ -136,7 +136,7 @@ class HomeApi_IT(
     @Order(62)
     @EnabledIf(value = "isHomeConfigured", disabledReason = "no home specified in tado set-up")
     fun putBoiler_PresentWithId() {
-        val boiler = Boiler(present = true, id = 2699)
+        val boiler = Boiler1(present = true, id = 2699)
         assertCorrectResponse { tadoStrictHomeAPI.setBoiler(tadoConfig.home!!.id, boiler) }
     }
 
