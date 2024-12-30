@@ -21,7 +21,7 @@ info:
     | **[ ~ tado X]**        |                 |  some operations do supports tado&ordm; X, others don't |      
     
     Note: when a group is labelled with **[ ~ tado X]**, 
-    individual operations in that group are be labelled as [ + tado X] or [ NO tado X]
+    individual operations in that group are labelled as [ + tado X] or [ NO tado X]
     
     More info: [https://github.com/kritsel/tado-openapispec-v2/wiki/tado-X](https://github.com/kritsel/tado-openapispec-v2/wiki/tado-X)
     
