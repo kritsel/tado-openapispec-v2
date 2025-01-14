@@ -590,6 +590,71 @@ paths:
         '422':
           $ref: '#/components/responses/InputError422'
 
+  /homes/{homeId}/flowTemperatureOptimization:
+    get:
+      summary: Get the boiler's water temperature specifics.
+      description: |
+        Only works for homes with boilers which support an OpenTherm interface.
+        Returns 404 otherwise.
+        
+        Also see the `supportsFlowTemperatureOptimization` property in the `GET /homes/{homeId}` response.
+      operationId: getFlowTemperatureOptimization # hint for client code generators
+      tags:
+        - home
+      parameters:
+        - in: path
+          name: homeId
+          schema:
+            $ref: '#/components/schemas/HomeId'
+          required: true
+          description: unique ID of a home the authenticated user has access to
+      responses:
+        '200':
+          description: successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FlowTemperatureOptimization'
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+        '403':
+          $ref: '#/components/responses/AccessDenied403'
+        '404':
+          $ref: '#/components/responses/NotFound404'
+    put:
+      summary: Set the boiler's water temperature specifics.
+      description: |
+        Only works for homes with boilers which support an OpenTherm interface.
+        
+        Also see the `supportsFlowTemperatureOptimization` property in the `GET /homes/{homeId}` response.
+        
+        This operation might be the equivalent of `PUT /homeByBridge/{bridgeId}/boilerMaxOutputTemperature`
+      operationId: setFlowTemperatureOptimization # hint for client code generators
+      tags:
+        - home
+      parameters:
+        - in: path
+          name: homeId
+          schema:
+            $ref: '#/components/schemas/HomeId'
+          required: true
+          description: unique ID of a home the authenticated user has access to
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FlowTemperatureOptimizationInput'
+      responses:
+        '204':
+          description: successful response
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+        '403':
+          $ref: '#/components/responses/AccessDenied403'
+        '422':
+          $ref: '#/components/responses/InputError422'
+
   /homes/{homeId}/weather:
     get:
       summary: Get the current weather for the given home.
@@ -848,6 +913,8 @@ paths:
         
         This operation is used in the https://model-selector.tado.com/ webapp 
         and the 'tado&ordm; for Installers' mobile app.
+        
+        This operation could be the equivalent of `PUT /homes/{homeId}/flowTemperatureOptimization`.
       operationId: setBoilerMaxOutputTemperature # hint for client code generators
       tags:
         - boiler
@@ -3352,6 +3419,56 @@ components:
       type: string
       enum: [AUTO, LEVEL1, LEVEL2, LEVEL3, LEVEL4, LEVEL5, SILENT]
       description: Used in AirConditioningZoneSettingsBase and AirConditioningModeCapabilitiesBase
+
+    FlowTemperatureOptimization:
+      type: object
+      description: Result of 'GET /homes/{homeId}/flowTemperatureOptimization'
+      properties:
+        hasMultipleBoilerControlDevices:
+          type: boolean
+          example: false
+        maxFlowTemperature:
+          type: number
+          example: 50
+          description: >
+            Not clear if this property always represents a centigrade value,
+            or if the unit is based on `Home.temperatureUnit`
+        maxFlowTemperatureConstraints:
+          type: object
+          properties:
+            min:
+              type: number
+              example: 30
+              description: >
+                Not clear if this property always represents a centigrade value,
+                or if the unit is based on `Home.temperatureUnit`
+            max:
+              type: number
+              example: 80
+              description: >
+                Not clear if this property always represents a centigrade value,
+                or if the unit is based on `Home.temperatureUnit`
+        autoAdaptation:
+          type: object
+          properties:
+            enabled:
+              type: boolean
+              example: false
+            maxFlowTemperature:
+              type: number
+              description: can be null
+        openThermDeviceSerialNumber:
+          type: string
+
+    FlowTemperatureOptimizationInput:
+      description: Input for 'PUT /homes/{homeId}/flowTemperatureOptimization'
+      properties:
+        maxFlowTemperature:
+          type: number
+          example: 50
+          description: >
+            Not clear if this property always represents a centigrade value,
+            or if the unit is based on `Home.temperatureUnit`
 
     # HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
     HeatingCircuit:
