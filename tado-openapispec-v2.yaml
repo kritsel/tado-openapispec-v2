@@ -837,7 +837,7 @@ paths:
         and the 'tado&ordm; for Installers' mobile app.
       operationId: getBoilerInfo # hint for client code generators
       tags:
-        - boiler
+        - home by bridge
       security: [] # No security
       parameters:
         - in: path
@@ -875,7 +875,7 @@ paths:
         and the 'tado&ordm; for Installers' mobile app.
       operationId: getBoilerMaxOutputTemperature # hint for client code generators
       tags:
-        - boiler
+        - home by bridge
       security: [] # No security
       parameters:
         - in: path
@@ -917,7 +917,7 @@ paths:
         This operation could be the equivalent of `PUT /homes/{homeId}/flowTemperatureOptimization`.
       operationId: setBoilerMaxOutputTemperature # hint for client code generators
       tags:
-        - boiler
+        - home by bridge
       security: [] # No security
       parameters:
         - in: path
@@ -961,7 +961,7 @@ paths:
         and the 'tado&ordm; for Installers' mobile app.
       operationId: getBoilerWiringInstallationState # hint for client code generators
       tags:
-        - boiler
+        - home by bridge
       security: [] # No security
       parameters:
         - in: path
@@ -4824,6 +4824,9 @@ tags:
   - name: home
     description: >
       List and configure information about a home (a house or apartment) controlled by tado. **[ &check; tado X]**
+  - name: home by bridge
+    description: >
+      Configuration of your home's boiler. These operations do not require OAuth authentication. **[ &cross; tado X]**
   - name: home control
     description: >
       Operations related to determining whether someone is at home or not 
@@ -4832,9 +4835,6 @@ tags:
     description: >
       Operations to determine the heating circuits in your tado home
       and control how zones (a.k.a. rooms) are associated with heating circuits. **[ ~ tado X]**
-  - name: boiler
-    description: >
-      Configuration of your boiler. These operations do not require OAuth authentication. **[ &cross; tado X]**
   - name: bridge
     description: >
       Information about your Internet Bridge. These operations do not require OAuth authentication. **[ &cross; tado X]**
