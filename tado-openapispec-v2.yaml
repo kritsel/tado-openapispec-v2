@@ -31,7 +31,7 @@ info:
     [https://github.com/kritsel/tado-openapispec-v2](https://github.com/kritsel/tado-openapispec-v2)
     * Wiki for this GitHub repo with additional information:
     [https://github.com/kritsel/tado-openapispec-v2/wiki](https://github.com/kritsel/tado-openapispec-v2/wiki/)
-  version: 2.2025.01.14.0
+  version: 2.2025.01.14.1
 servers:
   - url: https://my.tado.com/api/v2/
 security:
@@ -3428,7 +3428,7 @@ components:
           type: boolean
           example: false
         maxFlowTemperature:
-          type: number
+          type: integer
           example: 50
           description: >
             Not clear if this property always represents a centigrade value,
@@ -3437,13 +3437,13 @@ components:
           type: object
           properties:
             min:
-              type: number
+              type: integer
               example: 30
               description: >
                 Not clear if this property always represents a centigrade value,
                 or if the unit is based on `Home.temperatureUnit`
             max:
-              type: number
+              type: integer
               example: 80
               description: >
                 Not clear if this property always represents a centigrade value,
@@ -3455,8 +3455,8 @@ components:
               type: boolean
               example: false
             maxFlowTemperature:
-              type: number
-              description: can be null
+              type: integer
+              nullable: true
         openThermDeviceSerialNumber:
           type: string
 
