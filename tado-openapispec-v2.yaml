@@ -2740,8 +2740,9 @@ paths:
           schema:
             type: string
             format: date
-          required: true
+          required: false
           example: "2018-02-14"
+          description: current date is used when this query parameter is not provided
       responses:
         '200':
           description: successful response
@@ -3391,6 +3392,7 @@ components:
         
         
         known values: 
+        
         * GW01 (Gateway V1)
 
         * GW02 (Bridge V2)
@@ -3418,6 +3420,8 @@ components:
         * VA01 (Smart Radiator Thermostat V3)
         
         * VA02 (Smart Radiator Thermostat V3+)
+        
+        * WR01 (Smart AC Control V3)
         
         * WR02 (Smart AC Control V3+)
 
@@ -4087,7 +4091,7 @@ components:
 
     PowerDataPoint:
       type: object
-      description: Used in Weather and ZoneState, to expressAC power.
+      description: Used in ZoneState, to expressAC power.
       properties:
         type:
           type: string
@@ -4118,10 +4122,10 @@ components:
       properties:
         timeSeriesType:
           type: string
-          example: power
+          example: dataIntervals
         valueType:
           type: string
-          example: boolean
+          example: power
         dataIntervals:
           type: array
           items:
@@ -4877,7 +4881,10 @@ components:
         valueType:
           type: string
           example: heatingSetting
-          description: heatingSetting or airConditioningSetting
+          description: |
+            known values:
+            * heatingSetting 
+            * airConditioningSetting
         dataIntervals:
           type: array
           items:
@@ -4938,9 +4945,8 @@ components:
             state:
               type: string
               example: ONLINE
-              description: >
+              description: |
                 known values: 
-                
                 * ONLINE
                 * OFFLINE
             reason: # present when link.state is OFFLINE
