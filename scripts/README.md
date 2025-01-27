@@ -1,4 +1,4 @@
-# How to use the `mvn-*.sh` scripts
+./# How to use the `mvn-*.sh` scripts
 
 ## Execute from parent directory
 
