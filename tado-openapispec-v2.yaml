@@ -31,7 +31,7 @@ info:
     [https://github.com/kritsel/tado-openapispec-v2](https://github.com/kritsel/tado-openapispec-v2)
     * Wiki for this GitHub repo with additional information:
     [https://github.com/kritsel/tado-openapispec-v2/wiki](https://github.com/kritsel/tado-openapispec-v2/wiki/)
-  version: 2.2025.01.27.0
+  version: 2.2025.01.27.1
 servers:
   - url: https://my.tado.com/api/v2/
 security:
@@ -2452,6 +2452,39 @@ paths:
         '403':
           $ref: '#/components/responses/AccessDenied403'
 
+  /homes/{homeId}/installations/{installationId}:
+    get:
+      summary: Returns the specified installation.
+      operationId: getInstallation # hint for client code generators
+      tags:
+        - device
+      parameters:
+        - in: path
+          name: homeId
+          schema:
+            $ref: '#/components/schemas/HomeId'
+          required: true
+          description: unique ID of a home the authenticated user has access to
+        - in: path
+          name: installationId
+          schema:
+            $ref: '#/components/schemas/InstallationId'
+          required: true
+          description: unique ID of an installation within the specified home
+      responses:
+        '200':
+          description: successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Installation'
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+        '403':
+          $ref: '#/components/responses/AccessDenied403'
+        '404':
+          $ref: '#/components/responses/NotFound404'
+
   /homes/{homeId}/zones/{zoneId}/control:
     get:
       summary: >
@@ -3544,9 +3577,7 @@ components:
               format: date-time
               example: "2022-11-25T09:40:14.803Z"
             temperatureUnit:
-              type: string
-              enum: [CELSIUS, FAHRENHEIT]
-              example: CELSIUS
+              $ref: '#/components/schemas/TemperatureUnit'
             partner:
               description: meaning and type of this property is unknown
               nullable: true
@@ -3819,8 +3850,7 @@ components:
                       type: string
                       example: AC_SETTING
                     temperatureUnit:
-                      type: string
-                      example: CELSIUS
+                      $ref: '#/components/schemas/TemperatureUnit'
                     modelName:
                       nullable: true
                     photoS3Key:
@@ -4261,6 +4291,11 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/TemperatureDataPointInTimeSeries'
+
+    TemperatureUnit:
+      type: string
+      enum: [ CELSIUS, FAHRENHEIT ]
+      example: CELSIUS
 
     TimetableBlock:
       type: object
