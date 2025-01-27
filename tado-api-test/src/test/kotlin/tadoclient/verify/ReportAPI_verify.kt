@@ -10,8 +10,12 @@ fun verifyDayReport(zoneType: ZoneType, dayReport:DayReport, context:String, par
             verifyNested(
                 dayReport, context, parentName, typeName,
                 // settings is only available when a schedule or overlay was active with setting.power = ON
-                nullAllowedProperties = listOf("$typeName.settings"),
-                stopAtProperties = listOf("$typeName.stripes.dataIntervals[i].value.setting")
+                nullAllowedProperties = listOf(
+                    "$typeName.settings",
+                    "$typeName.acActivity"),
+                stopAtProperties = listOf(
+                    "$typeName.stripes.dataIntervals[i].value",
+                    "$typeName.settings.dataIntervals[i].value")
             )
 
             dayReport.stripes?.dataIntervals?.forEachIndexed { i, elem ->

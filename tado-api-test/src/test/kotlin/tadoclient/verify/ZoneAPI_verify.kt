@@ -50,8 +50,12 @@ fun verifyZoneState(zoneInfo: Pair<ZoneType, Boolean>, zoneState: ZoneState, con
     when (zoneInfo.first) {
 
         ZoneType.HEATING -> {
+            val heatingNullAllowedProperties = mutableListOf(
+                "$typeName.nextTimeBlock",
+                "$typeName.activityDataPoints.acPower")
+            heatingNullAllowedProperties.addAll(basicNullAllowedProperties)
             verifyNested(zoneState, context, fullParentName, typeName,
-                nullAllowedProperties = basicNullAllowedProperties,
+                nullAllowedProperties = heatingNullAllowedProperties,
                 stopAtProperties = basicStopAtProperties)
         }
 
@@ -59,6 +63,7 @@ fun verifyZoneState(zoneInfo: Pair<ZoneType, Boolean>, zoneState: ZoneState, con
             val hotWaterNullAllowedProperties = mutableListOf(
                 "$typeName.nextTimeBlock",
                 "$typeName.activityDataPoints.heatingPower",
+                "$typeName.activityDataPoints.acPower",
                 "$typeName.sensorDataPoints.humidity",
                 "$typeName.sensorDataPoints.insideTemperature")
             hotWaterNullAllowedProperties.addAll(basicNullAllowedProperties)

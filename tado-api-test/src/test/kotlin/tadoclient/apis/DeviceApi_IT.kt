@@ -108,9 +108,10 @@ class DeviceApi_IT (
         val endpoint = "GET /homes/{homeId}/installations"
         val installations = assertCorrectResponse { tadoStrictDeviceAPI.getInstallations(tadoConfig.home!!.id) }
 
-        // this operation appears to be practically deprected, as it always returns an empty array
-        // let's verify if that is still the case
-        assertEquals(0, installations.size)
+        // returns AC installations
+        assertEquals(1, installations.size)
+
+        // todo: implement an verifyInstallation method
     }
 
     @Test

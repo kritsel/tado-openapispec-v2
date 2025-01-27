@@ -23,7 +23,9 @@ fun verifyDevice(device: Any, context:String, parentName:String, typeName:String
             "$typeName.childLockEnabled",
             "$typeName.isDriverConfigured",
             "$typeName.inPairingMode",
-            "$typeName.characteristics"  // not available for IB01
+            "$typeName.characteristics",  // not available for IB01
+            "$typeName.accessPointWiFi",  // only available for WR02
+            "$typeName.commandTableUploadState"  // only available for WR02
         ),
         // capabilities empty for BR02
         emptyCollectionAllowedProperties = listOf("$typeName.characteristics.capabilities"))
