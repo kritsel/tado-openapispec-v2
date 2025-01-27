@@ -31,7 +31,7 @@ info:
     [https://github.com/kritsel/tado-openapispec-v2](https://github.com/kritsel/tado-openapispec-v2)
     * Wiki for this GitHub repo with additional information:
     [https://github.com/kritsel/tado-openapispec-v2/wiki](https://github.com/kritsel/tado-openapispec-v2/wiki/)
-  version: 2.2025.01.14.1
+  version: 2.2025.01.27.0
 servers:
   - url: https://my.tado.com/api/v2/
 security:
@@ -1082,8 +1082,7 @@ paths:
 
   /homes/{homeId}/zones/{zoneId}/capabilities:
     get:
-      summary: Get the temperature setting capabilities of this zone.
-      description: This includes current temperature, humidity and heating power information.
+      summary: Get the climate control capabilities of this zone.
       operationId: getZoneCapabilities # hint for client code generators
       tags:
         - zone
@@ -2428,8 +2427,7 @@ paths:
 
   /homes/{homeId}/installations:
     get:
-      summary: Always returns an empty list.
-      deprecated: true
+      summary: Response only contains AC installations; will be empty when there are no ACs in the home.
       operationId: getInstallations # hint for client code generators
       tags:
         - device
@@ -2448,8 +2446,7 @@ paths:
               schema:
                 type: array
                 items:
-                  type: object
-                  # no properties defined as result is an empty list
+                  $ref: '#/components/schemas/Installation'
         '401':
           $ref: '#/components/responses/Unauthorized401'
         '403':
@@ -2782,6 +2779,8 @@ components:
       properties:
         heatingPower:
           $ref: '#/components/schemas/PercentageDataPoint'
+        acPower:
+          $ref: '#/components/schemas/PowerDataPoint'
 
     AirComfort:
       type: object
@@ -2799,6 +2798,13 @@ components:
               type: string
               format: date-time
               example: "2024-08-07T16:40:03Z"
+            acPoweredOn:
+              type: boolean
+              example: false
+            lastAcPowerOff:
+              type: string
+              format: date-time
+              example: "2025-01-22T21:00:00.000Z"
         comfort:
           type: array
           items:
@@ -3113,11 +3119,13 @@ components:
         stripes:
           $ref: '#/components/schemas/StripesTimeSeries'
         settings:
-          $ref: '#/components/schemas/HeatingSettingTimeSeries'
+          $ref: '#/components/schemas/ZoneSettingTimeSeries'
         callForHeat:
           $ref: '#/components/schemas/CallForHeatTimeSeries'
         hotWaterProduction:
           $ref: '#/components/schemas/BooleanTimeSeries'
+        acActivity:
+          $ref: '#/components/schemas/PowerTimeSeries'
         weather:
           type: object
           properties:
@@ -3266,7 +3274,17 @@ components:
           type: boolean
           example: false
           description: "property known to be present for DeviceType IB01"
-
+        accessPointWiFi:
+          type: object
+          description: "property known to be present for DeviceType WR02 (AC control)"
+          properties:
+            ssid:
+              type: string
+              example: tado1234
+        commandTableUploadState:
+          type: string
+          example: FAILED
+          description: "property known to be present for DeviceType WR02 (AC control)"
     DeviceExtra:
       description: >
         A piece of tado hardware.
@@ -3288,7 +3306,8 @@ components:
                   
                   * ZONE_UI (seen for DeviceType SU02, VA02)
                   
-                  * ZONE_LEADER (seen for DeviceType SU02, VA02)
+                  * ZONE_LEADER (seen for DeviceType SU02, VA02; 
+                    indicates that the device is the temperature measuring device for the zone)
                   
                   * ZONE_DRIVER (seen for DeviceType VA02)
 
@@ -3366,6 +3385,8 @@ components:
         * VA01 (Smart Radiator Thermostat V3)
         
         * VA02 (Smart Radiator Thermostat V3+)
+        
+        * WR02 (Smart AC Control V3+)
 
     # EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
     EarlyStart:
@@ -3500,42 +3521,6 @@ components:
       properties:
         circuitNumber:
           $ref: '#/components/schemas/HeatingCircuitId'
-
-    HeatingSettingTimeSeries:
-      type: object
-      description: element of DayReport
-      properties:
-        timeSeriesType:
-          type: string
-          example: dataIntervals
-        valueType:
-          type: string
-          example: heatingSetting
-        dataIntervals:
-          type: array
-          items:
-            $ref: '#/components/schemas/HeatingSettingDataInterval'
-
-    HeatingSettingDataInterval:
-      type: object
-      description: element of DayReport
-      allOf:
-        - $ref: '#/components/schemas/DataInterval'
-        - properties:
-            value:
-              $ref: '#/components/schemas/HeatingSettingValue'
-
-    HeatingSettingValue:
-      type: object
-      properties:
-        type:
-          type: string
-          example: HEATING
-        power:
-          $ref: '#/components/schemas/Power'
-        temperature:
-          $ref: '#/components/schemas/Temperature'
-
 
     HeatingSystem:
       type: object
@@ -3794,6 +3779,76 @@ components:
           type: boolean
           example: true
 
+    Installation:
+      type: object
+      description: |
+        Result of GET /home/{homeId}/installations.
+        Only present for ACs.
+      properties:
+        id:
+          $ref: '#/components/schemas/InstallationId'
+        type:
+          type: string
+          example: INSTALL_AC_G1
+        revision:
+          type: integer
+          example: 7
+        state:
+          type: string
+          example: COMPLETED
+        devices:
+          type: array
+          items:
+            $ref: '#/components/schemas/Device'
+        acInstallationInformation:
+          type: object
+          properties:
+            wirelessRemoteHasRequiredFirmware:
+              type: boolean
+              example: true
+            acSpecs:
+              type: object
+              properties:
+                acUnitDisplaysSetPointTemperature:
+                  type: boolean
+                  example: false
+                remoteControl:
+                  type: object
+                  properties:
+                    commandType:
+                      type: string
+                      example: AC_SETTING
+                    temperatureUnit:
+                      type: string
+                      example: CELSIUS
+                    modelName:
+                      nullable: true
+                    photoS3Key:
+                      nullable: true
+                manufacturer:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                      example: "not specified"
+            keyCommandSetRecording:
+              nullable: true
+            acSettingCommandSetRecording:
+              nullable: true
+            createdZone:
+              type: object
+              properties:
+                id:
+                  $ref: '#/components/schemas/ZoneId'
+            selectedSetupBranch:
+              type: string
+              example: NON_THERMOSTATIC
+
+    InstallationId:
+      type: integer
+      example: 0
+      description: ID of an (AC) installation (unique only within the home it belongs to)
+
     # LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
     Light:
       type: string
@@ -3999,6 +4054,48 @@ components:
       enum: [ 'ON', 'OFF' ]
       example: ON
       description: used in ZoneSetting
+
+    PowerDataPoint:
+      type: object
+      description: Used in Weather and ZoneState, to expressAC power.
+      properties:
+        type:
+          type: string
+          example: POWER
+        value:
+          $ref: '#/components/schemas/Power'
+        timestamp:
+          type: string
+          format: date-time
+          example: "2024-07-30T21:51:41.178Z"
+
+    PowerDataInterval:
+      type: object
+      description:
+        Element of DayReport.
+        Used to express acActivity
+      allOf:
+        - $ref: '#/components/schemas/DataInterval'
+        - properties:
+            value:
+              $ref: '#/components/schemas/Power'
+
+    PowerTimeSeries:
+      type: object
+      description: >
+        Element of DayReport. 
+        Used to express acActivity.
+      properties:
+        timeSeriesType:
+          type: string
+          example: power
+        valueType:
+          type: string
+          example: boolean
+        dataIntervals:
+          type: array
+          items:
+            $ref: '#/components/schemas/PowerDataInterval'
 
     PresenceLock:
       type: object
@@ -4734,6 +4831,31 @@ components:
             isBoost:
               type: boolean
               example: true
+
+    ZoneSettingTimeSeries:
+      type: object
+      description: element of DayReport
+      properties:
+        timeSeriesType:
+          type: string
+          example: dataIntervals
+        valueType:
+          type: string
+          example: heatingSetting
+          description: heatingSetting or airConditioningSetting
+        dataIntervals:
+          type: array
+          items:
+            $ref: '#/components/schemas/ZoneSettingDataInterval'
+
+    ZoneSettingDataInterval:
+      type: object
+      description: element of DayReport
+      allOf:
+        - $ref: '#/components/schemas/DataInterval'
+        - properties:
+            value:
+              $ref: '#/components/schemas/ZoneSetting'
 
     ZoneState:
       type: object
