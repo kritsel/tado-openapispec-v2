@@ -16,7 +16,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
 
-@SpringBootTest(classes = arrayOf( Application::class))
+@SpringBootTest(classes = [Application::class])
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 @DisplayName("tado API - zone control")
 class ZoneControlApi_IT(
@@ -32,8 +32,8 @@ class ZoneControlApi_IT(
     @Autowired
     tadoConfig: TadoConfig
 ) : BaseTest(tadoConfig) {
-    val tadoZoneControlAPI = ZoneControlApi(tadoRestClient)
-    val tadoStrictZoneControlAPI = ZoneControlApi(tadoStrictRestClient)
+    private val tadoZoneControlAPI = ZoneControlApi(tadoRestClient)
+    private val tadoStrictZoneControlAPI = ZoneControlApi(tadoStrictRestClient)
 
 
     private var defaultZoneOverlayBeforeTest: DefaultZoneOverlay? = null
@@ -50,17 +50,17 @@ class ZoneControlApi_IT(
     @BeforeAll
     fun before()  = try {
         defaultZoneOverlayBeforeTest = tadoZoneControlAPI.getDefaultZoneOverlay(tadoConfig.home!!.id, tadoConfig.zone!!.heating!!.id)
-        earlyStartBeforeTest = tadoZoneControlAPI.getEarlyStart(tadoConfig.home!!.id, tadoConfig.zone!!.heating!!.id)
-        zoneOverlayBeforeTest = tadoZoneControlAPI.getZoneOverlay(tadoConfig.home!!.id, tadoConfig.zone!!.heating!!.id)
-        zoneAwayConfigurationBeforeTest = tadoZoneControlAPI.getAwayConfiguration(tadoConfig.home!!.id, tadoConfig.zone!!.heating!!.id)
-        activeTimetableTypeBeforeStart = tadoZoneControlAPI.getActiveTimetableType(tadoConfig.home!!.id, tadoConfig.zone!!.heating!!.id)
+        earlyStartBeforeTest = tadoZoneControlAPI.getEarlyStart(tadoConfig.home.id, tadoConfig.zone.heating!!.id)
+        zoneOverlayBeforeTest = tadoZoneControlAPI.getZoneOverlay(tadoConfig.home.id, tadoConfig.zone.heating.id)
+        zoneAwayConfigurationBeforeTest = tadoZoneControlAPI.getAwayConfiguration(tadoConfig.home.id, tadoConfig.zone.heating.id)
+        activeTimetableTypeBeforeStart = tadoZoneControlAPI.getActiveTimetableType(tadoConfig.home.id, tadoConfig.zone.heating.id)
     } catch (e: Exception) {
         // ignore
     }
 
     // reset the overlay status to the state it had before we started running the tests
     // TODO: conditionally on presence of set-up
-    @AfterAll()
+    @AfterAll
     fun after() {
         // EarlyStart
         earlyStartBeforeTest?.let {
@@ -220,8 +220,8 @@ class ZoneControlApi_IT(
         tadoStrictZoneControlAPI.setZoneOverlay(tadoConfig.home!!.id, tadoConfig.zone!!.heating!!.id, zoneOverlay1)
 
         // now we can test
-        val zoneOverlay = assertCorrectResponse { tadoStrictZoneControlAPI.getZoneOverlay(tadoConfig.home!!.id, tadoConfig.zone!!.heating!!.id) }
-        verifyZoneOverlay(Pair(ZoneType.HEATING, true), zoneOverlay, endpoint)
+        val zoneOverlay = assertCorrectResponse { tadoStrictZoneControlAPI.getZoneOverlay(tadoConfig.home.id, tadoConfig.zone.heating!!.id) }
+        verifyZoneOverlay(zoneOverlay, endpoint, ancestorObjectProps = mapOf(ZONE_TYPE to ZoneType.HEATING))
     }
 
     @Test
@@ -234,7 +234,7 @@ class ZoneControlApi_IT(
 
         // now we can test
         assertHttpErrorStatus(HttpStatus.NOT_FOUND) {
-            tadoStrictZoneControlAPI.getZoneOverlay(tadoConfig.home!!.id, tadoConfig.zone!!.heating!!.id)
+            tadoStrictZoneControlAPI.getZoneOverlay(tadoConfig.home.id, tadoConfig.zone.heating!!.id)
         }
     }
 
@@ -267,8 +267,8 @@ class ZoneControlApi_IT(
                 power = Power.OFF),
             termination = ZoneOverlayTermination(typeSkillBasedApp = ZoneOverlayTerminationTypeSkillBasedApp.MANUAL)
         )
-        val result = assertCorrectResponse { tadoStrictZoneControlAPI.setZoneOverlay(tadoConfig.home!!.id, tadoConfig.zone!!.heating!!.id, zoneOverlay) }
-        verifyZoneOverlay(Pair(ZoneType.HEATING, true), result, endpoint)
+        val result = assertCorrectResponse { tadoStrictZoneControlAPI.setZoneOverlay(tadoConfig.home.id, tadoConfig.zone.heating!!.id, zoneOverlay) }
+        verifyZoneOverlay(result, endpoint, ancestorObjectProps = mapOf(ZONE_TYPE to ZoneType.HEATING))
     }
 
     // result:
@@ -293,8 +293,8 @@ class ZoneControlApi_IT(
             ),
             termination = ZoneOverlayTermination(typeSkillBasedApp = ZoneOverlayTerminationTypeSkillBasedApp.MANUAL)
         )
-        val result = assertCorrectResponse { tadoStrictZoneControlAPI.setZoneOverlay(tadoConfig.home!!.id, tadoConfig.zone!!.heating!!.id, zoneOverlay) }
-        verifyZoneOverlay(Pair(ZoneType.HEATING, true), result, endpoint)
+        val result = assertCorrectResponse { tadoStrictZoneControlAPI.setZoneOverlay(tadoConfig.home.id, tadoConfig.zone.heating!!.id, zoneOverlay) }
+        verifyZoneOverlay(result, endpoint, ancestorObjectProps = mapOf(ZONE_TYPE to ZoneType.HEATING))
     }
 
     // Result:
@@ -339,8 +339,8 @@ class ZoneControlApi_IT(
             ),
             termination = ZoneOverlayTermination(typeSkillBasedApp = ZoneOverlayTerminationTypeSkillBasedApp.TADO_MODE)
         )
-        val result = assertCorrectResponse { tadoStrictZoneControlAPI.setZoneOverlay(tadoConfig.home!!.id, tadoConfig.zone!!.heating!!.id, zoneOverlay) }
-        verifyZoneOverlay(Pair(ZoneType.HEATING, true), result, endpoint)
+        val result = assertCorrectResponse { tadoStrictZoneControlAPI.setZoneOverlay(tadoConfig.home.id, tadoConfig.zone.heating!!.id, zoneOverlay) }
+        verifyZoneOverlay(result, endpoint, ancestorObjectProps = mapOf(ZONE_TYPE to ZoneType.HEATING))
     }
 
 
@@ -365,8 +365,8 @@ class ZoneControlApi_IT(
             ),
             termination = ZoneOverlayTermination(typeSkillBasedApp = ZoneOverlayTerminationTypeSkillBasedApp.NEXT_TIME_BLOCK)
         )
-        val result = assertCorrectResponse { tadoStrictZoneControlAPI.setZoneOverlay(tadoConfig.home!!.id, tadoConfig.zone!!.heating!!.id, zoneOverlay) }
-        verifyZoneOverlay(Pair(ZoneType.HEATING, true), result, endpoint)
+        val result = assertCorrectResponse { tadoStrictZoneControlAPI.setZoneOverlay(tadoConfig.home.id, tadoConfig.zone.heating!!.id, zoneOverlay) }
+        verifyZoneOverlay(result, endpoint, ancestorObjectProps = mapOf(ZONE_TYPE to ZoneType.HEATING))
     }
 
     // Result:
@@ -396,8 +396,8 @@ class ZoneControlApi_IT(
                 durationInSeconds = 1000
             )
         )
-        val result = assertCorrectResponse { tadoStrictZoneControlAPI.setZoneOverlay(tadoConfig.home!!.id, tadoConfig.zone!!.heating!!.id, zoneOverlay) }
-        verifyZoneOverlay(Pair(ZoneType.HEATING, true), result, endpoint)
+        val result = assertCorrectResponse { tadoStrictZoneControlAPI.setZoneOverlay(tadoConfig.home.id, tadoConfig.zone.heating!!.id, zoneOverlay) }
+        verifyZoneOverlay(result, endpoint, ancestorObjectProps = mapOf(ZONE_TYPE to ZoneType.HEATING))
     }
 
     @Test
@@ -417,7 +417,7 @@ class ZoneControlApi_IT(
         val endpoint = "GET /homes/{homeId}/zones/{zoneId}/schedule/awayConfiguration"
         val awayConfiguration = assertCorrectResponse { tadoStrictZoneControlAPI.getAwayConfiguration(tadoConfig.home!!.id, tadoConfig.zone!!.heating!!.id) }
         assertNotNull(awayConfiguration)
-        verifyZoneAwayConfiguration(Pair(ZoneType.HEATING, true), awayConfiguration, endpoint)
+        verifyZoneAwayConfiguration(awayConfiguration, endpoint, ancestorObjectProps = mapOf(ZONE_TYPE to ZoneType.HEATING))
     }
 
     @Test
@@ -495,7 +495,7 @@ class ZoneControlApi_IT(
         }
         assertNotNull(timetableBlocks)
         assertNotEquals(0, timetableBlocks.size)
-        verifyTimetableBlock(Pair(ZoneType.HEATING, true), timetableBlocks[0], endpoint)
+        verifyTimetableBlock(timetableBlocks[0], endpoint, ancestorObjectProps = mapOf(ZONE_TYPE to ZoneType.HEATING))
     }
 
     @Test
@@ -509,7 +509,7 @@ class ZoneControlApi_IT(
         }
         assertNotNull(timetableBlocks)
         assertNotEquals(0, timetableBlocks.size)
-        verifyTimetableBlock(Pair(ZoneType.HEATING, true), timetableBlocks[0], endpoint)
+        verifyTimetableBlock(timetableBlocks[0], endpoint, ancestorObjectProps = mapOf(ZONE_TYPE to ZoneType.HEATING))
     }
 
     @Test
@@ -524,10 +524,10 @@ class ZoneControlApi_IT(
         // ... and use that as the input for the PUT call
         // returned 500 Internal Server Error: "Please contact customer support"
         val response = assertCorrectResponse {
-            tadoStrictZoneControlAPI.setTimetableBlocksForDayType(tadoConfig.home!!.id, tadoConfig.zone!!.heating!!.id, TimetableTypeId._1, DayType.SATURDAY, timetableBlocks)
+            tadoStrictZoneControlAPI.setTimetableBlocksForDayType(tadoConfig.home.id, tadoConfig.zone.heating!!.id, TimetableTypeId._1, DayType.SATURDAY, timetableBlocks)
         }
         assertNotNull(timetableBlocks)
         assertNotEquals(0, response.size)
-        verifyTimetableBlock(Pair(ZoneType.HEATING, true), response[0], endpoint)
+        verifyTimetableBlock(response[0], endpoint, ancestorObjectProps = mapOf(ZONE_TYPE to ZoneType.HEATING))
     }
 }

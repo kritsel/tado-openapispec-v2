@@ -3,13 +3,10 @@ package tadoclient.verify
 import tadoclient.models.*
 import kotlin.test.assertNotEquals
 
-fun verifyUser(user: User, context:String, fullParentName:String = "User"){
+fun verifyUser(user: User, context:String, fullParentName:String = "User", ancestorObjectProps:Map<String, Any> = emptyMap()){
     val typeName = "User"
-    verifyNested(user, context, fullParentName, typeName, stopAtProperties = listOf("$typeName.mobileDevices"))
-
-    // user's mobile devices
-    assertNotEquals(0, user.mobileDevices!!.size)
-    user.mobileDevices?.forEachIndexed { i, elem -> verifyMobileDevice(elem, context, "$fullParentName.mobileDevices[$i]") }
+    verifyNested(
+        user, context, fullParentName, typeName, ancestorObjectProps = ancestorObjectProps)
 }
 
 

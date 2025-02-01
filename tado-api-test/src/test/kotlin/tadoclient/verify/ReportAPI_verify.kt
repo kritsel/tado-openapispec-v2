@@ -2,10 +2,12 @@ package tadoclient.verify
 
 import tadoclient.models.*
 
-fun verifyDayReport(zoneType: ZoneType, dayReport:DayReport, context:String, parentName:String = "DayReport") {
+fun verifyDayReport(dayReport:DayReport, context:String, parentName:String = "DayReport", ancestorObjectProps:Map<String, Any> = emptyMap()) {
     val typeName = "DayReport"
-    when (zoneType) {
+//    when (zoneType) {
+    when (ancestorObjectProps[ZONE_TYPE]) {
 
+        // TODO: check nullAllowedProperties, also for air_conditioning
         ZoneType.HEATING -> {
             verifyNested(
                 dayReport, context, parentName, typeName,
@@ -13,21 +15,8 @@ fun verifyDayReport(zoneType: ZoneType, dayReport:DayReport, context:String, par
                 nullAllowedProperties = listOf(
                     "$typeName.settings",
                     "$typeName.acActivity"),
-                stopAtProperties = listOf(
-                    "$typeName.stripes.dataIntervals[i].value",
-                    "$typeName.settings.dataIntervals[i].value")
+                ancestorObjectProps = ancestorObjectProps
             )
-
-            dayReport.stripes?.dataIntervals?.forEachIndexed { i, elem ->
-                elem.value?.setting?.let {
-                    verifyZoneSetting(
-                        Pair(zoneType, true),
-                        it,
-                        context,
-                        "$parentName.stripes.dataIntervals[$i].value.setting"
-                    )
-                }
-            }
         }
 
         // unknown

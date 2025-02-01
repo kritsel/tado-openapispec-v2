@@ -58,7 +58,7 @@ class ZoneApi_IT(
     fun getZoneCapabilities_HeatingZone() {
         val endpoint = "GET /homes/{homeId}/zones/{zoneId}/capabilities"
         val zoneCapabilities = assertCorrectResponse { tadoStrictZoneAPI.getZoneCapabilities(tadoConfig.home!!.id, tadoConfig.zone!!.heating!!.id) }
-        verifyZoneCapabilities(Pair(ZoneType.HEATING, true), zoneCapabilities, endpoint)
+        verifyZoneCapabilities(zoneCapabilities, endpoint, ancestorObjectProps = mapOf(ZONE_TYPE to ZoneType.HEATING))
     }
 
     @Test
@@ -68,8 +68,8 @@ class ZoneApi_IT(
     fun getZoneCapabilities_HotWaterZone() {
         val endpoint = "GET /homes/{homeId}/zones/{zoneId}/capabilities"
         val zoneCapabilities = assertCorrectResponse { tadoStrictZoneAPI.getZoneCapabilities(tadoConfig.home!!.id, tadoConfig.zone!!.hotWater!!.id) }
-        verifyZoneCapabilities(Pair(ZoneType.HOT_WATER, tadoConfig.zone!!.hotWater!!.canSetTemperature), zoneCapabilities, endpoint)
-        verifyZoneCapabilities(Pair(ZoneType.HOT_WATER, tadoConfig.zone!!.hotWater!!.canSetTemperature), zoneCapabilities, endpoint)
+        verifyZoneCapabilities(zoneCapabilities, endpoint, ancestorObjectProps = mapOf(ZONE_TYPE to ZoneType.HOT_WATER))
+        verifyZoneCapabilities(zoneCapabilities, endpoint, ancestorObjectProps = mapOf(ZONE_TYPE to ZoneType.HOT_WATER))
     }
 
     @Test
@@ -120,7 +120,7 @@ class ZoneApi_IT(
     fun getZoneState_Heating() {
         val endpoint = "GET /homes/{homeId}/zones/{zoneId}/state"
         val zoneState = assertCorrectResponse { tadoStrictZoneAPI.getZoneState(tadoConfig.home!!.id, tadoConfig.zone!!.heating!!.id) }
-        verifyZoneState(Pair(ZoneType.HEATING, true), zoneState, endpoint)
+        verifyZoneState(zoneState, endpoint, ancestorObjectProps = mapOf(ZONE_TYPE to ZoneType.HEATING))
     }
 
     @Test
@@ -130,7 +130,7 @@ class ZoneApi_IT(
     fun getZoneState_HotWater() {
         val endpoint = "GET /homes/{homeId}/zones/{zoneId}/state"
         val zoneState = assertCorrectResponse { tadoStrictZoneAPI.getZoneState(tadoConfig.home!!.id, tadoConfig.zone!!.hotWater!!.id) }
-        verifyZoneState(Pair(ZoneType.HOT_WATER, tadoConfig.zone!!.hotWater!!.canSetTemperature), zoneState, endpoint)
+        verifyZoneState(zoneState, endpoint, ancestorObjectProps = mapOf(ZONE_TYPE to ZoneType.HOT_WATER))
     }
 
     @Test
@@ -158,13 +158,13 @@ class ZoneApi_IT(
         val zoneStates = assertCorrectResponse { tadoStrictZoneAPI.getZoneStates(tadoConfig.home!!.id) }
 
         if (isHeatingZoneConfigured()) {
-            verifyZoneState(Pair(ZoneType.HEATING, true), zoneStates.zoneStates?.get(tadoConfig.zone!!.heating!!.id.toString())!!, endpoint)
+            verifyZoneState(zoneStates.zoneStates?.get(tadoConfig.zone!!.heating!!.id.toString())!!, endpoint, ancestorObjectProps = mapOf(ZONE_TYPE to ZoneType.HEATING))
         }
         if (isHotWaterZoneConfigured()) {
-            verifyZoneState(Pair(ZoneType.HOT_WATER, tadoConfig.zone!!.hotWater!!.canSetTemperature), zoneStates.zoneStates?.get(tadoConfig.zone!!.hotWater!!.id.toString())!!, endpoint)
+            verifyZoneState(zoneStates.zoneStates?.get(tadoConfig.zone!!.hotWater!!.id.toString())!!, endpoint, ancestorObjectProps = mapOf(ZONE_TYPE to ZoneType.HOT_WATER))
         }
         if (isAirConZoneConfigured()) {
-            verifyZoneState(Pair(ZoneType.AIR_CONDITIONING, true), zoneStates.zoneStates?.get(tadoConfig.zone!!.airCon!!.id.toString())!!, endpoint)
+            verifyZoneState(zoneStates.zoneStates?.get(tadoConfig.zone!!.airCon!!.id.toString())!!, endpoint, ancestorObjectProps = mapOf(ZONE_TYPE to ZoneType.AIR_CONDITIONING))
         }
     }
     

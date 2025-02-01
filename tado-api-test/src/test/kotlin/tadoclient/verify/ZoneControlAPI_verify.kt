@@ -2,9 +2,9 @@ package tadoclient.verify
 
 import tadoclient.models.*
 
-fun verifyZoneSetting(zoneInfo: Pair<ZoneType, Boolean>, zoneSetting: ZoneSetting, context:String, fullParentName:String = "ZoneSetting"){
+fun verifyZoneSetting(zoneSetting: ZoneSetting, context:String, fullParentName:String = "ZoneSetting", ancestorObjectProps:Map<String, Any> = emptyMap()){
     val typeName = "ZoneSetting"
-    when (zoneInfo.first) {
+    when (ancestorObjectProps[ZONE_TYPE]) {
 
         ZoneType.HEATING -> {
             // start with the properties which are only applicable to an AIR_CONDITIONING zone
@@ -20,7 +20,7 @@ fun verifyZoneSetting(zoneInfo: Pair<ZoneType, Boolean>, zoneSetting: ZoneSettin
             if (zoneSetting.power == Power.OFF) {
                 nullAllowedProperties.add("$typeName.temperature")
             }
-            verifyNested(zoneSetting, context, fullParentName, typeName, nullAllowedProperties = nullAllowedProperties)
+            verifyNested(zoneSetting, context, fullParentName, typeName, nullAllowedProperties = nullAllowedProperties, ancestorObjectProps = ancestorObjectProps)
         }
 
         // only type and power are expected to have a value, all other properties are allowed to be null
@@ -33,7 +33,7 @@ fun verifyZoneSetting(zoneInfo: Pair<ZoneType, Boolean>, zoneSetting: ZoneSettin
                 "$typeName.mode",
                 "$typeName.temperature",
                 "$typeName.isBoost"
-            ))
+            ), ancestorObjectProps = ancestorObjectProps)
         }
 
         // unknown
@@ -41,40 +41,36 @@ fun verifyZoneSetting(zoneInfo: Pair<ZoneType, Boolean>, zoneSetting: ZoneSettin
     }
 }
 
-fun verifyZoneOverlay(zoneInfo: Pair<ZoneType, Boolean>, zoneOverlay: ZoneOverlay, context:String, fullParentName:String = "ZoneOverlay"){
+fun verifyZoneOverlay(zoneOverlay: ZoneOverlay, context:String, fullParentName:String = "ZoneOverlay", ancestorObjectProps:Map<String, Any> = emptyMap()){
     val typeName = "ZoneOverlay"
     verifyNested(zoneOverlay, context, fullParentName, typeName,
-        // an overlay can be indefinite, meaning that none of time related terminiation properties will have a value
+        // an overlay can be indefinite, meaning that none of time related termination properties will have a value
         nullAllowedProperties = listOf(
             "$typeName.termination.durationInSeconds",
             "$typeName.termination.remainingTimeInSeconds",
             "$typeName.termination.expiry",
             "$typeName.termination.projectedExpiry"),
-        stopAtProperties = listOf("$typeName.setting"))
-
-    // verify the ZoneSetting of this overlay
-    verifyZoneSetting(zoneInfo, zoneOverlay.setting!!, context, "$fullParentName.setting")
+        ancestorObjectProps = ancestorObjectProps
+    )
 }
 
-fun verifyZoneAwayConfiguration(zoneInfo: Pair<ZoneType, Boolean>, zoneAwayConfiguration: ZoneAwayConfiguration, context:String, parentName:String = "ZoneAwayConfiguration") {
+fun verifyZoneAwayConfiguration(zoneAwayConfiguration: ZoneAwayConfiguration, context:String, parentName:String = "ZoneAwayConfiguration", ancestorObjectProps:Map<String, Any> = emptyMap()) {
     val typeName = "ZoneAwayConfiguration"
     verifyNested(zoneAwayConfiguration, context, parentName, typeName,
         nullAllowedProperties = listOf("$typeName.comfortLevel"),
-        stopAtProperties = listOf("$typeName.setting"))
-
-    // verify setting
-    verifyZoneSetting(zoneInfo, zoneAwayConfiguration.setting!!, context, "$parentName.setting")
+        ancestorObjectProps = ancestorObjectProps
+    )
 }
 
-fun verifyTimetableType(timetableType: TimetableType, context:String, parentName:String = "TimetableType") {
-    verifyNested(timetableType, context, parentName, "TimetableType")
+fun verifyTimetableType(timetableType: TimetableType, context:String, parentName:String = "TimetableType", ancestorObjectProps:Map<String, Any> = emptyMap()) {
+    verifyNested(timetableType, context, parentName, "TimetableType", ancestorObjectProps = ancestorObjectProps)
 }
 
-fun verifyTimetableBlock(zoneInfo: Pair<ZoneType, Boolean>, timetableBlock: TimetableBlock, context:String, parentName:String = "TimetableBlock") {
+fun verifyTimetableBlock(timetableBlock: TimetableBlock, context:String, parentName:String = "TimetableBlock", ancestorObjectProps:Map<String, Any> = emptyMap()) {
     val typeName = "TimetableBlock"
-    verifyNested(timetableBlock, context, parentName, typeName, stopAtProperties = listOf("$typeName.setting"))
-
-    // verify setting
-    verifyZoneSetting(zoneInfo, timetableBlock.setting!!, context, "$parentName.setting")
+    verifyNested(
+        timetableBlock, context, parentName, typeName,
+        ancestorObjectProps = ancestorObjectProps
+    )
 }
 

@@ -126,48 +126,12 @@ class DeviceApi_IT (
         verifyNested(zoneControl, endpoint, endpoint, typeName,
             nullAllowedProperties = listOf(
                 "$typeName.duties.driver",
-//                "$typeName.duties.drivers",
-                "$typeName.duties.leader",
-                "$typeName.duties.leaders",
-                "$typeName.duties.ui",
-                "$typeName.duties.uis"),
-            stopAtProperties = listOf(
-                "$typeName.duties.driver",
                 "$typeName.duties.drivers",
                 "$typeName.duties.leader",
                 "$typeName.duties.leaders",
                 "$typeName.duties.ui",
-                "$typeName.duties.uis"))
-
-        // verify duties.driver
-        zoneControl.duties?.driver?.let {
-            verifyDevice(it, endpoint, "$endpoint.duties.driver")
-        }
-
-        // verify duties.leader
-        zoneControl.duties?.leader?.let {
-            verifyDevice(it, endpoint, "$endpoint.duties.leader")
-        }
-
-        // verify duties.ui
-        zoneControl.duties?.ui?.let {
-            verifyDevice(it, endpoint, "$endpoint.duties.ui")
-        }
-
-        // verify duties.drivers
-        zoneControl.duties?.drivers?.let {
-            it.forEachIndexed { i, device -> verifyDevice(device, endpoint, "$endpoint.duties.drivers[$i]")}
-        }
-
-        // verify duties.leaders
-        zoneControl.duties?.leaders?.let {
-            it.forEachIndexed { i, device -> verifyDevice(device, endpoint, "$endpoint.duties.leaders[$i]")}
-        }
-
-        // verify duties.leaders
-        zoneControl.duties?.uis?.let {
-            it.forEachIndexed { i, device -> verifyDevice(device, endpoint, "$endpoint.uis.uis[$i]") }
-        }
+                "$typeName.duties.uis")
+        )
     }
 
     @Test

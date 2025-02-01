@@ -49,7 +49,7 @@ open class RestClientConfig(
     // this won't take effect for some reason
     @Bean
     open fun tadoJsonCustomizer(): Jackson2ObjectMapperBuilderCustomizer {
-        println("#### tadoJsonCustomizer ####")
+        println("init tadoJsonCustomizer")
         return Jackson2ObjectMapperBuilderCustomizer { builder: Jackson2ObjectMapperBuilder ->
             builder
                 // neither of these two options work...
@@ -61,7 +61,7 @@ open class RestClientConfig(
     @Bean
     @Primary
     open fun jackson2ObjectMapperBuilder(): Jackson2ObjectMapperBuilder {
-        println("$$$$ jackson2ObjectMapperBuilder $$$$")
+        println("init jackson2ObjectMapperBuilder")
         return Jackson2ObjectMapperBuilder()
             // neither of these two options work...
             .failOnUnknownProperties(true)
@@ -70,7 +70,7 @@ open class RestClientConfig(
 
     @Bean // Convertor method
     open fun messageConverter() : MappingJackson2HttpMessageConverter{
-        println("%%%% messageConverter %%%%")
+        println("init messageConverter")
         val builder = Jackson2ObjectMapperBuilder()
             .failOnUnknownProperties(true)
             .featuresToEnable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
@@ -90,18 +90,19 @@ open class RestClientConfig(
             .messageConverters { converters ->
 //                println("message converters:")
                 if (strict) {
+                    System.out.println("init strict RestClient")
                     converters.forEach {
 //                    println("  " + it.javaClass.simpleName)
                         if (it is MappingJackson2HttpMessageConverter) {
-                            println(
-                                "FAIL_ON_UNKNOWN_PROPERTIES enabled: ${
-                                    it.objectMapper.deserializationConfig.isEnabled(
-                                        DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES
-                                    )
-                                }"
-                            )
-                            println("converter: $it")
-                            println("object mapper: ${it.objectMapper}")
+//                            println(
+//                                "FAIL_ON_UNKNOWN_PROPERTIES enabled: ${
+//                                    it.objectMapper.deserializationConfig.isEnabled(
+//                                        DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES
+//                                    )
+//                                }"
+//                            )
+//                            println("converter: $it")
+//                            println("object mapper: ${it.objectMapper}")
                             it.objectMapper.enable(
                                 DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES
                             )

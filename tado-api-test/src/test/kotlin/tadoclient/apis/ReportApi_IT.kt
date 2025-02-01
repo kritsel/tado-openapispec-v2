@@ -12,6 +12,7 @@ import org.springframework.web.client.RestClient
 import tadoclient.Application
 import tadoclient.TadoConfig
 import tadoclient.models.ZoneType
+import tadoclient.verify.ZONE_TYPE
 import tadoclient.verify.assertCorrectResponse
 import tadoclient.verify.verifyDayReport
 import java.time.LocalDate
@@ -46,6 +47,6 @@ class ReportApi_IT (
         val endpoint = "GET /homes/{homeId}/zones/{zoneId}/dayReport"
         val dayReport = assertCorrectResponse { tadoStrictReportAPI.getZoneDayReport(tadoConfig.home!!.id, tadoConfig.zone!!.heating!!.id, LocalDate.of(2024, Month.JANUARY, 11)) }
         assertNotNull(dayReport)
-        verifyDayReport(ZoneType.HEATING, dayReport, endpoint)
+        verifyDayReport(dayReport, endpoint, ancestorObjectProps = mapOf(ZONE_TYPE to ZoneType.HEATING))
     }
 }
