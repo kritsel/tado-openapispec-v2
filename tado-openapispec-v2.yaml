@@ -4087,11 +4087,13 @@ components:
       # without it ON and OFF are interpreted as boolean values by the yaml-to-json converter used by openapi-generator
       enum: [ 'ON', 'OFF' ]
       example: ON
-      description: used in ZoneSetting
+      description: |
+        Used in ZoneSetting, PowerDataInterval and PowerDataPoint; 
+        to express if heating or air conditioning is on or off.
 
     PowerDataPoint:
       type: object
-      description: Used in ZoneState, to expressAC power.
+      description: Used in ZoneState, to express acPower.
       properties:
         type:
           type: string
@@ -4195,7 +4197,7 @@ components:
         celsius:
           type: number
           format: float
-          example: 13.9
+          example: 13.91
         fahrenheit:
           type: number
           format: float
@@ -4267,6 +4269,9 @@ components:
 
     TemperaturePrecision:
       type: object
+      description: |
+        Even when temperature precision is reported as 0.1, 
+        the API can report temperatures with a higher precision like 17.52
       properties:
         celsius:
           type: number
