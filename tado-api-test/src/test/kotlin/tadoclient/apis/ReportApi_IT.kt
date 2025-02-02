@@ -44,14 +44,14 @@ class ReportApi_IT (
     @EnabledIf(value = "isHomeAndHeatingZoneConfigured", disabledReason = "no home and/or heating zone specified in tado set-up")
     fun getDayReport_HEATING() {
         // operation not supported for zones of type HOT_WATER
-        val endpoint = "GET /homes/{homeId}/zones/{zoneId}/dayReport"
+        val endpoint = "GET /homes/{homeId}/zones/{zoneId}/dayReport - HEATING zone"
         val dayReport = assertCorrectResponse { tadoStrictReportAPI.getZoneDayReport(tadoConfig.home!!.id, tadoConfig.zone!!.heating!!.id, LocalDate.of(2024, Month.JANUARY, 11)) }
         assertNotNull(dayReport)
         verifyDayReport(dayReport, endpoint, ancestorObjectProps = mapOf(ZONE_TYPE to ZoneType.HEATING))
     }
 
     @Test
-    @DisplayName("GET /homes/{homeId}/zones/{zoneId}/dayReport")
+    @DisplayName("GET /homes/{homeId}/zones/{zoneId}/dayReport - AIR_CONDITIONING zone")
     @Order(2)
     @EnabledIf(value = "isHomeAndAirConZoneConfigured", disabledReason = "no home and/or aircon zone specified in tado set-up")
     fun getDayReport_AIRCON() {

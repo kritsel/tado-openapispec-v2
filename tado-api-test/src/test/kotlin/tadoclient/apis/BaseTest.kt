@@ -45,8 +45,7 @@ open class BaseTest(val tadoConfig: TadoConfig) {
     }
 
     fun isBridgeConfigured(): Boolean {
-        // todo: implement
-        return false
+        return tadoConfig.bridge != null
     }
 
     fun isInstallationConfigured(): Boolean {
