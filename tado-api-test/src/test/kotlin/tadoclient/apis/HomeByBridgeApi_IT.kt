@@ -15,7 +15,7 @@ import kotlin.test.Test
 
 @SpringBootTest(classes = arrayOf( Application::class))
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
-@DisplayName("tado API - home")
+@DisplayName("tado API - home-by-bridge")
 class HomeByBridgeApi_IT(
     // rest client to use when not testing an API method
     @Qualifier("tadoRestClient")

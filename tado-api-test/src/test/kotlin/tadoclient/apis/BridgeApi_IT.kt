@@ -13,7 +13,7 @@ import kotlin.test.assertNotEquals
 
 @SpringBootTest(classes = arrayOf( Application::class))
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
-@DisplayName("tado API - heating circuit")
+@DisplayName("tado API - bridge")
 class BridgeApi_IT(
     @Qualifier("tadoStrictRestClient")
     val tadoStrictRestClient: RestClient,
