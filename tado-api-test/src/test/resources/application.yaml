@@ -14,9 +14,9 @@ spring:
         provider:
           tado:
             token-uri: https://auth.tado.com/oauth/token
-
-system:
-  trust-store: windows
+#
+#system:
+#  trust-store: windows
 
 # doesn't work for unknown reason
 #  jackson:
