@@ -31,7 +31,7 @@ info:
     [https://github.com/kritsel/tado-openapispec-v2](https://github.com/kritsel/tado-openapispec-v2)
     * Wiki for this GitHub repo with additional information:
     [https://github.com/kritsel/tado-openapispec-v2/wiki](https://github.com/kritsel/tado-openapispec-v2/wiki/)
-  version: 2.2025.01.27.1
+  version: 2.2025.02.02.0
 servers:
   - url: https://my.tado.com/api/v2/
 security:
@@ -2230,6 +2230,19 @@ paths:
           schema:
             $ref: '#/components/schemas/DeviceId'
           required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChildLock'
+            examples:
+              celsius:
+                value:
+                  celsius: 1.75
+              fahrenheit:
+                value:
+                  fahrenheit: -2.25
       responses:
         '204':
           description: successful response
@@ -2701,8 +2714,12 @@ paths:
                 serialNo:
                   $ref: '#/components/schemas/DeviceId'
       responses:
-        '204':
+        '200':
           description: successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Device'
         '401':
           $ref: '#/components/responses/Unauthorized401'
         '403':
@@ -3107,6 +3124,14 @@ components:
       enum: [ NONE, LOW, MEDIUM, HIGH]
       example: LOW
       description: element of DayReport
+
+    ChildLock:
+      type: object
+      description: input for PUT /devices/{deviceId}/childLock
+      properties:
+        childLockEnabled:
+          type: boolean
+          example: false
 
     # DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD
     DataInterval:
@@ -4187,6 +4212,8 @@ components:
                      * OPEN_WINDOW_DETECTED
                     
                      * OVERLAY_ACTIVE
+                    
+                     * MEASURING_DEVICE_DISCONNECTED
                 setting:
                   $ref: '#/components/schemas/ZoneSetting'
 
