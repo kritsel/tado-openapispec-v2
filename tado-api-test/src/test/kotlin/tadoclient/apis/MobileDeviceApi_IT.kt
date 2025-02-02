@@ -8,9 +8,10 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.web.client.RestClient
 import tadoclient.Application
 import tadoclient.TadoConfig
+import tadoclient.models.MobileDeviceSettings
 import tadoclient.verify.assertCorrectResponse
 import tadoclient.verify.verifyMobileDevice
-import tadoclient.verify.verifyNested
+import tadoclient.verify.verifyObject
 import kotlin.test.Test
 import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
@@ -36,6 +37,7 @@ class MobileDeviceApi_IT(
     tadoConfig: TadoConfig
 ) : BaseTest(tadoConfig) {
     val tadoStrictMobileDeviceAPI = MobileDeviceApi(tadoStrictRestClient)
+    val tadoMobileDeviceAPI = MobileDeviceApi(tadoRestClient)
 
     @Test
     @DisplayName("GET /homes/{homeId}/mobileDevices")
@@ -76,14 +78,18 @@ class MobileDeviceApi_IT(
         val endpoint = "GET /homes/{homeId}/mobileDevices/{mobileDeviceId}/settings"
         val settings = assertCorrectResponse { tadoStrictMobileDeviceAPI.getMobileDeviceSettings(tadoConfig.home!!.id, tadoConfig.mobileDevice!!.id) }
         val typeName= "MobileDeviceSettings"
-        verifyNested(settings, endpoint, typeName, typeName)
+        verifyObject(settings, endpoint, typeName, typeName)
     }
 
     @Test
     @DisplayName("PUT /homes/{homeId}/mobileDevices/{mobileDeviceId}/settings")
     @Order(50)
-    @Disabled("not yet implemented")
+    @EnabledIf(value = "isHomeAndMobileDeviceConfigured", disabledReason = "no home and/or mobile device specified in tado set-up")
     fun putMobileDeviceSettings() {
-        // TDDO: implement put mobile settings
+        // first get the current mobile device settings
+        val settings = tadoMobileDeviceAPI.getMobileDeviceSettings(tadoConfig.home!!.id, tadoConfig.mobileDevice!!.id)
+        // then test by only setting the 'geoTrackingEnabled' setting again
+        val input = MobileDeviceSettings(geoTrackingEnabled = settings.geoTrackingEnabled)
+        tadoStrictMobileDeviceAPI.setMobileDeviceSettings(tadoConfig.home.id, tadoConfig.mobileDevice.id, settings)
     }
 }

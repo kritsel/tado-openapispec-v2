@@ -28,6 +28,13 @@ tado:
   username: ${TADO_USERNAME}
   password: ${TADO_PASSWORD}
 
+  bridge:
+    id: IB0221726208
+    auth-key: ${TADO_BRIDGE_AUTH_KEY} # TODO: add to GitHub secrets and local secrets file
+  installation:
+    id: 0
+  boiler:
+    interface-type: UBA_BUS
   home:
     id: 1118186
   zone:
@@ -36,8 +43,8 @@ tado:
     hot-water:
       id: 0
       can-set-temperature: false
-#    air-con:
-#      id: 9999
+    air-con:
+      id: 15
   device:
     thermostat:
       id: VA0431440896

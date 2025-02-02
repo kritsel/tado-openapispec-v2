@@ -42,11 +42,23 @@ class ReportApi_IT (
     @DisplayName("GET /homes/{homeId}/zones/{zoneId}/dayReport")
     @Order(1)
     @EnabledIf(value = "isHomeAndHeatingZoneConfigured", disabledReason = "no home and/or heating zone specified in tado set-up")
-    fun getDayReport() {
+    fun getDayReport_HEATING() {
         // operation not supported for zones of type HOT_WATER
         val endpoint = "GET /homes/{homeId}/zones/{zoneId}/dayReport"
         val dayReport = assertCorrectResponse { tadoStrictReportAPI.getZoneDayReport(tadoConfig.home!!.id, tadoConfig.zone!!.heating!!.id, LocalDate.of(2024, Month.JANUARY, 11)) }
         assertNotNull(dayReport)
         verifyDayReport(dayReport, endpoint, ancestorObjectProps = mapOf(ZONE_TYPE to ZoneType.HEATING))
+    }
+
+    @Test
+    @DisplayName("GET /homes/{homeId}/zones/{zoneId}/dayReport")
+    @Order(2)
+    @EnabledIf(value = "isHomeAndAirConZoneConfigured", disabledReason = "no home and/or aircon zone specified in tado set-up")
+    fun getDayReport_AIRCON() {
+        // operation not supported for zones of type HOT_WATER
+        val endpoint = "GET /homes/{homeId}/zones/{zoneId}/dayReport"
+        val dayReport = assertCorrectResponse { tadoStrictReportAPI.getZoneDayReport(tadoConfig.home!!.id, tadoConfig.zone!!.airCon!!.id, LocalDate.of(2025, Month.JANUARY, 31)) }
+        assertNotNull(dayReport)
+        verifyDayReport(dayReport, endpoint, ancestorObjectProps = mapOf(ZONE_TYPE to ZoneType.AIR_CONDITIONING))
     }
 }

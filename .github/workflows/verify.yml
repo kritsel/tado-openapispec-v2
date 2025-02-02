@@ -33,6 +33,7 @@ jobs:
       env:
         TADO_USERNAME: ${{ secrets.TADO_USERNAME }}
         TADO_PASSWORD: ${{ secrets.TADO_PASSWORD }}
+        TADO_BRIDGE_AUTH_KEY: ${{ secrets.TADO_BRIDGE_AUTH_KEY }}
       run: mvn --batch-mode --update-snapshots clean verify -P local-api-spec --file pom.xml
 
     # Building the site must be a separate step, otherwise no aggregated reports are available

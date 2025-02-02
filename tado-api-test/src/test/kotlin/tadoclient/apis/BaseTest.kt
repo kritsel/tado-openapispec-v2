@@ -43,4 +43,17 @@ open class BaseTest(val tadoConfig: TadoConfig) {
     fun isHomeAndMobileDeviceConfigured() : Boolean {
         return isHomeConfigured() && isMobileDeviceConfigured()
     }
+
+    fun isBridgeConfigured(): Boolean {
+        // todo: implement
+        return false
+    }
+
+    fun isInstallationConfigured(): Boolean {
+        return tadoConfig.installation != null
+    }
+
+    fun isBoilerOpenThermInterface(): Boolean {
+        return tadoConfig.boiler != null && tadoConfig.boiler.interfaceType.equals("OPENTHERM")
+    }
 }

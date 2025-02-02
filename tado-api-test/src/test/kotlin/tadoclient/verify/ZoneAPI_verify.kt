@@ -7,7 +7,7 @@ const val ZONE_TYPE = "zone.type"
 
 fun verifyZone(zone: Zone, context:String, fullParentName:String = "Zone", ancestorObjectProps:Map<String, Any> = emptyMap()) {
     val typeName = "Zone"
-    verifyNested(zone, context, fullParentName, typeName, ancestorObjectProps = ancestorObjectProps)
+    verifyObject(zone, context, fullParentName, typeName, ancestorObjectProps)
 
     // devices
     assertNotEquals(0, zone.devices!!.size)
@@ -17,8 +17,8 @@ fun verifyZoneCapabilities(zoneCapabilities: ZoneCapabilities, context:String, p
     val typeName="ZoneCapabilities"
     when(ancestorObjectProps[ZONE_TYPE]) {
         ZoneType.HOT_WATER -> {
-            verifyNested(
-                zoneCapabilities, context, parentName, parentName,
+            verifyObject(
+                zoneCapabilities, context, parentName, parentName, ancestorObjectProps,
                 nullAllowedProperties = listOf(
                     "$typeName.temperatures",
                     "$typeName.AUTO",
@@ -26,15 +26,12 @@ fun verifyZoneCapabilities(zoneCapabilities: ZoneCapabilities, context:String, p
                     "$typeName.HEAT",
                     "$typeName.DRY",
                     "$typeName.FAN",
-                    "$typeName.initialStates"
-                ),
-                ancestorObjectProps = ancestorObjectProps
-            )
+                    "$typeName.initialStates"))
         }
 
         ZoneType.HEATING -> {
-            verifyNested(
-                zoneCapabilities, context, parentName, parentName,
+            verifyObject(
+                zoneCapabilities, context, parentName, parentName, ancestorObjectProps,
                 nullAllowedProperties = listOf(
                     "$typeName.canSetTemperature",
                     "$typeName.AUTO",
@@ -42,17 +39,15 @@ fun verifyZoneCapabilities(zoneCapabilities: ZoneCapabilities, context:String, p
                     "$typeName.HEAT",
                     "$typeName.DRY",
                     "$typeName.FAN",
-                    "$typeName.initialStates"),
-                ancestorObjectProps = ancestorObjectProps)
+                    "$typeName.initialStates"))
         }
 
         ZoneType.AIR_CONDITIONING -> {
-            verifyNested(
-                zoneCapabilities, context, parentName, parentName,
+            verifyObject(
+                zoneCapabilities, context, parentName, parentName, ancestorObjectProps,
                 nullAllowedProperties = listOf(
                     "$typeName.canSetTemperature",
-                    "$typeName.temperatures"),
-                ancestorObjectProps = ancestorObjectProps)
+                    "$typeName.temperatures"))
         }
     }
 }
@@ -80,20 +75,16 @@ fun verifyZoneState(zoneState: ZoneState, context:String, fullParentName:String 
                 "$typeName.sensorDataPoints.humidity",          // specific for HEATING or AIR_CONDITIONING
                 "$typeName.sensorDataPoints.insideTemperature") // specific for HEATING or AIR_CONDITIONING
             hotWaterNullAllowedProperties.addAll(basicNullAllowedProperties)
-            verifyNested(zoneState, context, fullParentName, typeName,
-                nullAllowedProperties = hotWaterNullAllowedProperties,
-                ancestorObjectProps = ancestorObjectProps
-            )
+            verifyObject(zoneState, context, fullParentName, typeName, ancestorObjectProps,
+                nullAllowedProperties = hotWaterNullAllowedProperties)
         }
 
         ZoneType.HEATING -> {
             val heatingNullAllowedProperties = mutableListOf(
                 "$typeName.activityDataPoints.acPower") // specific for AIR_CONDITIONING
             heatingNullAllowedProperties.addAll(basicNullAllowedProperties)
-            verifyNested(zoneState, context, fullParentName, typeName,
-                nullAllowedProperties = heatingNullAllowedProperties,
-                ancestorObjectProps = ancestorObjectProps
-            )
+            verifyObject(zoneState, context, fullParentName, typeName, ancestorObjectProps,
+                nullAllowedProperties = heatingNullAllowedProperties)
         }
 
         // unknown
@@ -101,9 +92,8 @@ fun verifyZoneState(zoneState: ZoneState, context:String, fullParentName:String 
             val airConNullAllowedProperties = mutableListOf(
                 "$typeName.activityDataPoints.heatingPower") // specific for HEATING
             airConNullAllowedProperties.addAll(basicNullAllowedProperties)
-            verifyNested(zoneState, context, fullParentName, typeName,
-                nullAllowedProperties = airConNullAllowedProperties,
-                ancestorObjectProps = ancestorObjectProps
+            verifyObject(zoneState, context, fullParentName, typeName, ancestorObjectProps,
+                nullAllowedProperties = airConNullAllowedProperties
             )
         }
     }

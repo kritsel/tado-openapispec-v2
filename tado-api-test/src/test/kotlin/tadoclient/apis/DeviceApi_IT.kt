@@ -8,11 +8,10 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.web.client.RestClient
 import tadoclient.Application
 import tadoclient.TadoConfig
+import tadoclient.models.ChildLock
+import tadoclient.models.MoveDeviceRequest
 import tadoclient.models.Temperature
-import tadoclient.verify.assertCorrectResponse
-import tadoclient.verify.verifyDevice
-import tadoclient.verify.verifyDeviceListItem
-import tadoclient.verify.verifyNested
+import tadoclient.verify.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
@@ -24,10 +23,14 @@ class DeviceApi_IT (
     @Qualifier("tadoStrictRestClient")
     val tadoStrictRestClient: RestClient,
 
+    @Qualifier("tadoRestClient")
+    val tadoRestClient: RestClient,
+
     @Autowired
     tadoConfig: TadoConfig
 ): BaseTest(tadoConfig) {
     val tadoStrictDeviceAPI = DeviceApi(tadoStrictRestClient)
+    val tadoDeviceAPI = DeviceApi(tadoRestClient)
 
     @Test
     @DisplayName("GET /devices/{deviceId}")
@@ -37,6 +40,17 @@ class DeviceApi_IT (
         val endpoint = "GET /devices/{deviceId}"
         val device = assertCorrectResponse { tadoStrictDeviceAPI.getDevice(tadoConfig.device!!.thermostat!!.id) }
         verifyDevice(device, endpoint)
+    }
+
+    @Test
+    @DisplayName("PUT /devices/{deviceId}/childLock")
+    @Order(5)
+    @EnabledIf(value = "isThermostatDeviceConfigured", disabledReason = "no thermostat device specified in tado set-up")
+    fun setChildLock() {
+        // first get the current child lock setting
+        val device = tadoDeviceAPI.getDevice(tadoConfig.device!!.thermostat!!.id)
+        // then test by re-setting the same childLock setting
+        tadoStrictDeviceAPI.setChildLock(tadoConfig.device!!.thermostat!!.id, ChildLock(device.childLockEnabled))
     }
 
     @Test
@@ -55,7 +69,7 @@ class DeviceApi_IT (
         val endpoint = "GET /devices/{deviceId}/temperatureOffset"
         val offset = assertCorrectResponse { tadoStrictDeviceAPI.getTemperatureOffset(tadoConfig.device!!.thermostat!!.id) }
         val typeName = "TemperatureOffset"
-        verifyNested(offset, endpoint, typeName, typeName)
+        verifyObject(offset, endpoint, typeName, typeName)
     }
 
     @Test
@@ -63,10 +77,10 @@ class DeviceApi_IT (
     @Order(30)
     @EnabledIf(value = "isThermostatDeviceConfigured", disabledReason = "no thermostat device specified in tado set-up")
     fun putTemperatureOffset() {
-        val endpoint = "OYT /devices/{deviceId}/temperatureOffset"
+        val endpoint = "PUT /devices/{deviceId}/temperatureOffset"
         val offset = assertCorrectResponse { tadoStrictDeviceAPI.setTemperatureOffset(tadoConfig.device!!.thermostat!!.id, Temperature(0.5f)) }
         val typeName = "TemperatureOffset"
-        verifyNested(offset, endpoint, typeName, typeName)
+        verifyObject(offset, endpoint, typeName, typeName)
     }
 
     @Test
@@ -107,11 +121,18 @@ class DeviceApi_IT (
     fun getInstallations() {
         val endpoint = "GET /homes/{homeId}/installations"
         val installations = assertCorrectResponse { tadoStrictDeviceAPI.getInstallations(tadoConfig.home!!.id) }
+        // observation: returned an empty array until an aircon controller was added to the home
+        installations.forEachIndexed { i, elem -> verifyInstallation(elem, endpoint, "response[$i]") }
+    }
 
-        // returns AC installations
-        assertEquals(1, installations.size)
-
-        // todo: implement an verifyInstallation method
+    @Test
+    @DisplayName("GET /homes/{homeId}/installations/{installationId}")
+    @Order(66)
+    @EnabledIf(value = "isInstallationConfigured", disabledReason = "no home specified in tado set-up")
+    fun getInstallation() {
+        val endpoint = "GET /homes/{homeId}/installations/{installationId}"
+        val installation = assertCorrectResponse { tadoStrictDeviceAPI.getInstallation(tadoConfig.home!!.id, tadoConfig.installation!!.id) }
+        verifyInstallation(installation, endpoint)
     }
 
     @Test
@@ -123,7 +144,7 @@ class DeviceApi_IT (
         val zoneControl = assertCorrectResponse { tadoStrictDeviceAPI.getZoneControl(tadoConfig.home!!.id, tadoConfig.zone!!.heating!!.id) }
 
         val typeName = "ZoneControl"
-        verifyNested(zoneControl, endpoint, endpoint, typeName,
+        verifyObject(zoneControl, endpoint, endpoint, typeName,
             nullAllowedProperties = listOf(
                 "$typeName.duties.driver",
                 "$typeName.duties.drivers",
@@ -134,12 +155,14 @@ class DeviceApi_IT (
         )
     }
 
+    // integration test for "GET /homes/{homeId}/zones/{zoneId}/control"
+    // see HeatingCircuitAPI_IT
+
     @Test
-    @DisplayName("PUT /homes/{homeId}/zones/{zoneId}/control/heatingCircuit")
+    @DisplayName("POST /homes/{homeId}/zones/{zoneId}/devices")
     @Order(80)
-    @Disabled("to be implemented")
-    fun putControl() {
-        // TODO: to be implemented
+    @Disabled("needs more analysis")
+    fun moveDevice() {
     }
 
     @Test
@@ -155,9 +178,14 @@ class DeviceApi_IT (
     @Test
     @DisplayName("PUT /homes/{homeId}/zones/{zoneId}/measuringDevice")
     @Order(100)
-    @Disabled("not yet implemented")
+    @EnabledIf(value = "isHomeAndHeatingZoneConfigured", disabledReason = "no home specified in tado set-up")
     fun putMeasuringDevice() {
-        //TODO: to be implemented
+        // first get the current measuring device and simply put the same one again
+        val measuringDevice = tadoDeviceAPI.getZoneMeasuringDevice(tadoConfig.home!!.id, tadoConfig.zone!!.heating!!.id)
+        // now test
+        val endpoint = "PUT /homes/{homeId}/zones/{zoneId}/measuringDevice"
+        val device = assertCorrectResponse { tadoStrictDeviceAPI.setZoneMeasuringDevice(tadoConfig.home.id, tadoConfig.zone.heating!!.id, MoveDeviceRequest(measuringDevice.serialNo)) }
+        verifyDevice(device, endpoint)
     }
 
 }

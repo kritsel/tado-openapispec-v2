@@ -145,34 +145,9 @@ class ZoneControlApi_IT(
         assertEquals(Unit, result)
     }
 
-
-    @Test
-    @DisplayName("GET /homes/{homeId}/zones/{zoneId}/earlyStart")
-    @Order(10)
-    @EnabledIf(value = "isHomeAndHeatingZoneConfigured", disabledReason = "no home and/or HEATING zone specified in tado set-up")
-    fun getEarlyStart() {
-        val endpoint = "GET /homes/{homeId}/zones/{zoneId}/earlyStart"
-        val earlyStart = assertCorrectResponse { tadoStrictZoneControlAPI.getEarlyStart(tadoConfig.home!!.id, tadoConfig.zone!!.heating!!.id) }
-        val typeName = "EarlyStart"
-        verifyNested(earlyStart, endpoint, typeName, typeName)
-    }
-
-    @Test
-    @DisplayName("PUT /homes/{homeId}/zones/{zoneId}/earlyStart")
-    @Order(20)
-    @EnabledIf(value = "isHomeAndHeatingZoneConfigured", disabledReason = "no home and/or HEATING zone specified in tado set-up")
-    fun putEarlyStart() {
-        val endpoint = "PUT /homes/{homeId}/zones/{zoneId}/earlyStart"
-        val earlyStart = assertCorrectResponse {
-            tadoStrictZoneControlAPI.setEarlyStart(tadoConfig.home!!.id, tadoConfig.zone!!.heating!!.id, EarlyStart(enabled = false))
-        }
-        val typeName = "EarlyStart"
-        verifyNested(earlyStart, endpoint, typeName, typeName)
-    }
-
     @Test
     @DisplayName("GET /homes/{homeId}/zones/{zoneId}/defaultOverlay")
-    @Order(30)
+    @Order(10)
     @EnabledIf(value = "isHomeAndHeatingZoneConfigured", disabledReason = "no home and/or HEATING zone specified in tado set-up")
     fun getDefaultZoneOverlay() {
         val endpoint = "GET /homes/{homeId}/zones/{zoneId}/defaultOverlay"
@@ -180,13 +155,13 @@ class ZoneControlApi_IT(
             tadoStrictZoneControlAPI.getDefaultZoneOverlay(tadoConfig.home!!.id, tadoConfig.zone!!.heating!!.id)
         }
         val typeName = "DefaultZoneOverlay"
-        verifyNested(defaultZoneOverlay, endpoint, typeName, typeName,
+        verifyObject(defaultZoneOverlay, endpoint, typeName, typeName,
             nullAllowedProperties = listOf("$typeName.terminationCondition.durationInSeconds"))
     }
 
     @Test
     @DisplayName("PUT /homes/{homeId}/zones/{zoneId}/defaultOverlay")
-    @Order(40)
+    @Order(20)
     @EnabledIf(value = "isHomeAndHeatingZoneConfigured", disabledReason = "no home and/or HEATING zone specified in tado set-up")
     fun putDefaultZoneOverlay() {
         val endpoint = "PUT /homes/{homeId}/zones/{zoneId}/defaultOverlay"
@@ -199,8 +174,32 @@ class ZoneControlApi_IT(
             tadoStrictZoneControlAPI.setDefaultZoneOverlay(tadoConfig.home!!.id, tadoConfig.zone!!.heating!!.id, newDefaultZoneOverlay)
         }
         val typeName = "DefaultZoneOverlay"
-        verifyNested(defaultZoneOverlay, endpoint, typeName, typeName,
+        verifyObject(defaultZoneOverlay, endpoint, typeName, typeName,
             nullAllowedProperties = listOf("$typeName.terminationCondition.durationInSeconds"))
+    }
+
+    @Test
+    @DisplayName("GET /homes/{homeId}/zones/{zoneId}/earlyStart")
+    @Order(30)
+    @EnabledIf(value = "isHomeAndHeatingZoneConfigured", disabledReason = "no home and/or HEATING zone specified in tado set-up")
+    fun getEarlyStart() {
+        val endpoint = "GET /homes/{homeId}/zones/{zoneId}/earlyStart"
+        val earlyStart = assertCorrectResponse { tadoStrictZoneControlAPI.getEarlyStart(tadoConfig.home!!.id, tadoConfig.zone!!.heating!!.id) }
+        val typeName = "EarlyStart"
+        verifyObject(earlyStart, endpoint, typeName, typeName)
+    }
+
+    @Test
+    @DisplayName("PUT /homes/{homeId}/zones/{zoneId}/earlyStart")
+    @Order(40)
+    @EnabledIf(value = "isHomeAndHeatingZoneConfigured", disabledReason = "no home and/or HEATING zone specified in tado set-up")
+    fun putEarlyStart() {
+        val endpoint = "PUT /homes/{homeId}/zones/{zoneId}/earlyStart"
+        val earlyStart = assertCorrectResponse {
+            tadoStrictZoneControlAPI.setEarlyStart(tadoConfig.home!!.id, tadoConfig.zone!!.heating!!.id, EarlyStart(enabled = false))
+        }
+        val typeName = "EarlyStart"
+        verifyObject(earlyStart, endpoint, typeName, typeName)
     }
 
     @Test
@@ -297,30 +296,6 @@ class ZoneControlApi_IT(
         verifyZoneOverlay(result, endpoint, ancestorObjectProps = mapOf(ZONE_TYPE to ZoneType.HEATING))
     }
 
-    // Result:
-    // ZoneOverlay(type=MANUAL, setting=ZoneSetting(power=ON, type=HEATING, temperature=ZoneSettingTemperature(celsius=18.8, fahrenheit=65.84)),
-    // termination=ZoneOverlayTermination(type=TADO_MODE, durationInSeconds=null, remainingTimeInSeconds=null, ZoneOverlayTerminiationTypeSkillBasedApp=TADO_MODE, expiry=null, projectedExpiry=null))
-    // Text in app: Active indefinitely
-
-    // Type tado_mode set when temperature set via thermostat.
-    // Seems to set the projected expiry and that is probably because of the configured defaultOverlay
-    // Text in app: Until 10:25 PM while in Home Mode
-    // overlay: {
-    //                "type": "MANUAL",
-    //                "setting": {
-    //                    "type": "HEATING",
-    //                    "power": "ON",
-    //                    "temperature": {
-    //                        "celsius": 6.00,
-    //                        "fahrenheit": 42.80
-    //                    }
-    //                },
-    //                "termination": {
-    //                    "type": "TADO_MODE",
-    //                    "ZoneOverlayTerminiationTypeSkillBasedApp": "TADO_MODE",
-    //                    "projectedExpiry": "2024-08-16T20:25:00Z"
-    //                }
-    //            }
     @Test
     @DisplayName("PUT /homes/{homeId}/zones/{zoneId}/overlay - TADO_MODE ON")
     @Order(62)
@@ -343,10 +318,6 @@ class ZoneControlApi_IT(
         verifyZoneOverlay(result, endpoint, ancestorObjectProps = mapOf(ZONE_TYPE to ZoneType.HEATING))
     }
 
-
-    // result:
-    // ZoneOverlay(type=MANUAL, setting=ZoneSetting(power=ON, type=HEATING, temperature=ZoneSettingTemperature(celsius=18.8, fahrenheit=65.84)),
-    // termination=ZoneOverlayTermination(type=TIMER, durationInSeconds=1800, remainingTimeInSeconds=2033, ZoneOverlayTerminiationTypeSkillBasedApp=NEXT_TIME_BLOCK, expiry=2024-08-14T20:00:00Z, projectedExpiry=2024-08-14T20:00:00Z))
     @Test
     @DisplayName("PUT /homes/{homeId}/zones/{zoneId}/overlay - NEXT_TIME_BLOCK ON")
     @Order(63)
@@ -369,9 +340,6 @@ class ZoneControlApi_IT(
         verifyZoneOverlay(result, endpoint, ancestorObjectProps = mapOf(ZONE_TYPE to ZoneType.HEATING))
     }
 
-    // Result:
-    // ZoneOverlay(type=MANUAL, setting=ZoneSetting(power=ON, type=HEATING, temperature=ZoneSettingTemperature(celsius=18.8, fahrenheit=65.84)),
-    // termination=ZoneOverlayTermination(type=TIMER, durationInSeconds=1400, remainingTimeInSeconds=1399, ZoneOverlayTerminiationTypeSkillBasedApp=TIMER, expiry=2024-08-14T19:49:24Z, projectedExpiry=2024-08-14T19:49:24Z))
     @Test
     @DisplayName("PUT /homes/{homeId}/zones/{zoneId}/overlay - TIMER ON")
     @Order(64)

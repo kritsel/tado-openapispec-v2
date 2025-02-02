@@ -17,6 +17,14 @@ data class TadoConfig (
 
     val mobileDevice: TadoObjectLongId?,
 
+    val bridge:TadoBridge?,
+
+    val installation:TadoObjectIntId?,
+
+    val boiler:TadoBoiler?,
+
+    val heatingCircuit: TadoObjectIntId?,
+
     @field:NotNull
     var username:String,
 
@@ -56,4 +64,18 @@ data class TadoConfigZoneHotWater (
 
     @field:NotNull
     val canSetTemperature: Boolean
+)
+
+data class TadoBridge (
+    @field:NotNull
+    val id:String,
+
+    @field:NotNull
+    val authKey:String
+)
+
+data class TadoBoiler(
+    // OPENTHERM or other (e.g. UBA_BUS)
+    @field:NotNull
+    val interfaceType:String
 )

@@ -1,7 +1,6 @@
 package tadoclient.verify
 
 import tadoclient.models.*
-import java.sql.Time
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -14,12 +13,14 @@ import kotlin.reflect.jvm.javaMethod
 import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
 
-fun verifyNestedDispatch(anObject:Any, context:String, fullParentName:String, parentName:String, nullAllowedProperties:List<String> = emptyList(), emptyCollectionAllowedProperties:List<String> = emptyList(), ancestorObjectProps:Map<String, Any> = emptyMap()) {
+fun verifyObjectDispatch(anObject:Any, context:String, fullParentName:String, parentName:String, ancestorObjectProps:Map<String, Any>, nullAllowedProperties:List<String> = emptyList(), emptyCollectionAllowedProperties:List<String> = emptyList()) {
     // Device
     if (anObject is Device) {
         verifyDevice(anObject, context, fullParentName, ancestorObjectProps)
     } else if (anObject is DeviceExtra) {
         verifyDeviceExtra(anObject, context, fullParentName, ancestorObjectProps)
+    } else if (anObject is ZoneControl) {
+        verifyZoneControl(anObject, context, fullParentName, ancestorObjectProps)
 
     // Home
     } else if (anObject is Home) {
@@ -65,16 +66,20 @@ fun verifyNestedDispatch(anObject:Any, context:String, fullParentName:String, pa
     } else if (anObject is TimetableBlock) {
         verifyTimetableBlock(anObject, context, fullParentName, ancestorObjectProps)
 
+    // Report
+    } else if (anObject is StripesDataInterval) {
+        verifyStripesDataInterval(anObject, context, fullParentName, ancestorObjectProps)
+
     // generic
     } else {
-        verifyNested(anObject, context, fullParentName, parentName, nullAllowedProperties, emptyCollectionAllowedProperties, ancestorObjectProps)
+        verifyObject(anObject, context, fullParentName, parentName, ancestorObjectProps, nullAllowedProperties, emptyCollectionAllowedProperties)
     }
 }
 
 // when a null-value property is found which should have a value
 // or an empty collection which should contain elements, this results in something like
 // org.opentest4j.AssertionFailedError: property Home.partner is null ==> expected: not <null>
-fun verifyNested(anObject:Any, context:String, fullParentName:String, parentName:String, nullAllowedProperties:List<String> = emptyList(), emptyCollectionAllowedProperties:List<String> = emptyList(), ancestorObjectProps:Map<String, Any> = emptyMap()) {
+fun verifyObject(anObject:Any, context:String, fullParentName:String, parentName:String, ancestorObjectProps:Map<String, Any> = emptyMap(), nullAllowedProperties:List<String> = emptyList(), emptyCollectionAllowedProperties:List<String> = emptyList()) {
     anObject::class.memberProperties.forEach { property ->
         val fullFQName = "$fullParentName.${property.name}"
         val fqName = "$parentName.${property.name}"
@@ -94,11 +99,11 @@ fun verifyNested(anObject:Any, context:String, fullParentName:String, parentName
                 if (fqName !in emptyCollectionAllowedProperties) {
                     assertNotEquals(0, value.size, "$fullFQName is an empty list ($fqName)")
                 }
-                value.forEachIndexed {i, elem -> verifyNestedDispatch(elem!!, context, "$fullFQName[$i]", "$fqName[i]", nullAllowedProperties, emptyCollectionAllowedProperties, ancestorObjectProps) }
+                value.forEachIndexed {i, elem -> verifyObjectDispatch(elem!!, context, "$fullFQName[$i]", "$fqName[i]", ancestorObjectProps, nullAllowedProperties, emptyCollectionAllowedProperties, ) }
             } else if (value is Map<*, *>) {
-                value.forEach { key, value ->  verifyNestedDispatch(value!!, context, "$fullFQName[$key]", "$fqName[*]", nullAllowedProperties, emptyCollectionAllowedProperties, ancestorObjectProps) }
+                value.forEach { key, value ->  verifyObjectDispatch(value!!, context, "$fullFQName[$key]", "$fqName[*]", ancestorObjectProps, nullAllowedProperties, emptyCollectionAllowedProperties) }
             } else {
-                verifyNestedDispatch(value, context, fullFQName, fqName, nullAllowedProperties, emptyCollectionAllowedProperties, ancestorObjectProps)
+                verifyObjectDispatch(value, context, fullFQName, fqName, ancestorObjectProps, nullAllowedProperties, emptyCollectionAllowedProperties)
             }
         }
 

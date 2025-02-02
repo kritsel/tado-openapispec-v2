@@ -9,7 +9,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.web.client.RestClient
 import tadoclient.Application
 import tadoclient.TadoConfig
-import tadoclient.models.ZoneType
+import tadoclient.models.*
 import tadoclient.verify.*
 import kotlin.test.Test
 import kotlin.test.assertNotEquals
@@ -31,6 +31,18 @@ class ZoneApi_IT(
     tadoConfig: TadoConfig
 ) : BaseTest(tadoConfig) {
     val tadoStrictZoneAPI = ZoneApi(tadoStrictRestClient)
+    val tadoZoneAPI = ZoneApi(tadoRestClient)
+
+    private var heatingZoneName: String? = null
+    private var heatingZoneOpenWindowDetection: ZoneOpenWindowDetection? = null
+
+    @BeforeAll
+    fun before()  = try {
+        heatingZoneName = tadoZoneAPI.getZones(tadoConfig.home!!.id).first { it.id == tadoConfig.zone!!.heating!!.id }.name
+        heatingZoneOpenWindowDetection = tadoZoneAPI.getZones(tadoConfig.home!!.id).first { it.id == tadoConfig.zone!!.heating!!.id }.openWindowDetection
+    } catch (e: Exception) {
+        // ignore
+    }
 
     @Test
     @DisplayName("GET /homes/{homeId}/zones")
@@ -41,6 +53,16 @@ class ZoneApi_IT(
         val zones = assertCorrectResponse { tadoStrictZoneAPI.getZones(tadoConfig.home!!.id) }
         assertNotEquals(0, zones.size)
         verifyZone(zones[0], endpoint, "response[0]")
+    }
+
+    @Test
+    @DisplayName("POST /homes/{homeId}/zones")
+    @Order(15)
+    @Disabled("needs more investigation")
+    fun createZoneAndMoveDevice() {
+        val endpoint = "POST /homes/{homeId}/zones"
+        val input = ZoneCreate("IMPLICIT_CONTROL", ZoneType.HEATING, listOf(MoveDeviceRequest("xxx")))
+        tadoStrictZoneAPI.createZone(tadoConfig.home!!.id, input, false)
     }
 
     @Test
@@ -83,34 +105,59 @@ class ZoneApi_IT(
     @Test
     @DisplayName("PUT /homes/{homeId}/zones/{zoneId}/dazzle")
     @Order(25)
-    @Disabled("to be implemented")
+    @EnabledIf(value="isHeatingZoneConfigured", disabledReason = "no heating zone configured")
     fun putDazzle() {
-        // TODO: implement
+        val input = DazzleInput(true)
+        tadoStrictZoneAPI.setDazzle(tadoConfig.home!!.id, tadoConfig.zone!!.heating!!.id, input)
     }
 
     @Test
-    @DisplayName("PUT /homes/{homeId}/zones/{zoneId}/details")
+    @DisplayName("PUT /homes/{homeId}/zones/{zoneId}/dazzle")
     @Order(27)
-    @Disabled("to be implemented")
+    @EnabledIf(value="isHeatingZoneConfigured", disabledReason = "no heating zone configured")
     fun putDetails() {
-        // TODO: implement
+        // set the zone's current name
+        val input = ZoneDetailsInput(heatingZoneName)
+        tadoStrictZoneAPI.setDetails(tadoConfig.home!!.id, tadoConfig.zone!!.heating!!.id, input)
     }
 
     @Test
     @DisplayName("PUT /homes/{homeId}/zones/{zoneId}/openWindowDetection")
     @Order(28)
-    @Disabled("to be implemented")
+    @EnabledIf(value="isHeatingZoneConfigured", disabledReason = "no heating zone configured")
     fun putOpenWindowDetection() {
-        // TODO: implement
+        // set the zone's current open window detection settings
+        val input = OpenWindowDetectionInput(
+            tadoConfig.zone!!.heating!!.id,
+            heatingZoneOpenWindowDetection!!.enabled,
+            heatingZoneOpenWindowDetection!!.timeoutInSeconds)
+        tadoStrictZoneAPI.setOpenWindowDetection(tadoConfig.home!!.id, tadoConfig.zone.heating!!.id, input)
+    }
+
+    @Test
+    @DisplayName("POST /homes/{homeId}/zones/{zoneId}/state/openWindow/activate")
+    @Order(29)
+    @Disabled("needs more investigation")
+    fun activateOpenWindowStateForZone() {
+       tadoStrictZoneAPI.activateOpenWindowState(tadoConfig.home!!.id, tadoConfig.zone!!.heating!!.id)
+    }
+
+    @Test
+    @DisplayName("DELETE /homes/{homeId}/zones/{zoneId}/state/openWindow")
+    @Order(30)
+    @Disabled("needs more investigation")
+    fun deleteOpenWindowStateForZone() {
+        tadoStrictZoneAPI.deactivateOpenWindowState(tadoConfig.home!!.id, tadoConfig.zone!!.heating!!.id)
     }
 
     @Test
     @DisplayName("GET /homes/{homeId}/zones/{zoneId}/state - AIR_CONDITIONING")
-    @EnabledIf(value = "isHomeAndAirConZoneConfigured", disabledReason = "no home and/or AIR_CONDITIONING zone specified in tado set-up")
+    @EnabledIf(value = "isAirConZoneConfigured", disabledReason = "no AIR_CONDITIONING zone specified in tado set-up")
     @Order(30)
     fun getZoneState_AirCon() {
-        // not possible at the moment
-        // TODO: implement for AIR_CONDITIONING
+        val endpoint = "GET /homes/{homeId}/zones/{zoneId}/state"
+        val zoneState = assertCorrectResponse { tadoStrictZoneAPI.getZoneState(tadoConfig.home!!.id, tadoConfig.zone!!.airCon!!.id) }
+        verifyZoneState(zoneState, endpoint, ancestorObjectProps = mapOf(ZONE_TYPE to ZoneType.AIR_CONDITIONING))
     }
 
     @Test

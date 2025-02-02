@@ -10,6 +10,7 @@ import tadoclient.Application
 import tadoclient.TadoConfig
 import tadoclient.models.*
 import tadoclient.verify.*
+import java.math.BigDecimal
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -104,6 +105,28 @@ class HomeApi_IT(
     }
 
     @Test
+    @DisplayName("GET /homes/{homeId}/flowTemperatureOptimization")
+    @Order(40)
+    @EnabledIf(value = "isBoilerOpenThermInterface", disabledReason = "boiler does not support OPENTHERM")
+    fun getFlowTemperaturOptimization() {
+        val endpoint = "GET /homes/{homeId}/flowTemperatureOptimization"
+        val flowTempOptimization = assertCorrectResponse { tadoStrictHomeAPI.getFlowTemperatureOptimization(tadoConfig.home!!.id) }
+        val typeName = "FlowTemperatureOptimization"
+        verifyObject(flowTempOptimization, endpoint, typeName, typeName,
+            nullAllowedProperties = listOf("$typeName.autoAdaptation.maxFlowTemperature")
+        )
+    }
+
+    @Test
+    @DisplayName("PUT /homes/{homeId}/flowTemperatureOptimization")
+    @Order(41)
+    @Disabled("not included in weekly automated test") // and boiler also needs to support OPENTHERM
+    fun putFlowTemperaturOptimization() {
+        val input = FlowTemperatureOptimizationInput(BigDecimal(50.5))
+        tadoStrictHomeAPI.setFlowTemperatureOptimization(tadoConfig.home!!.id, input)
+    }
+
+    @Test
     @DisplayName("GET /homes/{homeId}/heatingSystem")
     @Order(50)
     @EnabledIf(value = "isHomeConfigured", disabledReason = "no home specified in tado set-up")
@@ -158,7 +181,7 @@ class HomeApi_IT(
         val endpoint = "GET /homes/{homeId}/incidentDetection"
         val incidentDetection = assertCorrectResponse { tadoStrictHomeAPI.getIncidentDetection(tadoConfig.home!!.id) }
         val typeName = "IncidentDetection"
-        verifyNested(incidentDetection, endpoint, typeName, typeName)
+        verifyObject(incidentDetection, endpoint, typeName, typeName)
     }
 
     @Test
@@ -172,7 +195,7 @@ class HomeApi_IT(
     @Test
     @DisplayName("GET /homes/{homeId}/invitations")
     @Order(95)
-    @Disabled("not yet available in spec")
+    @Disabled("not yet defined in API spec")
     fun getInvitations() {
         // TODO: implement once available in the spec
     }
