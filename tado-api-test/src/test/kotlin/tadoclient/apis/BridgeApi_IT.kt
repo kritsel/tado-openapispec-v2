@@ -8,10 +8,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.web.client.RestClient
 import tadoclient.Application
 import tadoclient.TadoConfig
-import tadoclient.verify.assertCorrectResponse
-import tadoclient.verify.verifyHeatingCircuit
-import tadoclient.verify.verifyObject
-import tadoclient.verify.verifyZoneControl
+import tadoclient.verify.*
 import kotlin.test.assertNotEquals
 
 @SpringBootTest(classes = arrayOf( Application::class))
@@ -33,7 +30,6 @@ class BridgeApi_IT(
     fun getHeatingCircuits() {
         val endpoint = "GET /bridges/{bridgeId}"
         val bridge = assertCorrectResponse { tadoStrictBridgeAPI.getBridge(tadoConfig.bridge!!.id, tadoConfig.bridge.authKey) }
-        val typeName = "Bridge"
-        verifyObject(bridge, endpoint, typeName, typeName)
+        verifyBridge(bridge, endpoint)
     }
 }
