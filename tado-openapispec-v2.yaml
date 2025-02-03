@@ -31,7 +31,7 @@ info:
     [https://github.com/kritsel/tado-openapispec-v2](https://github.com/kritsel/tado-openapispec-v2)
     * Wiki for this GitHub repo with additional information:
     [https://github.com/kritsel/tado-openapispec-v2/wiki](https://github.com/kritsel/tado-openapispec-v2/wiki/)
-  version: 2.2025.02.02.1
+  version: 2.2025.02.03.0
 servers:
   - url: https://my.tado.com/api/v2/
 security:
@@ -2767,6 +2767,121 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound404'
 
+  ####################################################################################################################
+  # invitation paths
+  /homes/{homeId}/invitations:
+    get:
+      summary: Get all pending invitations.
+      operationId: getInvitations # hint for client code generators
+      tags:
+        - invitation
+      parameters:
+        - in: path
+          name: homeId
+          schema:
+            $ref: '#/components/schemas/HomeId'
+          required: true
+          description: unique ID of a home the authenticated user has access to
+      responses:
+        '200':
+          description: successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Invitation'
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+        '403':
+          $ref: '#/components/responses/AccessDenied403'
+    post:
+      summary: Send an invitation
+      operationId: sendInvitation # hint for client code generators
+      tags:
+        - invitation
+      parameters:
+        - in: path
+          name: homeId
+          schema:
+            $ref: '#/components/schemas/HomeId'
+          required: true
+          description: unique ID of a home the authenticated user has access to
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InvitationRequest'
+      responses:
+        '200':
+          description: successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Invitation'
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+        '403':
+          $ref: '#/components/responses/AccessDenied403'
+
+  /homes/{homeId}/invitations/{invitationToken}:
+    delete:
+      summary: Revoke an invitation
+      operationId: revokeInvitation # hint for client code generators
+      tags:
+        - invitation
+      parameters:
+        - in: path
+          name: homeId
+          schema:
+            $ref: '#/components/schemas/HomeId'
+          required: true
+          description: unique ID of a home the authenticated user has access to
+        - in: path
+          name: invitationToken
+          schema:
+            $ref: '#/components/schemas/InvitationToken'
+          required: true
+          description: unique token of the invitation
+      responses:
+        '204':
+          description: successful response
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+        '403':
+          $ref: '#/components/responses/AccessDenied403'
+        '404':
+          $ref: '#/components/responses/NotFound404'
+
+  /homes/{homeId}/invitations/{invitationToken}/resend:
+    post:
+      summary: Resend an invitation
+      operationId: resendInvitation # hint for client code generators
+      tags:
+        - invitation
+      parameters:
+        - in: path
+          name: homeId
+          schema:
+            $ref: '#/components/schemas/HomeId'
+          required: true
+          description: unique ID of a home the authenticated user has access to
+        - in: path
+          name: invitationToken
+          schema:
+            $ref: '#/components/schemas/InvitationToken'
+          required: true
+          description: unique token of the invitation to resend
+      responses:
+        '204':
+          description: successful response
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+        '403':
+          $ref: '#/components/responses/AccessDenied403'
+        '404':
+          $ref: '#/components/responses/NotFound404'
 
 components:
   securitySchemes:
@@ -2941,6 +3056,7 @@ components:
         awayRadiusInMeters:
           type: number
           format: float
+          example: 400
 
     # BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
     BatteryState:
@@ -3607,7 +3723,8 @@ components:
               type: boolean
               example: true
             awayRadiusInMeters:
-              type: integer
+              type: number
+              format: float
               example: 400
             installationCompleted:
               type: boolean
@@ -3900,6 +4017,67 @@ components:
       type: integer
       example: 0
       description: ID of an (AC) installation (unique only within the home it belongs to)
+
+    Invitation:
+      type: object
+      properties:
+        token:
+          $ref: '#/components/schemas/InvitationToken'
+        email:
+          type: string
+          format: email
+          example: me@example.org
+        firstSent:
+          type: string
+          format: date
+          example: "2025-02-03T18:44:14.658Z"
+        lastSent:
+          type: string
+          format: date
+          example: "2025-02-03T18:44:14.658Z"
+        inviter:
+          type: object
+          properties:
+            name:
+              type: string
+              example: "Jane Doe"
+            email:
+              type: string
+              format: email
+              example: "me@example.org"
+            username:
+              type: string
+            enabled:
+              type: boolean
+              example: true
+            id:
+              type: string
+              format: uuid
+              example: "a7c7fc08-e362-4700-e9a1-45a5bded5c124"
+              description: "globally unique user ID"
+            homeId:
+              $ref: '#/components/schemas/HomeId'
+            locale:
+              type: string
+              example: en
+            type:
+              type: string
+              example: "WEB_USER"
+        home:
+          $ref: '#/components/schemas/Home'
+
+    InvitationToken:
+      type: string
+      example: "adc17324216348e287318e8ae1f390fd"
+      description: "hexadecimal unique invitation identifier"
+
+    InvitationRequest:
+      type: object
+      description: input for POST /homes/{homeId}/invitations
+      properties:
+        email:
+          type: string
+          format: email
 
     # LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
     Light:
@@ -5042,3 +5220,6 @@ tags:
   - name: report
     description:
       Data reports. **[ &check; tado X]**
+  - name: invitation
+    description:
+      Manage invitations. **[ &check; tado X]**
