@@ -76,9 +76,12 @@ class HomeApi_IT(
     @Test
     @DisplayName("PUT /homes/{homeId}/awayRadiusInMeters")
     @Order(25)
-    @Disabled("not yet available in spec")
+    @EnabledIf(value = "isHomeConfigured", disabledReason = "no home specified in tado set-up")
     fun putAwayRadiusInMeters() {
-        // TODO: implement once available in spec
+        // first get the current value
+        val currentRadius = tadoHomeAPI.getHome(tadoConfig.home!!.id).awayRadiusInMeters
+        // then do the actual test
+        tadoStrictHomeAPI.setAwayRadiusInMeters(tadoConfig.home.id, AwayRadiusInput(currentRadius))
     }
 
     @Test
@@ -120,7 +123,7 @@ class HomeApi_IT(
     @Test
     @DisplayName("PUT /homes/{homeId}/flowTemperatureOptimization")
     @Order(41)
-    @Disabled("not included in weekly automated test") // and boiler also needs to support OPENTHERM
+    @Disabled("Unsuitable for weekly automated test execution: not making any changes to the boiler") // and boiler also needs to support OPENTHERM
     fun putFlowTemperaturOptimization() {
         val input = FlowTemperatureOptimizationInput(BigDecimal(50.5))
         tadoStrictHomeAPI.setFlowTemperatureOptimization(tadoConfig.home!!.id, input)
@@ -193,14 +196,6 @@ class HomeApi_IT(
     }
 
     @Test
-    @DisplayName("GET /homes/{homeId}/invitations")
-    @Order(95)
-    @Disabled("not yet defined in API spec")
-    fun getInvitations() {
-        // TODO: implement once available in the spec
-    }
-
-    @Test
     @DisplayName("GET /homes/{homeId}/weather")
     @Order(100)
     @EnabledIf(value = "isHomeConfigured", disabledReason = "no home specified in tado set-up")
@@ -209,5 +204,4 @@ class HomeApi_IT(
         val weather = assertCorrectResponse { tadoStrictHomeAPI.getWeather(tadoConfig.home!!.id) }
         verifyWeather(weather, endpoint)
     }
-
 }

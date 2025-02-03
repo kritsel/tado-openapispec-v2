@@ -56,7 +56,7 @@ class HomeByBridgeApi_IT(
     @Test
     @DisplayName("PUT /homeByBridge/{bridgeId}/boilerMaxOutputTemperature")
     @Order(30)
-    @Disabled("no tests executed which impact the boiler")
+    @Disabled("Unsuitable for weekly automated test execution: not making any changes to the boiler")
     fun putBoilerMaxOutputTemperature() {
         tadoStrictHomeByBridgeApi.setBoilerMaxOutputTemperature(tadoConfig.bridge!!.id, tadoConfig.bridge.authKey, BoilerMaxOutputTemperature(55f))
     }

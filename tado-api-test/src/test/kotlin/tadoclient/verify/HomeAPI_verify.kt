@@ -22,12 +22,15 @@ fun verifyHome(home:Home, context:String, parentName:String = "Home", ancestorOb
 fun verifyAirComfort(airComfort: AirComfort, context:String, parentName:String = "AirComfort", ancestorObjectProps:Map<String, Any> = emptyMap()) {
     val typeName = "AirComfort"
     verifyObject(airComfort, context, parentName, typeName, ancestorObjectProps,
-        //  Properties below are not present when there is (temporarily) no connection with the measuring device in the room
+        //  The first thrSome of the properties below are not present when there is (temporarily) no connection with the measuring device in the room
         //  (e.g because of an empty device battery).
         nullAllowedProperties = listOf(
-            "$typeName.comfort[i].temperatureLevel",
-            "$typeName.comfort[i].humidityLevel",
-            "$typeName.comfort[i].coordinate"))
+            "$typeName.comfort[i].temperatureLevel", // may be temporarily unavailable when no connection to measuring device
+            "$typeName.comfort[i].humidityLevel",    // may be temporarily unavailable when no connection to measuring device
+            "$typeName.comfort[i].coordinate",       // may be temporarily unavailable when no connection to measuring device
+            "$typeName.comfort[i].acControl",        // only available when a tado airco controller is part of the set-up
+            "$typeName.comfort[i].lastAcPowerOff",   // only available when a tado airco controller is part of the set-up
+            ))
 }
 
 fun verifyHeatingSystem(heatingSystem: HeatingSystem, context:String, parentName:String = "HeatingSystem", ancestorObjectProps:Map<String, Any> = emptyMap()) {

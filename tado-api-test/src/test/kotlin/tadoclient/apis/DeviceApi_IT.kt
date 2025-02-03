@@ -161,7 +161,7 @@ class DeviceApi_IT (
     @Test
     @DisplayName("POST /homes/{homeId}/zones/{zoneId}/devices")
     @Order(80)
-    @Disabled("needs more analysis")
+    @Disabled("Unsuitable for weekly automated test execution: moving a device to another zone")
     fun moveDevice() {
     }
 

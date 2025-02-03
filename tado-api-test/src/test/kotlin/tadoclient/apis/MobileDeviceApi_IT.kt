@@ -16,10 +16,6 @@ import kotlin.test.Test
 import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
 
-/**
- * Not tested: DELETE /homes/{homeId}/mobileDevices/{mobileDeviceId} as it would be a destructive test
- */
-
 @SpringBootTest(classes = arrayOf( Application::class))
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 @DisplayName("tado API - mobile device")
@@ -65,7 +61,7 @@ class MobileDeviceApi_IT(
     @Test
     @DisplayName("DELETE /homes/{homeId}/mobileDevices/{mobileDeviceId}")
     @Order(30)
-    @Disabled("Skipped because of destructive nature of the testcase (and the fact that it is non-trivial to recreate the initial situation)")
+    @Disabled("Unsuitable for weekly automated test execution: because of destructive nature of the testcase which is non-trivial to undo programmatically)")
     fun deleteMobileDevice() {
         // no implementation
     }

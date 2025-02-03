@@ -1,9 +1,6 @@
 package tadoclient.apis
 
-import org.junit.jupiter.api.DisplayName
-import org.junit.jupiter.api.MethodOrderer
-import org.junit.jupiter.api.Order
-import org.junit.jupiter.api.TestMethodOrder
+import org.junit.jupiter.api.*
 import org.junit.jupiter.api.condition.EnabledIf
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
@@ -11,15 +8,15 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.web.client.RestClient
 import tadoclient.Application
 import tadoclient.TadoConfig
+import tadoclient.models.InvitationRequest
 import tadoclient.verify.assertCorrectResponse
-import tadoclient.verify.verifyUser
+import tadoclient.verify.verifyObject
 import kotlin.test.Test
-import kotlin.test.assertNotEquals
 
 @SpringBootTest(classes = arrayOf( Application::class))
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 @DisplayName("tado API - user")
-class UserApi_IT (
+class InvitationApi_IT (
     // rest client to use when not testing an API method
     @Qualifier("tadoRestClient")
     val tadoRestClient: RestClient,
@@ -32,27 +29,66 @@ class UserApi_IT (
     @Autowired
     tadoConfig: TadoConfig
 ) : BaseTest(tadoConfig) {
-    val tadoStrictUserAPI = UserApi(tadoStrictRestClient)
+    val tadoStrictInvitationAPI = InvitationApi(tadoStrictRestClient)
+
+    // We save the token of the invite we are creating, so we can re-use it in the
+    // resend and revoke operations
+    // This only works because we define the order in which the test methods should be executed
+    var createdInvitationToken:String? = null
 
     @Test
-    @DisplayName("GET /me")
+    @DisplayName("POST /homes/{homeId}/invitations")
     @Order(10)
-    fun getMe() {
-        val endpoint = "GET /me"
-        val user = assertCorrectResponse { tadoStrictUserAPI.getMe() }
-        verifyUser(user, endpoint)
+    @EnabledIf(value = "isHomeConfigured", disabledReason = "no home specified in tado set-up")
+    fun sendInvitation() {
+        val endpoint = "POST /homes/{homeId}/invitations"
+        val invitation = assertCorrectResponse { tadoStrictInvitationAPI.sendInvitation(tadoConfig.home!!.id, InvitationRequest("me@example.org")) }
+        verifyObject(invitation, endpoint, endpoint, "Invitation")
+        this.createdInvitationToken = invitation.token
     }
 
     @Test
-    @DisplayName("GET /homes/{homeId}/users")
+    @DisplayName("POST /homes/{homeId}/invitations/{invitationToken}")
     @Order(20)
     @EnabledIf(value = "isHomeConfigured", disabledReason = "no home specified in tado set-up")
-    fun getUsers() {
-        val endpoint = "GET /homes/{homeId}/users"
-        val users = assertCorrectResponse { tadoStrictUserAPI.getUsers(tadoConfig.home!!.id) }
+    fun resendInvitation() {
+        if (createdInvitationToken != null) {
+            val endpoint = "POST /homes/{homeId}/invitations/{invitationToken}"
+            val invitation = assertCorrectResponse {
+                tadoStrictInvitationAPI.resendInvitation(
+                    tadoConfig.home!!.id,
+                    createdInvitationToken!!
+                )
+            }
+            verifyObject(invitation, endpoint, endpoint, "Invitation")
+        } else {
+            fail("no invitation created, so there is no invitation to resend")
+        }
+    }
 
-        // check users
-        assertNotEquals(0, users.size)
-        users.forEachIndexed{i, elem -> verifyUser(elem, endpoint, "response[$i]")}
+    @Test
+    @DisplayName("GET /homes/{homeId}/invitations")
+    @Order(30)
+    @EnabledIf(value = "isHomeConfigured", disabledReason = "no home specified in tado set-up")
+    fun getInvitations() {
+        if (createdInvitationToken != null) {
+            val endpoint = "GET /homes/{homeId}/invitations"
+            val invitations = assertCorrectResponse { tadoStrictInvitationAPI.getInvitations(tadoConfig.home!!.id) }
+            invitations.forEachIndexed{i, elem -> verifyObject(elem, endpoint, endpoint, "response[$i]")}
+        } else {
+            fail("no invitation created, so there are no invitations to retrieve")
+        }
+    }
+
+    @Test
+    @DisplayName("DELETE /homes/{homeId}/invitations/{invitationToken}")
+    @Order(40)
+    @EnabledIf(value = "isHomeConfigured", disabledReason = "no home specified in tado set-up")
+    fun revokeInvitation() {
+        if (createdInvitationToken != null) {
+            tadoStrictInvitationAPI.revokeInvitation(tadoConfig.home!!.id, createdInvitationToken!!)
+        } else {
+            fail("no invitation created, so there is no invitation to revoke")
+        }
     }
 }
