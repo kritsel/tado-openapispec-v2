@@ -53,6 +53,19 @@ fun verifyWeatherConditionDataInterval(weatherConditionDataInterval: WeatherCond
             "$typeName.value"))
 }
 
+fun verifyWeatherSlots(weatherSlotTimeSeriesSlots: WeatherSlotTimeSeriesSlots, context:String, parentName:String = "DayReport", ancestorObjectProps:Map<String, Any> = emptyMap()) {
+    val typeName = "WeatherSlotTimeSeriesSlots"
+    verifyObject(
+        weatherSlotTimeSeriesSlots, context, parentName, typeName, ancestorObjectProps,
+        // when requesting the dayreport for a date more than a year ago, these fields can be null
+        nullAllowedProperties = listOf(
+            "$typeName.04colon00",
+            "$typeName.08colon00",
+            "$typeName.12colon00",
+            "$typeName.16colon00",
+            "$typeName.20colon00"))
+}
+
 
 
 
