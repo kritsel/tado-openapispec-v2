@@ -69,6 +69,8 @@ fun verifyObjectDispatch(anObject:Any, context:String, fullParentName:String, pa
     // Report
     } else if (anObject is StripesDataInterval) {
         verifyStripesDataInterval(anObject, context, fullParentName, ancestorObjectProps)
+    } else if (anObject is WeatherConditionDataInterval) {
+        verifyWeatherConditionDataInterval(anObject, context, fullParentName, ancestorObjectProps)
 
     // generic
     } else {

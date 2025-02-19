@@ -15,7 +15,7 @@ import kotlin.test.Test
 
 @SpringBootTest(classes = arrayOf( Application::class))
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
-@DisplayName("tado API - user")
+@DisplayName("tado API - invitation")
 class InvitationApi_IT (
     // rest client to use when not testing an API method
     @Qualifier("tadoRestClient")
@@ -48,12 +48,12 @@ class InvitationApi_IT (
     }
 
     @Test
-    @DisplayName("POST /homes/{homeId}/invitations/{invitationToken}")
+    @DisplayName("POST /homes/{homeId}/invitations/{invitationToken}/resend")
     @Order(20)
     @EnabledIf(value = "isHomeConfigured", disabledReason = "no home specified in tado set-up")
     fun resendInvitation() {
         if (createdInvitationToken != null) {
-            val endpoint = "POST /homes/{homeId}/invitations/{invitationToken}"
+            val endpoint = "POST /homes/{homeId}/invitations/{invitationToken}/resend"
             val invitation = assertCorrectResponse {
                 tadoStrictInvitationAPI.resendInvitation(
                     tadoConfig.home!!.id,

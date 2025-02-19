@@ -44,6 +44,15 @@ fun verifyStripesDataInterval(stripesDataInterval: StripesDataInterval, context:
             "$typeName.value.setting"))
 }
 
+fun verifyWeatherConditionDataInterval(weatherConditionDataInterval: WeatherConditionDataInterval, context:String, parentName:String = "DayReport", ancestorObjectProps:Map<String, Any> = emptyMap()) {
+    val typeName = "WeatherConditionDataInterval"
+    verifyObject(
+        weatherConditionDataInterval, context, parentName, typeName, ancestorObjectProps,
+        // in one of the test runs the 'value' property appeared to be null
+        nullAllowedProperties = listOf(
+            "$typeName.value"))
+}
+
 
 
 

@@ -42,7 +42,7 @@ fun verifyHeatingSystem(heatingSystem: HeatingSystem, context:String, parentName
 }
 
 fun verifyHeatingCircuit(heatingCircuit: HeatingCircuit, context:String, parentName:String = "HeatingCircuit", ancestorObjectProps:Map<String, Any> = emptyMap()) {
-    val typeName = "HeatingSystem"
+    val typeName = "HeatingCircuit"
     verifyObject(heatingCircuit, context, parentName, typeName, ancestorObjectProps)
 }
 

@@ -39,7 +39,7 @@ class ReportApi_IT (
     private val tadoStrictReportAPI = ReportApi(tadoStrictRestClient)
 
     @Test
-    @DisplayName("GET /homes/{homeId}/zones/{zoneId}/dayReport")
+    @DisplayName("GET /homes/{homeId}/zones/{zoneId}/dayReport - HEATING zone")
     @Order(1)
     @EnabledIf(value = "isHomeAndHeatingZoneConfigured", disabledReason = "no home and/or heating zone specified in tado set-up")
     fun getDayReport_HEATING() {
