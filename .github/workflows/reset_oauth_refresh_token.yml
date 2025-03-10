@@ -16,7 +16,7 @@ jobs:
 
     steps:
       - name: start device flow
-        id: start-device-flow
+        id: start_device_flow
         run: |
           response=$(curl -X POST -H Content-Type: application/json -s -o device_authorize.json https://login.tado.com/oauth2/device_authorize?client_id=$CLIENT_ID&scope=offline_access)
           device_code=$(echo $response | jq -r '.device_code')
@@ -29,6 +29,8 @@ jobs:
 
       - name: obtain token (try every 5 seconds for max 1 minute)
         run: |
+          echo "Device code: DEVICE_CODE
+          echo "Client id: CLIENT_ID
           verified=false
           attempts_left=12
           GRANT_TYPE="urn:ietf:params:oauth:grant-type:device_code"
@@ -56,4 +58,4 @@ jobs:
           done
         env:
           CLIENT_ID: ${{ inputs.client_id }}
-          DEVICE_CODE: ${{ steps.start-device-flow.outputs.device_code }}
+          DEVICE_CODE: ${{ steps.start_device_flow.outputs.device_code }}
