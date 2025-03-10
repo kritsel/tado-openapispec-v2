@@ -19,6 +19,7 @@ jobs:
 
     steps:
       - name: start
+        id: start
         run: |
           response=$(curl -X POST -H Content-Type: application/json -s -o device_authorize.json https://login.tado.com/oauth2/device_authorize?client_id=$CLIENT_ID&scope=offline_access)
           device_code=$(echo $response | jq -r '.device_code')
@@ -57,7 +58,7 @@ jobs:
           do
             sleep 5
             URL="https://login.tado.com/oauth2/token?client_id=$CLIENT_ID&device_code=$DEVICE_CODE&grant_type=$GRANT_TYPE"
-            # echo "Token URL: $URL"
+            echo "Token URL: $URL"
             response=$(curl -X POST -H Content-Type: application/json -s $URL)
             #echo "Response: $response"
             error=$(echo $response | jq -r '.error')
