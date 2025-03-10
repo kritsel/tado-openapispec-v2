@@ -109,7 +109,7 @@ jobs:
             const { data: {key: publicKey, key_id: keyId} } = await github.rest.actions.getRepoPublicKey({...context.repo});
             if (publicKey) {
               const key = Buffer.from(publicKey, 'base64');
-              const message = Buffer.from(process.env.FACEBOOK_TOKEN);
+              const message = Buffer.from(process.env.TADO_REFRESH_TOKEN);
               const ciphertext = Buffer.alloc(message.length + sodium.crypto_box_SEALBYTES);
 
               sodium.crypto_box_seal(ciphertext, message, key);
