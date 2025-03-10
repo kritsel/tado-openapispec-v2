@@ -18,10 +18,11 @@ jobs:
       - name: start device flow
         id: start-device-flow
         run: |
-          curl -X POST -H Content-Type: application/json -s -o device_authorize.json https://login.tado.com/oauth2/device_authorize?client_id=$CLIENT_ID&scope=offline_access
-          echo "{device-code}={$(cat device_authorize.json | jq -r '.device_code')}" >> $GITHUB_OUTPUT
-          verification_uri_complete=$(cat device_authorize.json | jq -r '.verification_uri_complete')
-          echo "{verification-url}={$verification_uri_complete}" >> $GITHUB_OUTPUT
+          response=$(curl -X POST -H Content-Type: application/json -s -o device_authorize.json https://login.tado.com/oauth2/device_authorize?client_id=$CLIENT_ID&scope=offline_access)
+          device_code=$(echo $response | jq -r '.device_code')
+          echo "{device_code}={$device_code}" >> $GITHUB_OUTPUT
+          verification_uri_complete=$(echo $response | jq -r '.verification_uri_complete')
+          # echo "{verification_url}={$verification_uri_complete}" >> $GITHUB_OUTPUT
           echo "Please login via $verification_uri_complete"
         env:
           CLIENT_ID: ${{ inputs.client_id }}
@@ -53,4 +54,5 @@ jobs:
             #echo $attempts_left
           done
         env:
-          DEVICE_CODE: ${{ steps.start-device-flow.device-code }}
+          CLIENT_ID: ${{ inputs.client_id }}
+          DEVICE_CODE: ${{ steps.start-device-flow.device_code }}
