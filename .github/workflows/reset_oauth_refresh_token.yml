@@ -56,4 +56,4 @@ jobs:
           done
         env:
           CLIENT_ID: ${{ inputs.client_id }}
-          DEVICE_CODE: ${{ steps.start-device-flow.device_code }}
+          DEVICE_CODE: ${{ steps.start-device-flow.outputs.device_code }}
