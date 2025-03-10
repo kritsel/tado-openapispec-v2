@@ -20,6 +20,7 @@ jobs:
         run: |
           response=$(curl -X POST -H Content-Type: application/json -s -o device_authorize.json https://login.tado.com/oauth2/device_authorize?client_id=$CLIENT_ID&scope=offline_access)
           device_code=$(echo $response | jq -r '.device_code')
+          echo "Device code: $device_code"
           echo "{device_code}={$device_code}" >> $GITHUB_OUTPUT
           verification_uri_complete=$(echo $response | jq -r '.verification_uri_complete')
           # echo "{verification_url}={$verification_uri_complete}" >> $GITHUB_OUTPUT
@@ -29,8 +30,8 @@ jobs:
 
       - name: obtain token (try every 5 seconds for max 1 minute)
         run: |
-          echo "Device code: DEVICE_CODE
-          echo "Client id: CLIENT_ID
+          echo "Device code: $DEVICE_CODE"
+          echo "Client id: $CLIENT_ID"
           verified=false
           attempts_left=12
           GRANT_TYPE="urn:ietf:params:oauth:grant-type:device_code"
