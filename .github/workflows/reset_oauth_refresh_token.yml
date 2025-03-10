@@ -31,34 +31,38 @@ jobs:
         env:
           CLIENT_ID: ${{ inputs.client_id }}
 
-  please-login:
+  please-click-me-to-login:
     runs-on: ubuntu-latest
     needs: start_device_flow
 
     steps:
-      - name: login
+      - name: Please click me to show the login URL
         run: |
           echo "Please login via $VERIFICATION_URL"
         env:
           VERIFICATION_URL: ${{ needs.start_device_flow.outputs.verification_url }}
 
-  obtain-token:
+  obtain-refresh-token:
     runs-on: ubuntu-latest
     needs: [start_device_flow, please-login]
 
+    outputs:
+      refresh_token: ${{ steps.get_token.outputs.refresh_token }}
+
     steps:
-      - name: obtain token (try every 5 seconds for max 1 minute)
+      - name: Obtain refresh token after successful login (try every 5 seconds for max 2 minutes)
+        id: get_token
         run: |
           # echo "Device code: $DEVICE_CODE"
           # echo "Client id: $CLIENT_ID"
           verified=false
-          attempts_left=12
+          attempts_left=24 # this comes down to two minutes
           GRANT_TYPE="urn:ietf:params:oauth:grant-type:device_code"
           while [ $attempts_left -gt 0 ] && [ $verified = "false" ]
           do
             sleep 5
             URL="https://login.tado.com/oauth2/token?client_id=$CLIENT_ID&device_code=$DEVICE_CODE&grant_type=$GRANT_TYPE"
-            echo "Token URL: $URL"
+            # echo "Token URL: $URL"
             response=$(curl -X POST -H Content-Type: application/json -s $URL)
             #echo "Response: $response"
             error=$(echo $response | jq -r '.error')
@@ -69,6 +73,7 @@ jobs:
                 echo "You've successfully logged in, and we've obtained the refresh token"
                 access_token=$(echo $response | jq -r '.access_token')
                 refresh_token=$(echo $response | jq -r '.refresh_token')
+                echo "refresh_token=$refresh_token" >> $GITHUB_OUTPUT
               else
                 #echo "Error: $error"
                 echo "You have not logged in yet, trying again in a couple of seconds"
@@ -79,3 +84,42 @@ jobs:
         env:
           CLIENT_ID: ${{ inputs.client_id }}
           DEVICE_CODE: ${{ needs.start_device_flow.outputs.device_code }}
+
+  save-refresh-token:
+    env:
+      GITHUB_TOKEN: ${{ secrets.GHPAT_TOKEN || github.token }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 20
+      - run: |
+          npm install --global sodium-native@4.0.4
+          echo "NODE_PATH=$(npm root -g)" >> $GITHUB_ENV
+      - name: Save tado refresh token
+        uses: actions/github-script@v6
+        env:
+          TADO_REFRESH_TOKEN: ${{ 'REPLACE ME WITH TOKEN' }}
+        with:
+          result-encoding: string
+          github-token: ${{ env.GITHUB_TOKEN }}
+          script: |
+            const sodium = require('sodium-native');
+            const { data: {key: publicKey, key_id: keyId} } = await github.rest.actions.getRepoPublicKey({...context.repo});
+            if (publicKey) {
+              const key = Buffer.from(publicKey, 'base64');
+              const message = Buffer.from(process.env.FACEBOOK_TOKEN);
+              const ciphertext = Buffer.alloc(message.length + sodium.crypto_box_SEALBYTES);
+
+              sodium.crypto_box_seal(ciphertext, message, key);
+              const encryptedToken = ciphertext.toString('base64');
+
+              await github.rest.actions.createOrUpdateRepoSecret({
+                ...context.repo, 
+                secret_name: 'TADO_REFRESH_TOKEN',
+                encrypted_value: encryptedToken,
+                key_id: keyId,
+              });
+            } else {
+              core.error('Failed to fetch the public key. Unable to update secret');
+            }
