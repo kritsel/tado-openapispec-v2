@@ -44,7 +44,7 @@ jobs:
 
   obtain-refresh-token:
     runs-on: ubuntu-latest
-    needs: [start_device_flow, please-login]
+    needs: [start_device_flow, please-click-me-to-login]
 
     outputs:
       refresh_token: ${{ steps.get_token.outputs.refresh_token }}
