@@ -86,6 +86,7 @@ jobs:
           DEVICE_CODE: ${{ needs.start_device_flow.outputs.device_code }}
 
   save-refresh-token:
+    needs: obtain-refresh-token
     env:
       GITHUB_TOKEN: ${{ secrets.GHPAT_TOKEN || github.token }}
     runs-on: ubuntu-latest
