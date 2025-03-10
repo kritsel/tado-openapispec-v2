@@ -15,6 +15,7 @@ jobs:
 
     outputs:
       device_code: ${{ steps.start.outputs.device_code }}
+      verification_url: ${{ steps.start.outputs.verification_url }}
 
     steps:
       - name: start
@@ -38,11 +39,11 @@ jobs:
         run: |
           echo "Please login via $VERIFICATION_URL"
         env:
-          VERIFICATION_URL: ${{ jobs.start_device_flow.steps.start.outputs.verification_url }}
+          VERIFICATION_URL: ${{ needs.start_device_flow.outputs.verification_url }}
 
   obtain-token:
     runs-on: ubuntu-latest
-    needs: start_device_flow
+    needs: [start_device_flow, please-login]
 
     steps:
       - name: obtain token (try every 5 seconds for max 1 minute)
