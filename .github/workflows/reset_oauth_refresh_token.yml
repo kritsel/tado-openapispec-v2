@@ -36,6 +36,7 @@ jobs:
           do
             sleep 5
             URL="https://login.tado.com/oauth2/token?client_id=$CLIENT_ID&device_code=$DEVICE_CODE&grant_type=$GRANT_TYPE"
+            echo "Token URL: $URL"
             response=$(curl -X POST -H Content-Type: application/json -s $URL)
             #echo "Response: $response"
             error=$(echo $response | jq -r '.error')
